@@ -149,6 +149,44 @@ export default function NewsPage() {
           )}
         </div>
 
+<<<<<<< HEAD
+=======
+        {/* Bloque de transmisión en vivo en el centro */}
+        <section className="mb-12">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-2 mb-6 md:mb-4">
+            <Badge variant="destructive" className="animate-pulse whitespace-nowrap">
+              <Play className="w-4 h-4 mr-1" />
+              TRANSMISIÓN EN VIVO
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground">{mainNews.title}</h2>
+          </div>
+
+          <Card className="overflow-hidden bg-card border-2 border-destructive shadow-lg">
+            <div className="aspect-video w-full bg-black">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0`}
+                title="YouTube Live Stream"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+            <div className="p-4 md:p-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                <Clock className="w-4 h-4" />
+                <span>{mainNews.time}</span>
+                <span>•</span>
+                <Badge variant="outline">{mainNews.category}</Badge>
+              </div>
+              <p className="text-muted-foreground text-sm md:text-base">{mainNews.description}</p>
+            </div>
+          </Card>
+        </section>
+
+>>>>>>> 002bd2a (Registro de Cambios - 25 de Diciembre de 2025)
         {articles.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">

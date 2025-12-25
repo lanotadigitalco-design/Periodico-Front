@@ -3,17 +3,20 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Play, User, LogOut, Heart } from "lucide-react"
+import { Play, User, LogOut, Heart, ChevronDown, Menu, X } from "lucide-react"
 import { useAuth } from "./auth-provider"
 import { logout } from "@/lib/auth"
 import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 export function Header() {
   const { user, setUser } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -34,6 +37,9 @@ export function Header() {
     { name: "Tendencias", href: "/categoria/tendencias" },
   ]
 
+  const mainSections = sections.slice(0, 5)
+  const moreSections = sections.slice(5)
+
   return (
     <header className="border-b border-border bg-card sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -43,9 +49,24 @@ export function Header() {
               <Image src="/logo.jpeg" alt="La Nota Digital" width={500} height={100} className="h-12 md:h-16 w-auto" priority />
             </Link>
             
+            {/* Botón Menú Hamburguesa - Mobile */}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="lg:hidden h-8 w-8"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </Button>
+            
             {/* Navegación de Secciones - Desktop */}
+<<<<<<< HEAD
             <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4 flex-wrap">
               {sections.map((section) => {
+=======
+            <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4 items-center">
+              {mainSections.map((section) => {
+>>>>>>> 002bd2a (Registro de Cambios - 25 de Diciembre de 2025)
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
                   <Link
@@ -62,6 +83,38 @@ export function Header() {
                   </Link>
                 )
               })}
+              
+              {/* Dropdown de más categorías */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  Más
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-md shadow-lg z-50 min-w-max">
+                    {moreSections.map((section) => {
+                      const isActive = pathname.includes(section.href.split("/").pop() || "")
+                      return (
+                        <Link
+                          key={section.href}
+                          href={section.href}
+                          className={cn(
+                            "block px-4 py-2 text-xs font-medium transition-colors first:rounded-t-md last:rounded-b-md hover:bg-muted",
+                            isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                          )}
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          {section.name}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
 
@@ -108,29 +161,33 @@ export function Header() {
           </div>
         </div>
 
-        {/* Navegación de Secciones - Mobile/Tablet */}
-        <nav className="border-t border-border lg:hidden flex gap-2 overflow-x-auto scrollbar-hide py-0">
-          <Link href="/" className="text-xs font-medium text-foreground hover:text-primary transition-colors py-2 px-2">
-            Inicio
-          </Link>
-          {sections.map((section) => {
-            const isActive = pathname.includes(section.href.split("/").pop() || "")
-            return (
-              <Link
-                key={section.href}
-                href={section.href}
-                className={cn(
-                  "text-xs font-medium whitespace-nowrap transition-colors py-2 px-2",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {section.name}
+        {/* Navegación de Secciones - Mobile Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden border-t border-border bg-card">
+            <nav className="flex flex-col">
+              <Link href="/" className="text-sm font-medium text-foreground hover:bg-muted transition-colors py-3 px-4 border-b border-border last:border-b-0">
+                Inicio
               </Link>
-            )
-          })}
-        </nav>
+              {sections.map((section) => {
+                const isActive = pathname.includes(section.href.split("/").pop() || "")
+                return (
+                  <Link
+                    key={section.href}
+                    href={section.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors py-3 px-4 border-b border-border last:border-b-0 hover:bg-muted",
+                      isActive ? "text-primary bg-muted" : "text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {section.name}
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+        )}
+
       </div>
     </header>
   )

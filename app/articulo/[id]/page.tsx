@@ -5,7 +5,6 @@ import { useParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Header } from "@/components/header"
 import { getArticleById, isFavorite, addFavorite, removeFavorite, type Article } from "@/lib/auth"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
@@ -59,7 +58,6 @@ export default function ArticlePage() {
   if (!article) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <h2 className="text-xl font-semibold text-foreground mb-2">Artículo no encontrado</h2>
@@ -78,8 +76,6 @@ export default function ArticlePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="sm" asChild>

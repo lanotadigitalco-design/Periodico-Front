@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Header } from "@/components/header"
 import { useAuth } from "@/components/auth-provider"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -102,7 +101,6 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <p className="text-muted-foreground">Cargando...</p>
@@ -118,8 +116,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-serif font-bold text-foreground mb-2">Panel de Administración</h1>

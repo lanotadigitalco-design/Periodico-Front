@@ -1,4 +1,3 @@
-import { Header } from "@/components/header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,8 +8,6 @@ import { Mail, MapPin, Phone, Send } from "lucide-react"
 export default function ContactoPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-5xl font-serif font-bold text-foreground mb-6 text-balance">Contacto</h1>

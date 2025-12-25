@@ -25,7 +25,7 @@ export interface Article {
   title: string
   content: string
   excerpt: string
-  category: "politica" | "economia" | "deportes" | "cultura"
+  category: "politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias"
   author: string
   authorId: string
   imageUrl?: string
@@ -101,7 +101,7 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-const API_URL = " https://a2f378b31447.ngrok-free.app/api"
+const API_URL = "https://9bcda8e247b1.ngrok-free.app/api"
 const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
@@ -254,21 +254,27 @@ export const login = async (
         data: { email, password },
       })
 
-      if (response.access_token && response.usuario) {
-        setToken(response.access_token)
+      console.log("Login API response:", JSON.stringify(response, null, 2))
+
+      // Intentar con diferentes formatos de respuesta
+      const token = response.access_token || response.accessToken || response.token
+      const userData = response.usuario || response.user
+
+      if (token && userData) {
+        setToken(token)
         const user: User = {
-          id: response.usuario.id,
-          email: response.usuario.email,
-          name: response.usuario.nombre,
-          role: response.usuario.rol === "lector" ? "reader" : response.usuario.rol === "periodista" ? "writer" : response.usuario.rol === "administrador" ? "admin" : "reader",
+          id: userData.id,
+          email: userData.email,
+          name: userData.nombre || userData.name,
+          role: userData.rol?.toLowerCase() === "lector" ? "reader" : userData.rol?.toLowerCase() === "periodista" ? "writer" : userData.rol?.toLowerCase() === "administrador" ? "admin" : "reader",
           createdAt: new Date().toISOString(),
         }
-        localStorage.setItem(USER_KEY, JSON.stringify(user))
+        console.log("Login success, returning user:", user)
         return user
       }
     } catch (apiError) {
       // Si la API falla, usar datos locales
-      console.log("API unavailable, using local authentication")
+      console.log("API unavailable, using local authentication", apiError)
     }
 
     // Fallback a autenticación local
@@ -305,7 +311,48 @@ export const logout = (): void => {
 
 export const getCurrentUser = (): User | null => {
   if (typeof window === "undefined") return null
+  
+  // Intentar obtener del token
+  const token = getToken()
+  console.log("getCurrentUser: token found?", !!token)
+  
+  if (token) {
+    const decoded = decodeToken(token)
+    console.log("getCurrentUser: decoded token:", decoded)
+    
+    if (decoded && decoded.id && decoded.email) {
+      // Map the role from API format to internal format
+      let role: UserRole = "reader"
+      const rawRole = decoded.rol || decoded.role || ""
+      console.log("getCurrentUser: rawRole from token:", rawRole)
+      
+      if (rawRole.toLowerCase() === "administrador") {
+        role = "admin"
+      } else if (rawRole.toLowerCase() === "periodista") {
+        role = "writer"
+      } else if (rawRole.toLowerCase() === "lector") {
+        role = "reader"
+      } else if (rawRole.toLowerCase() === "admin") {
+        role = "admin"
+      } else if (rawRole.toLowerCase() === "writer") {
+        role = "writer"
+      }
+      
+      const user = {
+        id: decoded.id,
+        email: decoded.email,
+        name: decoded.nombre || decoded.name || decoded.email.split("@")[0],
+        role: role,
+        createdAt: new Date().toISOString(),
+      }
+      console.log("getCurrentUser: returning user:", user)
+      return user
+    }
+  }
+  
+  // Fallback a localStorage si existe
   const userStr = localStorage.getItem(USER_KEY)
+  console.log("getCurrentUser: fallback to localStorage?", !!userStr)
   return userStr ? JSON.parse(userStr) : null
 }
 
@@ -326,16 +373,19 @@ export const register = async (
         data: { email, password, nombre, apellido, rol },
       })
 
-      if (response.access_token && response.usuario) {
-        setToken(response.access_token)
+      // Intentar con diferentes formatos de respuesta
+      const token = response.access_token || response.accessToken || response.token
+      const userData = response.usuario || response.user
+
+      if (token && userData) {
+        setToken(token)
         const user: User = {
-          id: response.usuario.id,
-          email: response.usuario.email,
-          name: response.usuario.nombre,
-          role: response.usuario.rol === "lector" ? "reader" : response.usuario.rol === "periodista" ? "writer" : response.usuario.rol === "administrador" ? "admin" : "reader",
+          id: userData.id,
+          email: userData.email,
+          name: userData.nombre || userData.name,
+          role: userData.rol?.toLowerCase() === "lector" ? "reader" : userData.rol?.toLowerCase() === "periodista" ? "writer" : userData.rol?.toLowerCase() === "administrador" ? "admin" : "reader",
           createdAt: new Date().toISOString(),
         }
-        localStorage.setItem(USER_KEY, JSON.stringify(user))
         return user
       }
     } catch (apiError) {
@@ -521,8 +571,16 @@ export const getArticles = async (): Promise<Article[]> => {
   if (typeof window === "undefined") return []
 
   try {
-    const response = await apiRequest("/articles", { method: "GET" })
-    return response.articles || []
+    const response = await apiRequest("/articulos", { method: "GET" })
+    // Manejar diferentes formatos de respuesta
+    if (Array.isArray(response)) {
+      return response
+    } else if (response?.articulos && Array.isArray(response.articulos)) {
+      return response.articulos
+    } else if (response?.data && Array.isArray(response.data)) {
+      return response.data
+    }
+    return []
   } catch (error) {
     console.log("API unavailable, using local articles")
     // Fallback a datos locales
@@ -549,8 +607,16 @@ export const getArticleById = async (id: string): Promise<Article | null> => {
   if (typeof window === "undefined") return null
 
   try {
-    const response = await apiRequest(`/articles/${id}`, { method: "GET" })
-    return response.article || null
+    const response = await apiRequest(`/articulos/${id}`, { method: "GET" })
+    // Manejar diferentes formatos de respuesta
+    if (response?.articulo) {
+      return response.articulo
+    } else if (response?.data) {
+      return response.data
+    } else if (response?.id) {
+      return response
+    }
+    return null
   } catch (error) {
     console.log("API unavailable, using local articles")
     // Fallback a datos locales
@@ -567,11 +633,19 @@ export const createArticle = async (
   if (typeof window === "undefined") return null
 
   try {
-    const response = await apiRequest("/articles", {
+    const response = await apiRequest("/articulos", {
       method: "POST",
       data: article,
     })
-    return response.article || null
+    // Manejar diferentes formatos de respuesta
+    if (response?.articulo) {
+      return response.articulo
+    } else if (response?.data) {
+      return response.data
+    } else if (response?.id) {
+      return response
+    }
+    return null
   } catch (error) {
     console.log("API unavailable, using local article creation")
     // Fallback a creación local
@@ -598,11 +672,19 @@ export const updateArticle = async (
   if (typeof window === "undefined") return null
 
   try {
-    const response = await apiRequest(`/articles/${id}`, {
-      method: "PUT",
+    const response = await apiRequest(`/articulos/${id}`, {
+      method: "PATCH",
       data: updates,
     })
-    return response.article || null
+    // Manejar diferentes formatos de respuesta
+    if (response?.articulo) {
+      return response.articulo
+    } else if (response?.data) {
+      return response.data
+    } else if (response?.id) {
+      return response
+    }
+    return null
   } catch (error) {
     console.log("API unavailable, using local article update")
     // Fallback a actualización local
@@ -629,7 +711,7 @@ export const deleteArticle = async (id: string): Promise<boolean> => {
   if (typeof window === "undefined") return false
 
   try {
-    const response = await apiRequest(`/articles/${id}`, { method: "DELETE" })
+    const response = await apiRequest(`/articulos/${id}`, { method: "DELETE" })
     return response.success || true
   } catch (error) {
     console.log("API unavailable, using local article deletion")

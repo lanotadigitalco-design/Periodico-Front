@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
 import { Header } from "@/components/header"
+import Image from "next/image"
+import Link from "next/link"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })

@@ -30,15 +30,24 @@ export default function LoginPage() {
 
     if (isLogin) {
       const user = await login(email, password)
+      console.log("Login response:", user)
+      
       if (user) {
+        console.log("Login successful, user role:", user.role)
+        // Guardar el usuario en el contexto
         setUser(user)
-        if (user.role === "admin") {
-          router.push("/admin")
-        } else if (user.role === "writer") {
-          router.push("/escritor")
-        } else {
-          router.push("/")
-        }
+        
+        // Redirigir basado en el rol - usar setTimeout para asegurar que el state se actualice
+        setTimeout(() => {
+          console.log("Redirecting based on role:", user.role)
+          if (user.role === "admin") {
+            router.push("/admin")
+          } else if (user.role === "writer") {
+            router.push("/escritor")
+          } else {
+            router.push("/")
+          }
+        }, 50)
       } else {
         setError("Email o contraseña incorrectos")
       }
@@ -49,8 +58,11 @@ export default function LoginPage() {
       }
       const user = await register(email, password, nombre, apellido, rol)
       if (user) {
+        console.log("Register successful, user:", user)
         setUser(user)
-        router.push("/")
+        setTimeout(() => {
+          router.push("/")
+        }, 50)
       } else {
         setError("El email ya está registrado")
       }

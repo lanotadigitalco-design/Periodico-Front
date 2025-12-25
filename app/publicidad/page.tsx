@@ -1,4 +1,3 @@
-import { Header } from "@/components/header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,8 +7,6 @@ import Link from "next/link"
 export default function PublicidadPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">

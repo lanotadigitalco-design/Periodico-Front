@@ -5,7 +5,6 @@ import { useParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Header } from "@/components/header"
 import { getArticlesByCategory, type Article } from "@/lib/auth"
 import Link from "next/link"
 
@@ -36,7 +35,6 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* <Header /> Eliminado para evitar duplicidad */}
       <main className="container mx-auto px-4 pt-4 pb-8">
         <div className="mb-8 mt-8">
           <Badge variant="outline" className="mb-4">

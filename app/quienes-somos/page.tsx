@@ -1,4 +1,3 @@
-import { Header } from "@/components/header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Users, Target, Award, BookOpen } from "lucide-react"
@@ -7,8 +6,6 @@ import Link from "next/link"
 export default function QuienesSomosPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl font-serif font-bold text-foreground mb-6 text-balance">Quiénes Somos</h1>

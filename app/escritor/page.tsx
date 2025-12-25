@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Header } from "@/components/header"
 import { useAuth } from "@/components/auth-provider"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -60,7 +59,6 @@ export default function WriterPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <p className="text-muted-foreground">Cargando...</p>
@@ -76,8 +74,6 @@ export default function WriterPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>

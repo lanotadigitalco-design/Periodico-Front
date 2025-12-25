@@ -4,7 +4,6 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Header } from "@/components/header"
 import { useAuth } from "@/components/auth-provider"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -24,7 +23,7 @@ export default function NewArticlePage() {
   const [title, setTitle] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState<"politica" | "economia" | "deportes" | "cultura">("politica")
+  const [category, setCategory] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
   const [imageUrl, setImageUrl] = useState("")
   const [published, setPublished] = useState(false)
   const [error, setError] = useState("")
@@ -70,7 +69,6 @@ export default function NewArticlePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <p className="text-muted-foreground">Cargando...</p>
@@ -86,8 +84,6 @@ export default function NewArticlePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="container mx-auto px-4 py-8">
         <Button variant="ghost" size="sm" className="mb-6" asChild>
           <Link href="/escritor">
@@ -130,6 +126,12 @@ export default function NewArticlePage() {
                     <SelectItem value="economia">Economía</SelectItem>
                     <SelectItem value="deportes">Deportes</SelectItem>
                     <SelectItem value="cultura">Cultura</SelectItem>
+                    <SelectItem value="mundo">Mundo</SelectItem>
+                    <SelectItem value="opinion">Opinión</SelectItem>
+                    <SelectItem value="tecnologia">Tecnología</SelectItem>
+                    <SelectItem value="salud">Salud</SelectItem>
+                    <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
+                    <SelectItem value="tendencias">Tendencias</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -21,7 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  return <AuthContext.Provider value={{ user, setUser, isLoading }}>{children}</AuthContext.Provider>
+  const handleSetUser = (newUser: User | null) => {
+    setUser(newUser)
+    setIsLoading(false) // Mark as done loading when user is explicitly set
+  }
+
+  return <AuthContext.Provider value={{ user, setUser: handleSetUser, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
