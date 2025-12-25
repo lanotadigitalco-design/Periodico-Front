@@ -44,8 +44,8 @@ export function Header() {
             </Link>
             
             {/* Navegación de Secciones - Desktop */}
-            <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4">
-              {sections.slice(0, 5).map((section) => {
+            <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4 flex-wrap">
+              {sections.map((section) => {
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
                   <Link
