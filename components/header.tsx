@@ -7,9 +7,9 @@ import { Play, User, LogOut, Heart, ChevronDown, Menu, X } from "lucide-react"
 import { useAuth } from "./auth-provider"
 import { logout } from "@/lib/auth"
 import { useRouter, usePathname } from "next/navigation"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 
 export function Header() {
   const { user, setUser } = useAuth()
@@ -61,13 +61,16 @@ export function Header() {
   const moreSections = sections.slice(5)
 
   return (
-    <header className="border-b border-border bg-card sticky top-0 z-50" ref={headerRef}>
+    <header className="flex-1" ref={headerRef}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-2 md:py-4">
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-            <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-              <Image src="/logo.jpeg" alt="La Nota Digital" width={500} height={100} className="h-12 md:h-16 w-auto" priority />
-            </Link>
+            {/* Logo - Visible en móvil cuando el menú NO está abierto */}
+            {!isMobileMenuOpen && (
+              <Link href="/" className="flex items-center justify-center flex-shrink-0 block md:hidden">
+                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-16 w-auto" priority />
+              </Link>
+            )}
             
             {/* Botón Menú Hamburguesa - Mobile */}
             <Button
@@ -81,14 +84,14 @@ export function Header() {
             
             {/* Navegación de Secciones - Desktop */}
             <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4 flex-wrap">
-              {sections.map((section) => {
+              {mainSections.map((section) => {
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
                   <Link
                     key={section.href}
                     href={section.href}
                     className={cn(
-                      "text-xs font-medium whitespace-nowrap transition-colors",
+                      "text-sm font-medium whitespace-nowrap transition-colors",
                       isActive
                         ? "text-primary"
                         : "text-muted-foreground hover:text-foreground"
@@ -103,7 +106,7 @@ export function Header() {
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                 >
                   Más
                   <ChevronDown className="w-3 h-3" />
@@ -118,7 +121,7 @@ export function Header() {
                           key={section.href}
                           href={section.href}
                           className={cn(
-                            "block px-4 py-2 text-xs font-medium transition-colors first:rounded-t-md last:rounded-b-md hover:bg-muted",
+                            "block px-4 py-2 text-sm font-medium transition-colors first:rounded-t-md last:rounded-b-md hover:bg-muted",
                             isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                           )}
                           onClick={() => setIsDropdownOpen(false)}

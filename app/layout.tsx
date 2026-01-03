@@ -5,9 +5,8 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
 import { Header } from "@/components/header"
+import { LogoSection } from "@/components/logo-section"
 import { AdvertisingSidebar } from "@/components/advertising-sidebar"
-import Image from "next/image"
-import Link from "next/link"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -44,12 +43,21 @@ export default function RootLayout({
     <html lang="es">
       <body className={`font-sans antialiased`}>
         <AuthProvider>
-          <Header />
+          <div className="relative border-b border-border bg-card sticky top-0 z-50">
+            <div className="absolute left-24 top-1/2 -translate-y-1/2 hidden md:block">
+              <LogoSection />
+            </div>
+            <div className="pl-4 md:pl-40">
+              <Header />
+            </div>
+          </div>
           <div className="flex flex-col lg:flex-row gap-6 px-4 py-4 md:py-8 max-w-7xl mx-auto">
             <main className="flex-1">
               {children}
             </main>
-            <AdvertisingSidebar />
+            <div className="ml-auto mr-0 -mr-4 lg:-mr-8">
+              <AdvertisingSidebar />
+            </div>
           </div>
         </AuthProvider>
         <Analytics />
