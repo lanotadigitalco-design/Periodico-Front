@@ -155,6 +155,10 @@ export default function NewsPage() {
             </section>
           )}
         </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 98887b4d8fd17fa9b1d0d0fc6bbbd47be95cbaf9
         {articles.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
