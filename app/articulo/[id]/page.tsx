@@ -96,23 +96,23 @@ export default function ArticlePage() {
         <article className="max-w-4xl mx-auto">
           <div className="mb-6">
             <Badge variant="outline" className="mb-4">
-              {getCategoryLabel(article.category)}
+              {getCategoryLabel(article.categoria)}
             </Badge>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4 text-balance">
-              {article.title}
+              {article.titulo}
             </h1>
-            <p className="text-xl text-muted-foreground mb-6 text-pretty">{article.excerpt}</p>
+            <p className="text-xl text-muted-foreground mb-6 text-pretty">{article.resumen}</p>
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>Por {article.author}</span>
+                <span>Por {article.autor}</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {new Date(article.createdAt).toLocaleDateString("es-ES", {
+                  {new Date(article.creadoEn || "").toLocaleDateString("es-ES", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -122,11 +122,11 @@ export default function ArticlePage() {
             </div>
           </div>
 
-          {article.imageUrl && (
+          {article.imagenUrl && (
             <div className="mb-8 rounded-lg overflow-hidden">
               <img
-                src={article.imageUrl || "/placeholder.svg"}
-                alt={article.title}
+                src={article.imagenUrl || "/placeholder.svg"}
+                alt={article.titulo}
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -136,18 +136,18 @@ export default function ArticlePage() {
             <div className="prose prose-lg max-w-none">
               <div
                 className="text-foreground leading-relaxed whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, "<br/>") }}
+                dangerouslySetInnerHTML={{ __html: article.contenido.replace(/\n/g, "<br/>") }}
               />
             </div>
           </Card>
 
           <div className="mt-8 pt-8 border-t border-border">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4">
-              MÁS EN {getCategoryLabel(article.category).toUpperCase()}
+              MÁS EN {getCategoryLabel(article.categoria).toUpperCase()}
             </h3>
             <Button variant="outline" asChild>
-              <Link href={`/categoria/${article.category}`}>
-                Ver más artículos de {getCategoryLabel(article.category)}
+              <Link href={`/categoria/${article.categoria}`}>
+                Ver más artículos de {getCategoryLabel(article.categoria)}
               </Link>
             </Button>
           </div>

@@ -69,34 +69,34 @@ export default function FavoritosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favorites.map((article) => (
               <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                {article.imageUrl && (
+                {article.imagenUrl && (
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src={article.imageUrl || "/placeholder.svg"}
-                      alt={article.title}
+                      src={article.imagenUrl || "/placeholder.svg"}
+                      alt={article.titulo}
                       className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />
                   </div>
                 )}
                 <div className="p-6">
                   <Badge variant="outline" className="mb-3">
-                    {getCategoryLabel(article.category)}
+                    {getCategoryLabel(article.categoria)}
                   </Badge>
                   <h3 className="text-xl font-serif font-bold text-foreground mb-2 line-clamp-2">
                     <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors">
-                      {article.title}
+                      {article.titulo}
                     </Link>
                   </h3>
-                  <p className="text-muted-foreground mb-4 line-clamp-2">{article.excerpt}</p>
+                  <p className="text-muted-foreground mb-4 line-clamp-2">{article.resumen}</p>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3" />
-                      <span>{article.author}</span>
+                      <span>{article.autor}</span>
                     </div>
                     <span>•</span>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      <span>{new Date(article.createdAt).toLocaleDateString("es-ES")}</span>
+                      <span>{new Date(article.creadoEn).toLocaleDateString("es-ES")}</span>
                     </div>
                   </div>
                   <Button asChild variant="outline" className="w-full bg-transparent">

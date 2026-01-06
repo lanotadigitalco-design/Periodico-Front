@@ -55,25 +55,25 @@ export default function CategoryPage() {
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="md:col-span-1">
                     <img
-                      src={article.imageUrl || "/placeholder.svg?height=300&width=400"}
-                      alt={article.title}
+                      src={article.imagenUrl || "/placeholder.svg?height=300&width=400"}
+                      alt={article.titulo}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="md:col-span-2 p-6">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                      <Badge variant="outline">{getCategoryLabel(article.category)}</Badge>
+                      <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
                       <span>•</span>
-                      <span>Por {article.author}</span>
+                      <span>Por {article.autor}</span>
                       <span>•</span>
-                      <span>{new Date(article.createdAt).toLocaleDateString("es-ES")}</span>
+                      <span>{new Date(article.creadoEn).toLocaleDateString("es-ES")}</span>
                     </div>
                     <Link href={`/articulo/${article.id}`}>
                       <h2 className="text-2xl font-serif font-bold text-foreground hover:text-primary transition-colors mb-3 text-balance">
-                        {article.title}
+                        {article.titulo}
                       </h2>
                     </Link>
-                    <p className="text-muted-foreground mb-4 line-clamp-3">{article.excerpt}</p>
+                    <p className="text-muted-foreground mb-4 line-clamp-3">{article.resumen}</p>
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/articulo/${article.id}`}>Leer artículo completo →</Link>
                     </Button>

@@ -39,6 +39,7 @@ export default function AdminPage() {
     if (user?.role === "admin") {
       const loadData = async () => {
         const articlesData = await getArticles()
+        
         const usersData = await getUsers()
         setArticles(articlesData)
         setUsers(usersData)
@@ -162,30 +163,30 @@ export default function AdminPage() {
                       <TableRow key={article.id}>
                         <TableCell className="font-medium max-w-md">
                           <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors">
-                            {article.title}
+                            {article.titulo}
                           </Link>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{getCategoryLabel(article.category)}</Badge>
+                          <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
                         </TableCell>
-                        <TableCell>{article.author}</TableCell>
+                        <TableCell>{article.autor}</TableCell>
                         <TableCell>
-                          <Badge variant={article.published ? "default" : "secondary"}>
-                            {article.published ? "Publicado" : "Borrador"}
+                          <Badge variant={article.publicado ? "default" : "secondary"}>
+                            {article.publicado ? "Publicado" : "Borrador"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(article.createdAt).toLocaleDateString("es-ES")}
+                          {new Date(article.creadoEn).toLocaleDateString("es-ES")}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleTogglePublish(article.id, article.published)}
-                              title={article.published ? "Despublicar" : "Publicar"}
+                              onClick={() => handleTogglePublish(article.id, article.publicado)}
+                              title={article.publicado ? "Despublicar" : "Publicar"}
                             >
-                              {article.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              {article.publicado ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </Button>
                             <Button variant="ghost" size="sm" asChild>
                               <Link href={`/escritor/editar/${article.id}`}>

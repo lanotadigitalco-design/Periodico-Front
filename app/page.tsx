@@ -101,22 +101,22 @@ export default function NewsPage() {
                   {featuredArticles.map((article) => (
                     <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                       <img
-                        src={article.imageUrl || "/placeholder.svg?height=400&width=600"}
-                        alt={article.title}
+                        src={article.imagenUrl || "/placeholder.svg?height=400&width=600"}
+                        alt={article.titulo}
                         className="w-full h-64 object-cover"
                       />
                       <div className="p-6">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Badge variant="outline">{getCategoryLabel(article.category)}</Badge>
+                          <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
                           <span>•</span>
-                          <span>{article.author}</span>
+                          <span>{article.autor}</span>
                         </div>
                         <Link href={`/articulo/${article.id}`}>
                           <h3 className="text-xl font-serif font-bold text-foreground hover:text-primary transition-colors text-balance">
-                        {article.title}
+                        {article.titulo}
                       </h3>
                     </Link>
-                    <p className="text-muted-foreground mt-2 text-sm line-clamp-2">{article.excerpt}</p>
+                    <p className="text-muted-foreground mt-2 text-sm line-clamp-2">{article.resumen}</p>
                   </div>
                 </Card>
               ))}
@@ -136,13 +136,13 @@ export default function NewsPage() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Badge variant="secondary" className="text-xs">
-                          {getCategoryLabel(article.category)}
+                          {getCategoryLabel(article.categoria)}
                         </Badge>
-                        <span>{article.author}</span>
+                        <span>{article.autor}</span>
                       </div>
                       <Link href={`/articulo/${article.id}`}>
                         <h3 className="font-semibold text-foreground hover:text-primary transition-colors leading-tight text-balance">
-                          {article.title}
+                          {article.titulo}
                         </h3>
                       </Link>
                       <Button variant="ghost" size="sm" className="w-fit text-xs mt-auto" asChild>
@@ -174,7 +174,7 @@ export default function NewsPage() {
               <div className="overflow-hidden">
                 <p className="animate-marquee whitespace-nowrap font-medium">
                   {articles.length > 0
-                    ? articles.map((a) => a.title).join(" • ")
+                    ? articles.map((a) => a.titulo).join(" • ")
                     : "Bienvenido a La Nota Digital - Tu fuente de noticias en tiempo real"}
                 </p>
               </div>

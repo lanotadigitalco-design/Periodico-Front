@@ -20,12 +20,12 @@ import { useEffect } from "react"
 export default function NewArticlePage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const [title, setTitle] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [content, setContent] = useState("")
-  const [category, setCategory] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
-  const [imageUrl, setImageUrl] = useState("")
-  const [published, setPublished] = useState(false)
+  const [titulo, setTitulo] = useState("")
+  const [resumen, setResumen] = useState("")
+  const [contenido, setContenido] = useState("")
+  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
+  const [imagenUrl, setImagenUrl] = useState("")
+  const [publicado, setPublicado] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function NewArticlePage() {
     e.preventDefault()
     setError("")
 
-    if (!title || !excerpt || !content) {
+    if (!titulo || !resumen || !contenido) {
       setError("Por favor completa todos los campos obligatorios")
       return
     }
@@ -50,14 +50,14 @@ export default function NewArticlePage() {
 
     try {
       await createArticle({
-        title,
-        excerpt,
-        content,
-        category,
-        imageUrl: imageUrl || undefined,
-        author: user.name,
-        authorId: user.id,
-        published,
+        titulo,
+        resumen,
+        contenido,
+        categoria,
+        imagenUrl: imagenUrl || undefined,
+        autor: user.name,
+        autorId: user.id,
+        publicado,
       })
 
       router.push("/escritor")
@@ -101,24 +101,24 @@ export default function NewArticlePage() {
           <Card className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">
+                <Label htmlFor="titulo">
                   Título <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  id="titulo"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
                   placeholder="Escribe un título atractivo para tu artículo"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">
+                <Label htmlFor="categoria">
                   Categoría <span className="text-destructive">*</span>
                 </Label>
-                <Select value={category} onValueChange={(value: any) => setCategory(value)}>
-                  <SelectTrigger id="category">
+                <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+                  <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -137,13 +137,13 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="excerpt">
+                <Label htmlFor="resumen">
                   Resumen <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
-                  id="excerpt"
-                  value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
+                  id="resumen"
+                  value={resumen}
+                  onChange={(e) => setResumen(e.target.value)}
                   placeholder="Escribe un resumen breve del artículo (1-2 frases)"
                   rows={3}
                   required
@@ -151,13 +151,13 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="content">
+                <Label htmlFor="contenido">
                   Contenido <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  id="contenido"
+                  value={contenido}
+                  onChange={(e) => setContenido(e.target.value)}
                   placeholder="Escribe el contenido completo de tu artículo aquí..."
                   rows={15}
                   required
@@ -165,20 +165,20 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">URL de Imagen (opcional)</Label>
+                <Label htmlFor="imagenUrl">URL de Imagen (opcional)</Label>
                 <Input
-                  id="imageUrl"
+                  id="imagenUrl"
                   type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
+                  value={imagenUrl}
+                  onChange={(e) => setImagenUrl(e.target.value)}
                   placeholder="https://ejemplo.com/imagen.jpg"
                 />
                 <p className="text-xs text-muted-foreground">Agrega una URL de imagen para ilustrar tu artículo</p>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id="published" checked={published} onCheckedChange={setPublished} />
-                <Label htmlFor="published">Publicar inmediatamente</Label>
+                <Switch id="publicado" checked={publicado} onCheckedChange={setPublicado} />
+                <Label htmlFor="publicado">Publicar inmediatamente</Label>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
@@ -186,7 +186,7 @@ export default function NewArticlePage() {
               <div className="flex gap-3">
                 <Button type="submit" size="lg">
                   <Save className="w-4 h-4 mr-2" />
-                  {published ? "Publicar Artículo" : "Guardar Borrador"}
+                  {publicado ? "Publicar Artículo" : "Guardar Borrador"}
                 </Button>
                 <Button type="button" variant="outline" size="lg" asChild>
                   <Link href="/escritor">Cancelar</Link>

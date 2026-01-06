@@ -23,12 +23,12 @@ export default function EditArticlePage() {
   const params = useParams()
   const id = params.id as string
 
-  const [title, setTitle] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [content, setContent] = useState("")
-  const [category, setCategory] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
-  const [imageUrl, setImageUrl] = useState("")
-  const [published, setPublished] = useState(false)
+  const [titulo, setTitulo] = useState("")
+  const [resumen, setResumen] = useState("")
+  const [contenido, setContenido] = useState("")
+  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
+  const [imagenUrl, setImagenUrl] = useState("")
+  const [publicado, setPublicado] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
 
@@ -44,17 +44,17 @@ export default function EditArticlePage() {
         const article = await getArticleById(id)
         if (article) {
           // Verificar que el usuario sea el autor o admin
-          if (article.authorId !== user.id && user.role !== "admin") {
+          if (article.autorId !== user.id && user.role !== "admin") {
             router.push("/escritor")
             return
           }
 
-          setTitle(article.title)
-          setExcerpt(article.excerpt)
-          setContent(article.content)
-          setCategory(article.category)
-          setImageUrl(article.imageUrl || "")
-          setPublished(article.published)
+          setTitulo(article.titulo)
+          setResumen(article.resumen || "")
+          setContenido(article.contenido)
+          setCategoria(article.categoria)
+          setImagenUrl(article.imagenUrl || "")
+          setPublicado(article.publicado || false)
           setLoading(false)
         } else {
           router.push("/escritor")
@@ -68,19 +68,19 @@ export default function EditArticlePage() {
     e.preventDefault()
     setError("")
 
-    if (!title || !excerpt || !content) {
+    if (!titulo || !resumen || !contenido) {
       setError("Por favor completa todos los campos obligatorios")
       return
     }
 
     try {
       await updateArticle(id, {
-        title,
-        excerpt,
-        content,
-        category,
-        imageUrl: imageUrl || undefined,
-        published,
+        titulo,
+        resumen,
+        contenido,
+        categoria,
+        imagenUrl: imagenUrl || undefined,
+        publicado,
       })
 
       router.push("/escritor")
@@ -125,24 +125,24 @@ export default function EditArticlePage() {
           <Card className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">
+                <Label htmlFor="titulo">
                   Título <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  id="titulo"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
                   placeholder="Escribe un título atractivo para tu artículo"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">
+                <Label htmlFor="categoria">
                   Categoría <span className="text-destructive">*</span>
                 </Label>
-                <Select value={category} onValueChange={(value: any) => setCategory(value)}>
-                  <SelectTrigger id="category">
+                <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+                  <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -161,13 +161,13 @@ export default function EditArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="excerpt">
+                <Label htmlFor="resumen">
                   Resumen <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
-                  id="excerpt"
-                  value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
+                  id="resumen"
+                  value={resumen}
+                  onChange={(e) => setResumen(e.target.value)}
                   placeholder="Escribe un resumen breve del artículo (1-2 frases)"
                   rows={3}
                   required
@@ -175,13 +175,13 @@ export default function EditArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="content">
+                <Label htmlFor="contenido">
                   Contenido <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  id="contenido"
+                  value={contenido}
+                  onChange={(e) => setContenido(e.target.value)}
                   placeholder="Escribe el contenido completo de tu artículo aquí..."
                   rows={15}
                   required
@@ -189,20 +189,20 @@ export default function EditArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">URL de Imagen (opcional)</Label>
+                <Label htmlFor="imagenUrl">URL de Imagen (opcional)</Label>
                 <Input
-                  id="imageUrl"
+                  id="imagenUrl"
                   type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
+                  value={imagenUrl}
+                  onChange={(e) => setImagenUrl(e.target.value)}
                   placeholder="https://ejemplo.com/imagen.jpg"
                 />
                 <p className="text-xs text-muted-foreground">Agrega una URL de imagen para ilustrar tu artículo</p>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id="published" checked={published} onCheckedChange={setPublished} />
-                <Label htmlFor="published">Publicar artículo</Label>
+                <Switch id="publicado" checked={publicado} onCheckedChange={setPublicado} />
+                <Label htmlFor="publicado">Publicar artículo</Label>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
