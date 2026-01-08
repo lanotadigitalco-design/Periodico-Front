@@ -8,10 +8,9 @@ export default function QuienesSomosPage() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-serif font-bold text-foreground mb-6 text-balance">Quiénes Somos</h1>
+          <h1 className="text-5xl font-serif font-bold text-foreground mb-6 text-balance text-center">Quiénes Somos</h1>
           <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
-            La Nota Digital es más que un medio de comunicación: somos una plataforma comprometida con la verdad, la
-            transparencia y el periodismo de calidad.
+            Somos tu espacio digital de confianza, donde cada noticia está pensada para mantenerte informado y conectado con la realidad
           </p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -23,8 +22,7 @@ export default function QuienesSomosPage() {
                 <div>
                   <h3 className="font-bold text-lg mb-2">Nuestra Misión</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Informar con veracidad y oportunidad sobre los acontecimientos más relevantes, ofreciendo análisis
-                    profundos y diversas perspectivas para que nuestros lectores tomen decisiones informadas.
+                    Contribuir a la construcción de opinión pública, con un ejercicio periodístico serio, responsable y equilibrado que oriente a la sociedad a adoptar decisiones informadas y adecuadas.
                   </p>
                 </div>
               </div>
@@ -36,10 +34,9 @@ export default function QuienesSomosPage() {
                   <Award className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-2">Nuestros Valores</h3>
+                  <h3 className="font-bold text-lg mb-2">Nuestra Vision</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Integridad periodística, independencia editorial, respeto por nuestras fuentes y compromiso con la
-                    comunidad. Cada noticia que publicamos pasa por rigurosos controles de calidad.
+                   La Nota Digital se propone ser el referente del periodismo regional, haciendo periodismo con rigor y con respeto a la audiencia.
                   </p>
                 </div>
               </div>
@@ -53,8 +50,8 @@ export default function QuienesSomosPage() {
                 <div>
                   <h3 className="font-bold text-lg mb-2">Nuestro Equipo</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Contamos con periodistas experimentados, editores especializados y colaboradores en distintas partes
-                    del mundo para traerte las noticias desde donde ocurren.
+                    Somos profesionales de la
+Comunicación Social y Periodismo, visionarios y constructores de una nueva generación de la información enfocada en la búsqueda constante de la verdad, usando los medios tecnológicos y legales a nuestro alcance.
                   </p>
                 </div>
               </div>
@@ -66,10 +63,9 @@ export default function QuienesSomosPage() {
                   <BookOpen className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-2">Nuestro Compromiso</h3>
+                  <h3 className="font-bold text-lg mb-2">Nuestros Valores</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Mantener informada a la comunidad hispanohablante con contenido relevante, verificado y presentado
-                    de manera clara y accesible para todos nuestros lectores.
+                   La Nota Digital basa su filosofía en la defensa de la verdad, el equilibrio informativo, el contraste de la noticia y el compromiso absoluto con las comunidades que necesitan ser escuchadas.
                   </p>
                 </div>
               </div>
@@ -89,10 +85,7 @@ export default function QuienesSomosPage() {
                 y análisis profundo de cada acontecimiento. No nos conformamos con transmitir la noticia: buscamos
                 contextualizarla y explicar su relevancia.
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Hoy, La Nota Digital es leída por miles de personas diariamente, convirtiéndose en una fuente confiable
-                de información para la comunidad hispanohablante en todo el mundo.
-              </p>
+              
             </div>
           </div>
 
