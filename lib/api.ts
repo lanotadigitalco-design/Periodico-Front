@@ -101,7 +101,7 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-const API_URL = "https://3967fb58abf7.ngrok-free.app/api"
+const API_URL = "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
 const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
