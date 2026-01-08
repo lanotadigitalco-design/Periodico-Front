@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Mail, MapPin, Phone, Send } from "lucide-react"
+import { Mail, MapPin, Send } from "lucide-react"
+import { MessageCircle } from "lucide-react"
 
 export default function ContactoPage() {
   return (
@@ -23,9 +24,9 @@ export default function ContactoPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg mb-2">Email</h3>
-                  <p className="text-muted-foreground text-sm mb-2">Escríbenos directamente a:</p>
-                  <a href="mailto:contacto@lanotadigital.com" className="text-primary hover:underline font-medium">
-                    contacto@lanotadigital.com
+                  <p className="text-muted-foreground text-sm mb-2">Contactanos directamente a:</p>
+                  <a href="mailto:lanotadigitalco@gmail.com" className="text-primary hover:underline font-medium">
+                    lanotadigitalco@gmail.com
                   </a>
                 </div>
               </div>
@@ -34,13 +35,13 @@ export default function ContactoPage() {
             <Card className="p-6">
               <div className="flex flex-col items-center text-center gap-4">
                 <div className="bg-primary/10 p-4 rounded-full">
-                  <Phone className="w-8 h-8 text-primary" />
+                  <MessageCircle className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-2">Teléfono</h3>
-                  <p className="text-muted-foreground text-sm mb-2">Llámanos de lunes a viernes:</p>
-                  <a href="tel:+34900123456" className="text-primary hover:underline font-medium">
-                    +34 900 123 456
+                  <h3 className="font-bold text-lg mb-2">Whatsapp</h3>
+                  <p className="text-muted-foreground text-sm mb-2">Escribenos de lunes a viernes:</p>
+                  <a href="tel:+573042116150" className="text-primary hover:underline font-medium">
+                    +57 304 211 6150
                   </a>
                 </div>
               </div>
