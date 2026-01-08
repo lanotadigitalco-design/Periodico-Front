@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail } from "lucide-react"
+import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music } from "lucide-react"
 import { getPublishedArticles, type Article } from "@/lib/auth"
 import Link from "next/link"
 
@@ -45,7 +45,9 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="mx-auto px-4 py-4 md:py-8 relative">
+      <main className="mx-auto px-4 py-4 md:py-8 max-w-4xl">
+        {/* Contenido Principal - Centro */}
+        <div>
         {/* Bloque de transmisión en vivo - Centro de la pantalla */}
         <section className="w-full flex flex-col items-center mb-12 md:mb-16">
           <div className="w-full mb-4">
@@ -101,22 +103,22 @@ export default function NewsPage() {
                   {featuredArticles.map((article) => (
                     <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                       <img
-                        src={article.imagenUrl || "/placeholder.svg?height=400&width=600"}
-                        alt={article.titulo}
+                        src={article.imageUrl || "/placeholder.svg?height=400&width=600"}
+                        alt={article.title}
                         className="w-full h-64 object-cover"
                       />
                       <div className="p-6">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
+                          <Badge variant="outline">{getCategoryLabel(article.category)}</Badge>
                           <span>•</span>
-                          <span>{article.autor}</span>
+                          <span>{article.author}</span>
                         </div>
                         <Link href={`/articulo/${article.id}`}>
                           <h3 className="text-xl font-serif font-bold text-foreground hover:text-primary transition-colors text-balance">
-                        {article.titulo}
+                        {article.title}
                       </h3>
                     </Link>
-                    <p className="text-muted-foreground mt-2 text-sm line-clamp-2">{article.resumen}</p>
+                    <p className="text-muted-foreground mt-2 text-sm line-clamp-2">{article.excerpt}</p>
                   </div>
                 </Card>
               ))}
@@ -136,13 +138,13 @@ export default function NewsPage() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Badge variant="secondary" className="text-xs">
-                          {getCategoryLabel(article.categoria)}
+                          {getCategoryLabel(article.category)}
                         </Badge>
-                        <span>{article.autor}</span>
+                        <span>{article.author}</span>
                       </div>
                       <Link href={`/articulo/${article.id}`}>
                         <h3 className="font-semibold text-foreground hover:text-primary transition-colors leading-tight text-balance">
-                          {article.titulo}
+                          {article.title}
                         </h3>
                       </Link>
                       <Button variant="ghost" size="sm" className="w-fit text-xs mt-auto" asChild>
@@ -155,6 +157,9 @@ export default function NewsPage() {
             </section>
           )}
         </div>
+
+
+
 
         {articles.length === 0 && (
           <div className="text-center py-12">
@@ -174,13 +179,14 @@ export default function NewsPage() {
               <div className="overflow-hidden">
                 <p className="animate-marquee whitespace-nowrap font-medium">
                   {articles.length > 0
-                    ? articles.map((a) => a.titulo).join(" • ")
+                    ? articles.map((a) => a.title).join(" • ")
                     : "Bienvenido a La Nota Digital - Tu fuente de noticias en tiempo real"}
                 </p>
               </div>
             </div>
           </Card>
         </section>
+        </div>
       </main>
 
       {/* Footer */}
@@ -218,19 +224,19 @@ export default function NewsPage() {
               <h4 className="font-semibold mb-4">Síguenos</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-foreground transition-colors flex items-center gap-2">
+                  <a href="https://x.com/Lanotadigitalc" className="hover:text-foreground transition-colors flex items-center gap-2">
                     <Twitter className="w-4 h-4" />
                     Twitter
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-foreground transition-colors flex items-center gap-2">
+                  <a href="https://www.facebook.com/notadigitalco" className="hover:text-foreground transition-colors flex items-center gap-2">
                     <Facebook className="w-4 h-4" />
                     Facebook
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-foreground transition-colors flex items-center gap-2">
+                  <a href="https://www.youtube.com/@LaNotaDigitalCo" className="hover:text-foreground transition-colors flex items-center gap-2">
                     <Youtube className="w-4 h-4" />
                     YouTube
                   </a>
@@ -239,6 +245,14 @@ export default function NewsPage() {
                   <a href="https://www.instagram.com/lanotadigital.co/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-2">
                     <Instagram className="w-4 h-4" />
                     Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.tiktok.com/@lanotadigitalco" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-2">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.86 2.86 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0_0_0_4.77_1.52v-3.4a4.85 _ - .54-.05z" />
+                    </svg>
+                    TikTok
                   </a>
                 </li>
               </ul>
