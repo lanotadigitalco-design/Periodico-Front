@@ -12,26 +12,43 @@ import axios, {
 
 export type UserRole = "reader" | "writer" | "admin"
 
+export interface UserRoleObject {
+  id: number
+  nombre: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN"
+}
+
 export interface User {
-  id: string
+  id: number
   email: string
-  name: string
-  role: UserRole
+  nombre: string
+  apellido: string
+  activo: boolean
+  rol: UserRoleObject
   createdAt: string
+  updatedAt: string
 }
 
 export interface Article {
   id: string
   titulo: string
+  title?: string // Alias para compatibilidad
   contenido: string
+  content?: string // Alias para compatibilidad
   resumen?: string
+  excerpt?: string // Alias para compatibilidad
   categoria: "politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias"
   autor?: string
+  author?: string // Alias para compatibilidad
   autorId?: string
+  authorId?: string // Alias para compatibilidad
   imagenUrl?: string
+  imageUrl?: string // Alias para compatibilidad
   publicado?: boolean
+  published?: boolean // Alias para compatibilidad
   creadoEn?: string
+  createdAt?: string // Alias para compatibilidad
   actualizadoEn?: string
+  updatedAt?: string // Alias para compatibilidad
 }
 
 export interface AuthTokens {
@@ -101,14 +118,33 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-const API_URL = "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
+// Detectar si estamos en desarrollo y construir la URL apropiada
+const getApiUrl = () => {
+  if (typeof window === "undefined") {
+    // En servidor, usar ngrok por defecto
+    return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
+  }
+  
+  // En cliente, intentar usar IP local si estamos en red local
+  const hostname = window.location.hostname
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168")) {
+    // Acceso desde red local, usar IP local del servidor
+    return `http://${window.location.hostname}:5001/api`
+  }
+  
+  // Para acceso remoto, usar ngrok
+  return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
+}
+
+const API_URL = getApiUrl()
 const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000, // Aumentado para ngrok
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "69420",
   },
   withCredentials: false,
 })
@@ -231,30 +267,32 @@ export const api = {
 // ============================================================================
 
 function mapArticleFromAPI(data: any): Article {
-  // Log para debug
-  console.log("mapArticleFromAPI: Datos recibidos:", JSON.stringify(data, null, 2))
+  console.log("🔄 Mapeando artículo:", data)
   
-  const mapped = {
-    id: data.id || "",
+  const mapped: Article = {
+    id: data.id?.toString() || "",
     titulo: data.titulo || data.title || "",
+    title: data.titulo || data.title || "", // Alias
     contenido: data.contenido || data.content || "",
+    content: data.contenido || data.content || "", // Alias
     resumen: data.resumen || data.excerpt || data.summary || "",
+    excerpt: data.resumen || data.excerpt || data.summary || "", // Alias
     categoria: data.categoria || data.category || "tendencias",
-    imagenUrl: data.imagenes && Array.isArray(data.imagenes) && data.imagenes.length > 0 
-      ? data.imagenes[0] 
-      : data.imagenUrl || data.imageUrl || undefined,
-    autor: data.autores && Array.isArray(data.autores) && data.autores.length > 0 
-      ? (data.autores[0]?.nombre || data.autores[0]?.name || data.autores[0]) 
-      : data.autor || data.author || undefined,
-    autorId: data.autores && Array.isArray(data.autores) && data.autores.length > 0 
-      ? data.autores[0]?.id 
-      : data.autorId || data.authorId || undefined,
+    imagenUrl: data.imagenUrl || data.imageUrl || data.imagen || "/placeholder.svg?height=400&width=600",
+    imageUrl: data.imagenUrl || data.imageUrl || data.imagen || "/placeholder.svg?height=400&width=600", // Alias
+    autor: data.autor || data.author || data.autorNombre || "Anónimo",
+    author: data.autor || data.author || data.autorNombre || "Anónimo", // Alias
+    autorId: data.autorId || data.authorId || undefined,
+    authorId: data.autorId || data.authorId || undefined, // Alias
     publicado: data.publicado !== undefined ? data.publicado : (data.published !== undefined ? data.published : true),
+    published: data.publicado !== undefined ? data.publicado : (data.published !== undefined ? data.published : true), // Alias
     creadoEn: data.creadoEn || data.createdAt || new Date().toISOString(),
+    createdAt: data.creadoEn || data.createdAt || new Date().toISOString(), // Alias
     actualizadoEn: data.actualizadoEn || data.updatedAt || new Date().toISOString(),
+    updatedAt: data.actualizadoEn || data.updatedAt || new Date().toISOString(), // Alias
   }
   
-  console.log("mapArticleFromAPI: Mapeado a:", JSON.stringify(mapped, null, 2))
+  console.log("✅ Artículo mapeado:", mapped)
   return mapped
 }
 
@@ -428,22 +466,46 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 export const getUsers = async (): Promise<User[]> => {
   if (typeof window === "undefined") return []
 
-  const response = await apiRequest("/usuarios", { method: "GET" })
-  return response.users || []
+  try {
+    const response = await apiRequest("/usuarios", { method: "GET" })
+    console.log("👥 getUsers respuesta:", response)
+    
+    // Manejar diferentes formatos de respuesta
+    let users: any[] = []
+    if (Array.isArray(response)) {
+      users = response
+    } else if (response?.usuarios && Array.isArray(response.usuarios)) {
+      users = response.usuarios
+    } else if (response?.data && Array.isArray(response.data)) {
+      users = response.data
+    }
+    
+    console.log(`✅ Encontrados ${users.length} usuarios`)
+    return users as User[]
+  } catch (error) {
+    console.error("❌ Error cargando usuarios:", error)
+    return []
+  }
 }
 
 export const updateUserRole = async (
-  userId: string,
-  role: UserRole
+  userId: number | string,
+  roleNombre: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN"
 ): Promise<boolean> => {
   if (typeof window === "undefined") return false
 
-  const response = await apiRequest(`/usuarios/${userId}`, {
-    method: "PATCH",
-    data: { role },
-  })
-
-  return response.success || true
+  try {
+    console.log(`🔄 Actualizando rol del usuario ${userId} a ${roleNombre}`)
+    const response = await apiRequest(`/usuarios/${userId}`, {
+      method: "PATCH",
+      data: { rol: { nombre: roleNombre } },
+    })
+    console.log("✅ Rol actualizado:", response)
+    return true
+  } catch (error) {
+    console.error("❌ Error actualizando rol:", error)
+    return false
+  }
 }
 
 export const deleteUser = async (userId: string): Promise<boolean> => {
@@ -461,7 +523,10 @@ export const getArticles = async (): Promise<Article[]> => {
   if (typeof window === "undefined") return []
 
   const response = await apiRequest("/articulos", { method: "GET" })
-  console.log("getArticles: Respuesta bruta de API:", JSON.stringify(response, null, 2))
+  console.log("🔍 getArticles: Respuesta bruta completa:", response)
+  console.log("🔍 Tipo de respuesta:", typeof response)
+  console.log("🔍 ¿Es array?:", Array.isArray(response))
+  console.log("🔍 Keys disponibles:", Object.keys(response || {}))
   
   // Manejar diferentes formatos de respuesta
   let articles: any[] = []
@@ -471,11 +536,16 @@ export const getArticles = async (): Promise<Article[]> => {
     articles = response.articulos
   } else if (response?.data && Array.isArray(response.data)) {
     articles = response.data
+  } else if (response && typeof response === 'object') {
+    // Si es un objeto pero no es array, intenta extraer el primer nivel
+    articles = [response]
   }
   
-  console.log(`getArticles: Encontrados ${articles.length} artículos`)
+  console.log(`✅ getArticles: Encontrados ${articles.length} artículos`)
+  console.log("🔍 Primer artículo antes de mapear:", articles[0])
+  
   const mapped = articles.map(mapArticleFromAPI)
-  console.log("getArticles: Artículos mapeados:", JSON.stringify(mapped.slice(0, 2), null, 2))
+  console.log("✅ Artículos mapeados:", mapped)
   return mapped
 }
 
@@ -586,63 +656,6 @@ export const deleteArticle = async (id: string): Promise<boolean> => {
 
   const response = await apiRequest(`/articulos/${id}`, { method: "DELETE" })
   return response.success || true
-}
-
-// ============================================================================
-// FAVORITES MANAGEMENT FUNCTIONS
-// ============================================================================
-
-export const getFavorites = async (userId: string): Promise<string[]> => {
-  if (typeof window === "undefined") return []
-
-  const response = await apiRequest(`/favorites/${userId}`, { method: "GET" })
-  return response.favorites || []
-}
-
-export const addFavorite = async (
-  userId: string,
-  articleId: string
-): Promise<boolean> => {
-  if (typeof window === "undefined") return false
-
-  const response = await apiRequest(`/favorites/${userId}`, {
-    method: "POST",
-    data: { articleId },
-  })
-  return response.success || true
-}
-
-export const removeFavorite = async (
-  userId: string,
-  articleId: string
-): Promise<boolean> => {
-  if (typeof window === "undefined") return false
-
-  const response = await apiRequest(`/favorites/${userId}/${articleId}`, {
-    method: "DELETE",
-  })
-  return response.success || true
-}
-
-export const isFavorite = async (
-  userId: string,
-  articleId: string
-): Promise<boolean> => {
-  if (typeof window === "undefined") return false
-
-  const favorites = await getFavorites(userId)
-  return favorites.includes(articleId)
-}
-
-export const getFavoriteArticles = async (
-  userId: string
-): Promise<Article[]> => {
-  if (typeof window === "undefined") return []
-
-  const response = await apiRequest(`/favorites/${userId}/articles`, {
-    method: "GET",
-  })
-  return response.articles || []
 }
 
 export { apiClient }

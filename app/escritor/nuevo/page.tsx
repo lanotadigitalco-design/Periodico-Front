@@ -25,8 +25,11 @@ export default function NewArticlePage() {
   const [contenido, setContenido] = useState("")
   const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
   const [imagenUrl, setImagenUrl] = useState("")
+  const [imagenFile, setImagenFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState("")
   const [publicado, setPublicado] = useState(false)
   const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== "writer" && user.role !== "admin"))) {
@@ -37,24 +40,53 @@ export default function NewArticlePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsSubmitting(true)
 
     if (!titulo || !resumen || !contenido) {
       setError("Por favor completa todos los campos obligatorios")
+      setIsSubmitting(false)
+      return
+    }
+
+    if (!imagenUrl && !imagenFile) {
+      setError("Por favor agrega una imagen (URL o archivo)")
+      setIsSubmitting(false)
       return
     }
 
     if (!user) {
       setError("Debes iniciar sesión para crear un artículo")
+      setIsSubmitting(false)
       return
     }
 
     try {
+      let finalImagenUrl = imagenUrl
+
+      // Si se seleccionó un archivo, subirlo primero
+      if (imagenFile && !imagenUrl) {
+        const formData = new FormData()
+        formData.append("file", imagenFile)
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error("Error al subir la imagen")
+        }
+
+        const uploadData = await uploadResponse.json()
+        finalImagenUrl = uploadData.url
+      }
+
       await createArticle({
         titulo,
         resumen,
         contenido,
         categoria,
-        imagenUrl: imagenUrl || undefined,
+        imagenUrl: finalImagenUrl || undefined,
         autor: user.name,
         autorId: user.id,
         publicado,
@@ -62,8 +94,44 @@ export default function NewArticlePage() {
 
       router.push("/escritor")
     } catch (err) {
-      setError("Error al crear el artículo")
+      console.error("Error:", err)
+      setError(err instanceof Error ? err.message : "Error al crear el artículo")
+    } finally {
+      setIsSubmitting(false)
     }
+  }
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validar que sea imagen
+      if (!file.type.startsWith("image/")) {
+        setError("Por favor selecciona un archivo de imagen válido")
+        return
+      }
+
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("La imagen no debe superar 5MB")
+        return
+      }
+
+      setImagenFile(file)
+      setImagenUrl("") // Limpiar URL si se selecciona archivo
+
+      // Crear preview
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setPreviewUrl(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleImageUrlChange = (url: string) => {
+    setImagenUrl(url)
+    setImagenFile(null)
+    setPreviewUrl("") // Limpiar preview
   }
 
   if (isLoading) {
@@ -165,15 +233,71 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imagenUrl">URL de Imagen (opcional)</Label>
-                <Input
-                  id="imagenUrl"
-                  type="url"
-                  value={imagenUrl}
-                  onChange={(e) => setImagenUrl(e.target.value)}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Agrega una URL de imagen para ilustrar tu artículo</p>
+                <Label>Imagen <span className="text-destructive">*</span></Label>
+                <p className="text-xs text-muted-foreground mb-3">Puedes usar una imagen local o una URL</p>
+                
+                <div className="space-y-4">
+                  {/* Subir archivo */}
+                  <div className="space-y-2">
+                    <Label htmlFor="imagenFile" className="text-sm">Subir Imagen</Label>
+                    <div className="relative">
+                      <Input
+                        id="imagenFile"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        disabled={isSubmitting}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Formatos: JPG, PNG, GIF, WebP. Máximo 5MB</p>
+                  </div>
+
+                  {/* Preview de imagen */}
+                  {(previewUrl || imagenUrl) && (
+                    <div className="relative">
+                      <img
+                        src={previewUrl || imagenUrl}
+                        alt="Vista previa"
+                        className="w-full h-48 object-cover rounded-lg border border-border"
+                        onError={() => {
+                          setError("No se pudo cargar la imagen")
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => {
+                          setImagenFile(null)
+                          setImagenUrl("")
+                          setPreviewUrl("")
+                        }}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* O usar URL */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-border"></div>
+                      <span className="text-xs text-muted-foreground px-2">O</span>
+                      <div className="flex-1 h-px bg-border"></div>
+                    </div>
+                    <Label htmlFor="imagenUrl" className="text-sm">Usar URL de Imagen</Label>
+                    <Input
+                      id="imagenUrl"
+                      type="url"
+                      value={imagenUrl}
+                      onChange={(e) => handleImageUrlChange(e.target.value)}
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                      disabled={imagenFile !== null || isSubmitting}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -181,14 +305,14 @@ export default function NewArticlePage() {
                 <Label htmlFor="publicado">Publicar inmediatamente</Label>
               </div>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</p>}
 
               <div className="flex gap-3">
-                <Button type="submit" size="lg">
+                <Button type="submit" size="lg" disabled={isSubmitting}>
                   <Save className="w-4 h-4 mr-2" />
-                  {publicado ? "Publicar Artículo" : "Guardar Borrador"}
+                  {isSubmitting ? "Procesando..." : publicado ? "Publicar Artículo" : "Guardar Borrador"}
                 </Button>
-                <Button type="button" variant="outline" size="lg" asChild>
+                <Button type="button" variant="outline" size="lg" asChild disabled={isSubmitting}>
                   <Link href="/escritor">Cancelar</Link>
                 </Button>
               </div>

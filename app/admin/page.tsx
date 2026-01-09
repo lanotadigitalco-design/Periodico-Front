@@ -18,7 +18,6 @@ import {
   deleteUser,
   type Article,
   type User,
-  type UserRole,
 } from "@/lib/auth"
 import { Trash2, Edit, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
@@ -38,11 +37,19 @@ export default function AdminPage() {
   useEffect(() => {
     if (user?.role === "admin") {
       const loadData = async () => {
-        const articlesData = await getArticles()
-        
-        const usersData = await getUsers()
-        setArticles(articlesData)
-        setUsers(usersData)
+        try {
+          console.log("👥 Cargando datos del admin...")
+          const articlesData = await getArticles()
+          console.log("✅ Artículos cargados:", articlesData.length)
+          
+          const usersData = await getUsers()
+          console.log("✅ Usuarios cargados:", usersData)
+          
+          setArticles(articlesData)
+          setUsers(usersData)
+        } catch (error) {
+          console.error("❌ Error cargando datos:", error)
+        }
       }
       loadData()
     }
@@ -62,19 +69,21 @@ export default function AdminPage() {
     setArticles(articlesData)
   }
 
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+  const handleRoleChange = async (userId: number | string, newRole: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN") => {
+    console.log(`🔄 Cambiando rol del usuario ${userId} a ${newRole}`)
     await updateUserRole(userId, newRole)
     const usersData = await getUsers()
     setUsers(usersData)
   }
 
-  const handleDeleteUser = async (userId: string) => {
-    if (userId === user?.id) {
+  const handleDeleteUser = async (userId: number | string) => {
+    if (String(userId) === String(user?.id)) {
       alert("No puedes eliminar tu propia cuenta")
       return
     }
     if (confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
-      await deleteUser(userId)
+      console.log(`🗑️ Eliminando usuario ${userId}`)
+      await deleteUser(String(userId))
       const usersData = await getUsers()
       setUsers(usersData)
     }
@@ -124,9 +133,10 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="articles" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="articles">Artículos ({articles.length})</TabsTrigger>
             <TabsTrigger value="users">Usuarios ({users.length})</TabsTrigger>
+            <TabsTrigger value="livestream">Transmisión en Vivo</TabsTrigger>
           </TabsList>
 
           <TabsContent value="articles" className="mt-6">
@@ -214,58 +224,86 @@ export default function AdminPage() {
           <TabsContent value="users" className="mt-6">
             <Card>
               <div className="p-6 border-b border-border">
-                <h2 className="text-2xl font-semibold text-foreground">Gestión de Usuarios</h2>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-foreground">Gestión de Usuarios</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Total de usuarios registrados: {users.length}</p>
+                  </div>
+                </div>
               </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Fecha de Registro</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell className="font-medium">{u.name}</TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell>
-                        <Select
-                          value={u.role}
-                          onValueChange={(value) => handleRoleChange(u.id, value as UserRole)}
-                          disabled={u.id === user.id}
-                        >
-                          <SelectTrigger className="w-40">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="reader">Lector</SelectItem>
-                            <SelectItem value="writer">Escritor</SelectItem>
-                            <SelectItem value="admin">Administrador</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(u.createdAt).toLocaleDateString("es-ES")}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteUser(u.id)}
-                          disabled={u.id === user.id}
-                          className="text-destructive hover:text-destructive disabled:opacity-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
+              {users.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <p>No hay usuarios registrados aún</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nombre</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Rol</TableHead>
+                      <TableHead>Fecha de Registro</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((u) => (
+                      <TableRow key={u.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{u.nombre} {u.apellido}</TableCell>
+                        <TableCell>{u.email}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={u.rol?.nombre || "LECTOR"}
+                            onValueChange={(value) => handleRoleChange(u.id, value as "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN")}
+                            disabled={String(u.id) === String(user?.id)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="LECTOR">Lector</SelectItem>
+                              <SelectItem value="ESCRITOR">Escritor</SelectItem>
+                              <SelectItem value="PERIODISTA">Periodista</SelectItem>
+                              <SelectItem value="ADMIN">Administrador</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(u.createdAt).toLocaleDateString("es-ES")}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteUser(u.id)}
+                            disabled={String(u.id) === String(user?.id)}
+                            className="text-destructive hover:text-destructive disabled:opacity-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="livestream" className="mt-6">
+            <Card>
+              <div className="p-6 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-foreground">Transmisión en Vivo</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Configura el link de la transmisión que aparecerá en la página principal</p>
+                  </div>
+                  <Button asChild>
+                    <Link href="/admin/live-stream">Administrar</Link>
+                  </Button>
+                </div>
+              </div>
             </Card>
           </TabsContent>
         </Tabs>

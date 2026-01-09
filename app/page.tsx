@@ -7,26 +7,53 @@ import { Button } from "@/components/ui/button"
 import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music } from "lucide-react"
 import { getPublishedArticles, type Article } from "@/lib/auth"
 import Link from "next/link"
+import { LiveStreamPlayer } from "@/components/live-stream-player"
+
+interface LiveStreamConfig {
+  isActive: boolean
+  streamUrl: string
+  title: string
+  description: string
+  updatedAt: string
+}
 
 export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([])
+  const [liveStreamConfig, setLiveStreamConfig] = useState<LiveStreamConfig | null>(null)
+  const [isLoadingStream, setIsLoadingStream] = useState(true)
 
   useEffect(() => {
     const loadArticles = async () => {
-      const data = await getPublishedArticles()
-      setArticles(data)
+      try {
+        console.log("📰 Iniciando carga de noticias...")
+        const data = await getPublishedArticles()
+        console.log("✅ Noticias cargadas:", data)
+        setArticles(data || [])
+      } catch (error) {
+        console.error("❌ Error cargando noticias:", error)
+        setArticles([])
+      }
     }
     loadArticles()
   }, [])
 
-  const youtubeVideoId = "jfKfPfyJRdk"
+  useEffect(() => {
+    const loadLiveStream = async () => {
+      try {
+        const response = await fetch("/api/live-stream")
+        if (response.ok) {
+          const data = await response.json()
+          setLiveStreamConfig(data)
+        }
+      } catch (error) {
+        console.error("Error loading live stream config:", error)
+      } finally {
+        setIsLoadingStream(false)
+      }
+    }
 
-  const mainNews = {
-    title: "Últimas Noticias en Directo desde la Redacción",
-    category: "En Vivo",
-    time: "Ahora",
-    description: "Seguimiento en tiempo real de los acontecimientos más importantes del día",
-  }
+    loadLiveStream()
+  }, [])
 
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {
@@ -50,45 +77,16 @@ export default function NewsPage() {
         <div>
         {/* Bloque de transmisión en vivo - Centro de la pantalla */}
         <section className="w-full flex flex-col items-center mb-12 md:mb-16">
-          <div className="w-full mb-4">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-foreground leading-tight text-center flex items-center justify-center gap-3">
-              <a
-                href="https://www.youtube.com/live/jfKfPfyJRdk"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-              >
-                <Badge variant="destructive" className="text-sm px-3 py-1 flex items-center font-bold flex-shrink-0 cursor-pointer">
-                  <Play className="w-3 h-3 mr-1" />
-                  EN VIVO
-                </Badge>
-              </a>
-              {mainNews.title}
-            </h1>
-          </div>
-          <div className="w-full max-w-7xl rounded-xl overflow-hidden border-2 border-destructive shadow-xl bg-white">
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0`}
-                title="YouTube Live Stream"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute top-0 left-0 w-full h-full"
-                style={{ display: 'block' }}
-              ></iframe>
+          {!isLoadingStream && liveStreamConfig && (
+            <div className="w-full">
+              <LiveStreamPlayer
+                isActive={liveStreamConfig.isActive}
+                streamUrl={liveStreamConfig.streamUrl}
+                title={liveStreamConfig.title}
+                description={liveStreamConfig.description}
+              />
             </div>
-            <div className="p-4 md:p-6">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                <Clock className="w-3 h-3" />
-                <span>{mainNews.time}</span>
-                <Badge variant="outline" className="text-xs ml-2 text-destructive border-destructive">
-                  En Vivo
-                </Badge>
-              </div>
-              <p className="text-sm md:text-base text-muted-foreground">{mainNews.description}</p>
-            </div>
-          </div>
+          )}
         </section>
 
         {/* Featured Articles */}
@@ -212,12 +210,7 @@ export default function NewsPage() {
                     Contacto
                   </Link>
                 </li>
-                <li>
-                  <Link href="/publicidad" className="hover:text-foreground transition-colors flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Publicidad
-                  </Link>
-                </li>
+
               </ul>
             </div>
             <div>

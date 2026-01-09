@@ -53,11 +53,13 @@ export default function ContactoPage() {
                   <MapPin className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-2">Oficina</h3>
+                  <h3 className="font-bold text-lg mb-2">Oficinas</h3>
                   <p className="text-muted-foreground text-sm">
-                    Av. Principal 123
+                    Carrera 8a #12-64
                     <br />
-                    28001 Madrid, España
+                    Montería Córdoba
+                    <br />
+                    Código postal 2300003
                   </p>
                 </div>
               </div>
@@ -103,32 +105,32 @@ export default function ContactoPage() {
                 <p className="text-sm text-muted-foreground mb-1">
                   Para propuestas editoriales y colaboraciones periodísticas:
                 </p>
-                <a href="mailto:redaccion@lanotadigital.com" className="text-primary hover:underline text-sm">
-                  redaccion@lanotadigital.com
+                <a href="mailto:lanotadigitalco@gmail.com" className="text-primary hover:underline text-sm">
+                  lanotadigitalco@gmail.com
                 </a>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-2">Recursos Humanos</h3>
                 <p className="text-sm text-muted-foreground mb-1">Para oportunidades laborales y prácticas:</p>
-                <a href="mailto:rrhh@lanotadigital.com" className="text-primary hover:underline text-sm">
-                  rrhh@lanotadigital.com
+                <a href="mailto:lanotadigitalco@gmail.com" className="text-primary hover:underline text-sm">
+                  lanotadigitalco@gmail.com
                 </a>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-2">Soporte Técnico</h3>
                 <p className="text-sm text-muted-foreground mb-1">Para problemas técnicos con la plataforma:</p>
-                <a href="mailto:soporte@lanotadigital.com" className="text-primary hover:underline text-sm">
-                  soporte@lanotadigital.com
+                <a href="mailto:hernandotorralvo@gmail.com" className="text-primary hover:underline text-sm">
+                  hernandotorralvo@gmail.com
                 </a>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-2">Legal</h3>
                 <p className="text-sm text-muted-foreground mb-1">Para asuntos legales y derechos de autor:</p>
-                <a href="mailto:legal@lanotadigital.com" className="text-primary hover:underline text-sm">
-                  legal@lanotadigital.com
+                <a href="mailto:lanotadigitalco@gmail.com" className="text-primary hover:underline text-sm">
+                  lanotadigitalco@gmail.com
                 </a>
               </div>
             </div>

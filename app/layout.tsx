@@ -6,8 +6,6 @@ import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
 import { Header } from "@/components/header"
 import { LogoSection } from "@/components/logo-section"
-import { AdvertisingSidebar } from "@/components/advertising-sidebar"
-
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
@@ -55,9 +53,6 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <div className="ml-auto mr-0 -mr-4 lg:-mr-8">
-              <AdvertisingSidebar />
-            </div>
           </div>
         </AuthProvider>
         <Analytics />

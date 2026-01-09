@@ -11,13 +11,38 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 
+interface LiveStreamConfig {
+  isActive: boolean
+  streamUrl: string
+  title: string
+  description: string
+  updatedAt: string
+}
+
 export function Header() {
   const { user, setUser } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [liveStreamConfig, setLiveStreamConfig] = useState<LiveStreamConfig | null>(null)
   const headerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const loadLiveStream = async () => {
+      try {
+        const response = await fetch("/api/live-stream")
+        if (response.ok) {
+          const data = await response.json()
+          setLiveStreamConfig(data)
+        }
+      } catch (error) {
+        console.error("Error loading live stream config:", error)
+      }
+    }
+
+    loadLiveStream()
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -137,12 +162,14 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-            <a href="https://www.youtube.com/live/jfKfPfyJRdk" target="_blank" rel="noopener noreferrer" className="inline-block">
-              <Badge variant="destructive" className="animate-pulse text-xs md:text-sm cursor-pointer hover:opacity-80 transition-opacity">
-                <Play className="w-2 h-2 md:w-3 md:h-3 mr-1" />
-                <span className="hidden md:inline">EN VIVO</span>
-              </Badge>
-            </a>
+            {liveStreamConfig?.isActive && (
+              <a href={liveStreamConfig.streamUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                <Badge variant="destructive" className="animate-pulse text-xs md:text-sm cursor-pointer hover:opacity-80 transition-opacity">
+                  <Play className="w-2 h-2 md:w-3 md:h-3 mr-1" />
+                  <span className="hidden md:inline">EN VIVO</span>
+                </Badge>
+              </a>
+            )}
 
             {user ? (
               <div className="flex items-center gap-1 md:gap-2">

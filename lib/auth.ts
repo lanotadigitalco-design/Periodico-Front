@@ -21,9 +21,4 @@ export {
   createArticle,
   updateArticle,
   deleteArticle,
-  getFavorites,
-  addFavorite,
-  removeFavorite,
-  isFavorite,
-  getFavoriteArticles,
 } from "./api"

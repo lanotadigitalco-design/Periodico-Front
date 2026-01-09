@@ -5,45 +5,24 @@ import { useParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { getArticleById, isFavorite, addFavorite, removeFavorite, type Article } from "@/lib/auth"
+import { getArticleById, type Article } from "@/lib/auth"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
-import { ArrowLeft, Calendar, User, Heart } from "lucide-react"
+import { ArrowLeft, Calendar, User } from "lucide-react"
 
 export default function ArticlePage() {
   const params = useParams()
   const id = params.id as string
   const [article, setArticle] = useState<Article | null>(null)
-  const [isFav, setIsFav] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => {
     const loadArticle = async () => {
       const articleData = await getArticleById(id)
       setArticle(articleData)
-
-      if (user && articleData) {
-        const fav = await isFavorite(user.id, id)
-        setIsFav(fav)
-      }
     }
     loadArticle()
-  }, [id, user])
-
-  const handleToggleFavorite = async () => {
-    if (!user) {
-      alert("Debes iniciar sesión para guardar favoritos")
-      return
-    }
-
-    if (isFav) {
-      await removeFavorite(user.id, id)
-      setIsFav(false)
-    } else {
-      await addFavorite(user.id, id)
-      setIsFav(true)
-    }
-  }
+  }, [id])
 
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {
@@ -84,13 +63,6 @@ export default function ArticlePage() {
               Volver al inicio
             </Link>
           </Button>
-
-          {user && (
-            <Button variant={isFav ? "default" : "outline"} size="sm" onClick={handleToggleFavorite}>
-              <Heart className={`w-4 h-4 mr-2 ${isFav ? "fill-current" : ""}`} />
-              {isFav ? "Guardado" : "Guardar"}
-            </Button>
-          )}
         </div>
 
         <article className="max-w-4xl mx-auto">
