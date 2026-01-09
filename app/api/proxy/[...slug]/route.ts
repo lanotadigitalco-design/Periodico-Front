@@ -1,21 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+function isPrivateIP(ip: string): boolean {
+  // Expresión regular para detectar IPs privadas (RFC 1918)
+  // 10.0.0.0 – 10.255.255.255
+  // 172.16.0.0 – 172.31.255.255
+  // 192.168.0.0 – 192.168.255.255
+  // También incluye localhost y 127.0.0.1
+  const privateIPRegex = /^(10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|127|169\.254)\./
+  return privateIPRegex.test(ip) || ip === 'localhost' || ip === '127.0.0.1'
+}
+
 function getBackendUrl(request: NextRequest): string {
   // Detectar el hostname desde el header Host
   const host = request.headers.get('host') || 'localhost:3000'
   const hostname = host.split(':')[0]
   
-  // Si estamos en IP local, usar el backend local
-  if (hostname === '192.168.1.41') {
-    return 'http://192.168.1.41:5001/api'
+  // Si es una IP privada o localhost, usar el backend local
+  if (isPrivateIP(hostname)) {
+    // Si es localhost o 127.0.0.1, usar localhost:5001
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:5001/api'
+    }
+    // Para cualquier otra IP privada, usar esa IP
+    return `http://${hostname}:5001/api`
   }
   
-  // Si estamos en localhost, usar localhost backend
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5001/api'
-  }
-  
-  // Para cualquier otro caso, usar ngrok
+  // Para cualquier otro caso, usar ngrok (acceso desde afuera de la red local)
   return process.env.NEXT_PUBLIC_API_URL || 'https://postilioned-symmetrically-margarita.ngrok-free.dev/api'
 }
 
