@@ -118,22 +118,15 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-// Detectar si estamos en desarrollo y construir la URL apropiada
+// Usar el proxy de Next.js en lugar de conectarse directamente
 const getApiUrl = () => {
   if (typeof window === "undefined") {
-    // En servidor, usar ngrok por defecto
+    // En servidor, usar ngrok
     return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
   }
   
-  // En cliente, intentar usar IP local si estamos en red local
-  const hostname = window.location.hostname
-  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168")) {
-    // Acceso desde red local, usar IP local del servidor
-    return `http://${window.location.hostname}:5001/api`
-  }
-  
-  // Para acceso remoto, usar ngrok
-  return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
+  // En cliente, usar el proxy de Next.js (evita problemas de CORS)
+  return "/api/proxy"
 }
 
 const API_URL = getApiUrl()

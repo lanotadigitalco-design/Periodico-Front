@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://a2f378b31447.ngrok-free.app/api'
+function getBackendUrl(request: NextRequest): string {
+  // Detectar el hostname desde el header Host
+  const host = request.headers.get('host') || 'localhost:3000'
+  const hostname = host.split(':')[0]
+  
+  // Si estamos en IP local, usar el backend local
+  if (hostname === '192.168.1.41') {
+    return 'http://192.168.1.41:5001/api'
+  }
+  
+  // Si estamos en localhost, usar localhost backend
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5001/api'
+  }
+  
+  // Para cualquier otro caso, usar ngrok
+  return process.env.NEXT_PUBLIC_API_URL || 'https://postilioned-symmetrically-margarita.ngrok-free.dev/api'
+}
 
 async function proxyRequest(
   method: string,
   endpoint: string,
+  backendUrl: string,
   data?: any,
   headers?: Record<string, string>,
   searchParams?: URLSearchParams
 ) {
-  let url = `${BACKEND_URL}${endpoint}`
+  let url = `${backendUrl}${endpoint}`
   if (searchParams && searchParams.toString()) {
     url += `?${searchParams.toString()}`
   }
@@ -42,6 +60,7 @@ export async function GET(
   const endpoint = '/' + (slug?.join('/') || '')
   const searchParams = request.nextUrl.searchParams
   const token = request.headers.get('authorization')
+  const backendUrl = getBackendUrl(request)
 
   try {
     const headers: Record<string, string> = {}
@@ -49,7 +68,7 @@ export async function GET(
       headers['Authorization'] = token
     }
 
-    const { status, data } = await proxyRequest('GET', endpoint, undefined, headers, searchParams)
+    const { status, data } = await proxyRequest('GET', endpoint, backendUrl, undefined, headers, searchParams)
     return NextResponse.json(data, { status })
   } catch (error) {
     console.error('GET proxy error:', error)
@@ -68,6 +87,7 @@ export async function POST(
   const endpoint = '/' + (slug?.join('/') || '')
   const searchParams = requestObj.nextUrl.searchParams
   const token = requestObj.headers.get('authorization')
+  const backendUrl = getBackendUrl(requestObj)
   const body = await requestObj.json()
 
   try {
@@ -76,7 +96,7 @@ export async function POST(
       headers['Authorization'] = token
     }
 
-    const { status, data } = await proxyRequest('POST', endpoint, body, headers, searchParams)
+    const { status, data } = await proxyRequest('POST', endpoint, backendUrl, body, headers, searchParams)
     return NextResponse.json(data, { status })
   } catch (error) {
     console.error('POST proxy error:', error)
@@ -95,6 +115,7 @@ export async function PUT(
   const endpoint = '/' + (slug?.join('/') || '')
   const searchParams = requestObj.nextUrl.searchParams
   const token = requestObj.headers.get('authorization')
+  const backendUrl = getBackendUrl(requestObj)
   const body = await requestObj.json()
 
   try {
@@ -103,7 +124,7 @@ export async function PUT(
       headers['Authorization'] = token
     }
 
-    const { status, data } = await proxyRequest('PUT', endpoint, body, headers, searchParams)
+    const { status, data } = await proxyRequest('PUT', endpoint, backendUrl, body, headers, searchParams)
     return NextResponse.json(data, { status })
   } catch (error) {
     console.error('PUT proxy error:', error)
@@ -122,6 +143,7 @@ export async function PATCH(
   const endpoint = '/' + (slug?.join('/') || '')
   const searchParams = requestObj.nextUrl.searchParams
   const token = requestObj.headers.get('authorization')
+  const backendUrl = getBackendUrl(requestObj)
   const body = await requestObj.json()
 
   try {
@@ -130,7 +152,7 @@ export async function PATCH(
       headers['Authorization'] = token
     }
 
-    const { status, data } = await proxyRequest('PATCH', endpoint, body, headers, searchParams)
+    const { status, data } = await proxyRequest('PATCH', endpoint, backendUrl, body, headers, searchParams)
     return NextResponse.json(data, { status })
   } catch (error) {
     console.error('PATCH proxy error:', error)
@@ -149,6 +171,7 @@ export async function DELETE(
   const endpoint = '/' + (slug?.join('/') || '')
   const searchParams = requestObj.nextUrl.searchParams
   const token = requestObj.headers.get('authorization')
+  const backendUrl = getBackendUrl(requestObj)
 
   try {
     const headers: Record<string, string> = {}
@@ -156,7 +179,7 @@ export async function DELETE(
       headers['Authorization'] = token
     }
 
-    const { status, data } = await proxyRequest('DELETE', endpoint, undefined, headers, searchParams)
+    const { status, data } = await proxyRequest('DELETE', endpoint, backendUrl, undefined, headers, searchParams)
     return NextResponse.json(data, { status })
   } catch (error) {
     console.error('DELETE proxy error:', error)
