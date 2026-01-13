@@ -87,7 +87,27 @@ export default function NewsPage() {
               />
             </div>
           )}
+        </section> 
+
+{/* Breaking News Ticker */}
+        <section className="mt-12 mb-8">
+          <Card className="bg-black text-white p-4">
+            <div className="flex items-center gap-4">
+              <Badge variant="destructive" className="shrink-0">
+                ÚLTIMA HORA
+              </Badge>
+              <div className="overflow-hidden">
+                <p className="animate-marquee whitespace-nowrap font-medium">
+                  {articles.length > 0
+                    ? articles.map((a) => a.title).join(" • ")
+                    : "Bienvenido a La Nota Digital - Tu fuente de noticias en tiempo real"}
+                </p>
+              </div>
+            </div>
+          </Card>
         </section>
+        </div>
+      </main>
 
         {/* Featured Articles */}
         <div className="container mx-auto max-w-7xl">
@@ -167,25 +187,6 @@ export default function NewsPage() {
           </div>
         )}
 
-        {/* Breaking News Ticker */}
-        <section className="mt-12 mb-8">
-          <Card className="bg-black text-white p-4">
-            <div className="flex items-center gap-4">
-              <Badge variant="destructive" className="shrink-0">
-                ÚLTIMA HORA
-              </Badge>
-              <div className="overflow-hidden">
-                <p className="animate-marquee whitespace-nowrap font-medium">
-                  {articles.length > 0
-                    ? articles.map((a) => a.title).join(" • ")
-                    : "Bienvenido a La Nota Digital - Tu fuente de noticias en tiempo real"}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </section>
-        </div>
-      </main>
 
       {/* Footer */}
       <footer className="border-t border-border bg-card mt-12">
