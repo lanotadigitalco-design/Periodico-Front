@@ -49,6 +49,7 @@ async function proxyRequest(
       method,
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         ...headers,
       },
       body: data ? JSON.stringify(data) : undefined,

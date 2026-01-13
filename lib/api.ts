@@ -118,15 +118,10 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-// Usar el proxy de Next.js en lugar de conectarse directamente
+// Usar el proxy de Next.js en cliente y ngrok en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
-  if (typeof window === "undefined") {
-    // En servidor, usar ngrok
-    return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
-  }
+  return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
   
-  // En cliente, usar el proxy de Next.js (evita problemas de CORS)
-  return "/api/proxy"
 }
 
 const API_URL = getApiUrl()
