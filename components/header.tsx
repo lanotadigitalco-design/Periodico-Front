@@ -88,14 +88,14 @@ export function Header() {
   const moreSections = sections.slice(7)
 
   return (
-    <header className="flex-1" ref={headerRef}>
+    <header className="flex-1 relative" ref={headerRef}>
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between gap-4 py-2 md:py-4">
+        <div className="flex items-center justify-between gap-4 py-1 md:py-4">
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
             {/* Logo - Visible en móvil cuando el menú NO está abierto */}
             {!isMobileMenuOpen && (
-              <Link href="/" className="flex items-center justify-center flex-shrink-0 block md:hidden">
-                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-16 w-auto" priority />
+              <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center flex-shrink-0 block md:hidden z-10">
+                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-40 w-40" priority />
               </Link>
             )}
             
