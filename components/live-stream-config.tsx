@@ -33,7 +33,7 @@ export function LiveStreamConfigComponent() {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const response = await fetch("/config/live-stream.json")
+        const response = await fetch("/api/live-stream")
         if (response.ok) {
           const data = await response.json()
           setConfig(data)
