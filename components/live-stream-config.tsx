@@ -74,8 +74,13 @@ export function LiveStreamConfigComponent() {
 
       console.log("📤 Enviando config:", config)
       
-      // No incluir actualizadoEn, lo añade el servidor
-      const { ...configToSend } = config
+      // Solo enviar los campos que el servidor espera
+      const configToSend = {
+        url: config.url,
+        titulo: config.titulo,
+        descripcion: config.descripcion,
+        activo: config.activo
+      }
       
       const response = await fetch("http://192.168.1.33:5001/api/live-stream", {
         method: "POST",
