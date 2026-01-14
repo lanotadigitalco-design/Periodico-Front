@@ -39,7 +39,6 @@ export function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verificar que el usuario sea admin
     const authHeader = request.headers.get("Authorization")
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json(
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
       actualizadoEn: new Date().toISOString(),
     }
 
-    // Validar URL
     if (updatedConfig.url) {
       try {
         new URL(updatedConfig.url)
