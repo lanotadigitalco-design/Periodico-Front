@@ -248,61 +248,68 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-2">Panel de Administración</h1>
-          <p className="text-muted-foreground">Gestiona artículos, usuarios y configuraciones del periódico</p>
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2">Panel de Administración</h1>
+          <p className="text-xs sm:text-base text-muted-foreground">Gestiona artículos, usuarios y configuraciones</p>
         </div>
 
         <Tabs defaultValue="articles" className="w-full">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
-            <TabsTrigger value="articles">Artículos ({articles.length})</TabsTrigger>
-            <TabsTrigger value="users">Usuarios ({users.length})</TabsTrigger>
-            <TabsTrigger value="livestream">Transmisión en Vivo</TabsTrigger>
+          <TabsList className="grid w-full max-w-md sm:max-w-2xl grid-cols-2 sm:grid-cols-3 h-auto">
+            <TabsTrigger value="articles" className="text-xs sm:text-sm">Artículos ({articles.length})</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm">Usuarios ({users.length})</TabsTrigger>
+            <TabsTrigger value="livestream" className="hidden sm:block">Transmisión</TabsTrigger>
           </TabsList>
 
           <TabsContent value="articles" className="mt-6">
             <Card>
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-semibold text-foreground">Gestión de Artículos</h2>
-                  <Button asChild>
-                    <Link href="/escritor/nuevo">Crear Nuevo Artículo</Link>
+              <div className="p-4 sm:p-6 border-b border-border">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                  <h2 className="text-lg sm:text-2xl font-semibold text-foreground">Gestión de Artículos</h2>
+                  <Button size="sm" sm:size="default" asChild className="w-full sm:w-auto">
+                    <Link href="/escritor/nuevo" className="text-xs sm:text-sm">Crear Nuevo</Link>
                   </Button>
                 </div>
                 
                 {/* Filtro de artículos */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
+                    size="sm"
                     variant={articleFilter === "todos" ? "default" : "outline"}
                     onClick={() => setArticleFilter("todos")}
+                    className="text-xs sm:text-sm"
                   >
                     Todos ({articles.length + archivedArticles.length})
                   </Button>
                   <Button
+                    size="sm"
                     variant={articleFilter === "publicados" ? "default" : "outline"}
                     onClick={() => setArticleFilter("publicados")}
+                    className="text-xs sm:text-sm"
                   >
                     Publicados ({articles.filter(a => a.publicado).length})
                   </Button>
                   <Button
+                    size="sm"
                     variant={articleFilter === "archivados" ? "default" : "outline"}
                     onClick={() => setArticleFilter("archivados")}
+                    className="text-xs sm:text-sm"
                   >
                     Archivados ({archivedArticles.length})
                   </Button>
                 </div>
               </div>
 
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Título</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Autor</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="min-w-[150px]">Título</TableHead>
+                    <TableHead className="hidden sm:table-cell min-w-[100px]">Categoría</TableHead>
+                    <TableHead className="hidden md:table-cell min-w-[100px]">Autor</TableHead>
+                    <TableHead className="hidden sm:table-cell min-w-[80px]">Estado</TableHead>
+                    <TableHead className="hidden lg:table-cell min-w-[80px]">Fecha</TableHead>
+                    <TableHead className="text-right min-w-[80px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -325,36 +332,36 @@ export default function AdminPage() {
                     ) : (
                       displayArticles.map((article) => (
                         <TableRow key={article.id}>
-                          <TableCell className="font-medium max-w-md">
-                            <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors">
+                          <TableCell className="font-medium max-w-xs sm:max-w-md">
+                            <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors line-clamp-2">
                               {article.titulo}
                             </Link>
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="outline" className="text-xs">{getCategoryLabel(article.categoria)}</Badge>
                           </TableCell>
-                          <TableCell>{article.autor}</TableCell>
-                          <TableCell>
-                            <Badge variant={article.publicado ? "default" : "secondary"}>
+                          <TableCell className="hidden md:table-cell text-sm">{article.autor}</TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant={article.publicado ? "default" : "secondary"} className="text-xs">
                               {article.publicado ? "Publicado" : "Archivado"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                             {new Date(article.creadoEn).toLocaleDateString("es-ES")}
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-1">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleTogglePublish(article.id, article.publicado)}
                                 title={article.publicado ? "Despublicar" : "Publicar"}
                               >
-                                {article.publicado ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                {article.publicado ? <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" /> : <Eye className="w-3 h-3 sm:w-4 sm:h-4" />}
                               </Button>
-                              <Button variant="ghost" size="sm" asChild>
+                              <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
                                 <Link href={`/escritor/editar/${article.id}`}>
-                                  <Edit className="w-4 h-4" />
+                                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                                 </Link>
                               </Button>
                               <Button
@@ -363,7 +370,7 @@ export default function AdminPage() {
                                 onClick={() => handleDeleteArticle(article.id)}
                                 className="text-destructive hover:text-destructive"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -373,31 +380,30 @@ export default function AdminPage() {
                   })()}
                 </TableBody>
               </Table>
+              </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">
             <Card>
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-foreground">Gestión de Usuarios</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Total de usuarios registrados: {users.length}</p>
-                  </div>
+              <div className="p-4 sm:p-6 border-b border-border">
+                <div className="mb-4">
+                  <h2 className="text-lg sm:text-2xl font-semibold text-foreground">Gestión de Usuarios</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Total: {users.length}</p>
                 </div>
 
                 {/* Filtros */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="relative">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+                  <div className="relative col-span-1 sm:col-span-2 lg:col-span-1">
                     <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <Input
-                      placeholder="Buscar por nombre o email..."
+                      placeholder="Buscar..."
                       value={searchTerm}
                       onChange={(e) => {
                         setSearchTerm(e.target.value)
                         setCurrentUserPage(1)
                       }}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                     {searchTerm && (
                       <button
@@ -463,31 +469,32 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <>
+                  <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Rol</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Fecha de Registro</TableHead>
-                        <TableHead className="text-right">Acciones</TableHead>
+                        <TableHead className="min-w-[130px]">Nombre</TableHead>
+                        <TableHead className="hidden sm:table-cell min-w-[150px]">Email</TableHead>
+                        <TableHead className="hidden md:table-cell min-w-[100px]">Rol</TableHead>
+                        <TableHead className="hidden lg:table-cell min-w-[100px]">Estado</TableHead>
+                        <TableHead className="hidden xl:table-cell min-w-[100px]">Registro</TableHead>
+                        <TableHead className="text-right min-w-[60px]">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredPaginatedUsers.map((u) => (
                         <TableRow key={u.id} className="hover:bg-muted/50">
-                          <TableCell className="font-medium">{u.nombre} {u.apellido}</TableCell>
-                          <TableCell>{u.email}</TableCell>
-                          <TableCell>
+                          <TableCell className="font-medium text-sm line-clamp-1">{u.nombre} {u.apellido}</TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm">{u.email}</TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {getRoleBadge(u.rol?.nombre || "LECTOR")}
                           </TableCell>
-                          <TableCell>
-                            <Badge variant={u.activo ? "default" : "secondary"}>
+                          <TableCell className="hidden lg:table-cell">
+                            <Badge variant={u.activo ? "default" : "secondary"} className="text-xs">
                               {u.activo ? "Activo" : "Desactivado"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
+                          <TableCell className="hidden xl:table-cell text-sm text-muted-foreground">
                             {new Date(u.createdAt).toLocaleDateString("es-ES")}
                           </TableCell>
                           <TableCell className="text-right">
@@ -499,18 +506,19 @@ export default function AdminPage() {
                               className="text-destructive hover:text-destructive disabled:opacity-50"
                               title={String(u.id) === String(user?.id) ? "No puedes desactivar tu propia cuenta" : "Desactivar usuario"}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Button>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ))}}
                     </TableBody>
                   </Table>
+                  </div>
 
                   {filteredTotalPages > 1 && (
-                    <div className="p-6 border-t border-border flex items-center justify-center">
+                    <div className="p-3 sm:p-6 border-t border-border flex items-center justify-center overflow-x-auto">
                       <Pagination>
-                        <PaginationContent>
+                        <PaginationContent className="text-xs sm:text-sm">
                           <PaginationItem>
                             <PaginationPrevious
                               onClick={() => setCurrentUserPage(Math.max(1, currentUserPage - 1))}
@@ -574,24 +582,24 @@ export default function AdminPage() {
           </TabsContent>
         </Tabs>
 
-        <Card className="mt-6 p-6 bg-muted/50">
-          <h3 className="font-semibold text-foreground mb-2">Estadísticas</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="mt-6 p-4 sm:p-6 bg-muted/50">
+          <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">Estadísticas</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             <div>
-              <p className="text-2xl font-bold text-foreground">{articles.length}</p>
-              <p className="text-sm text-muted-foreground">Total Artículos</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">{articles.length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Artículos</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{articles.filter((a) => a.published).length}</p>
-              <p className="text-sm text-muted-foreground">Publicados</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">{articles.filter((a) => a.published).length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Publicados</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{users.length}</p>
-              <p className="text-sm text-muted-foreground">Total Usuarios</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">{users.length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Usuarios</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{users.filter((u) => u.role === "writer").length}</p>
-              <p className="text-sm text-muted-foreground">Escritores</p>
+              <p className="text-lg sm:text-2xl font-bold text-foreground">{users.filter((u) => u.role === "writer").length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Escritores</p>
             </div>
           </div>
         </Card>
@@ -599,18 +607,18 @@ export default function AdminPage() {
 
       {/* Alert Dialog para confirmar desactivación de usuario */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[90vw] max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Desactivar usuario</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg">Desactivar usuario</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               ¿Estás seguro de que quieres desactivar a <strong>{userToDelete?.name}</strong>? El usuario será desactivado pero sus datos se mantendrán en el sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-3">
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDeleteUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm"
             >
               Desactivar
             </AlertDialogAction>
@@ -620,18 +628,18 @@ export default function AdminPage() {
 
       {/* Alert Dialog para confirmar eliminación de artículo */}
       <AlertDialog open={deleteArticleDialogOpen} onOpenChange={setDeleteArticleDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[90vw] max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar artículo</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg">Eliminar artículo</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               ¿Estás seguro de que quieres eliminar <strong>{articleToDelete?.title}</strong>? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-3">
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDeleteArticle}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm"
             >
               Eliminar
             </AlertDialogAction>

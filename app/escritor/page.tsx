@@ -113,57 +113,62 @@ export default function WriterPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-2">Mis Artículos</h1>
-            <p className="text-muted-foreground">Gestiona y publica tu contenido periodístico</p>
+            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2">Mis Artículos</h1>
+            <p className="text-xs sm:text-base text-muted-foreground">Gestiona y publica tu contenido</p>
           </div>
-          <Button size="lg" asChild>
+          <Button size="sm" sm:size="lg" asChild className="w-full sm:w-auto">
             <Link href="/escritor/nuevo">
-              <PlusCircle className="w-5 h-5 mr-2" />
-              Nuevo Artículo
+              <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Nuevo
             </Link>
           </Button>
         </div>
 
         <Card>
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold text-foreground">Mis Artículos</h2>
-            </div>
+          <div className="p-4 sm:p-6 border-b border-border">
+            <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-4">Mis Artículos</h2>
             
             {/* Filtro de artículos */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
+                size="sm"
                 variant={articleFilter === "todos" ? "default" : "outline"}
                 onClick={() => setArticleFilter("todos")}
+                className="text-xs sm:text-sm"
               >
                 Todos ({articles.length + archivedArticles.length})
               </Button>
               <Button
+                size="sm"
                 variant={articleFilter === "publicados" ? "default" : "outline"}
                 onClick={() => setArticleFilter("publicados")}
+                className="text-xs sm:text-sm"
               >
                 Publicados ({articles.filter(a => a.publicado).length})
               </Button>
               <Button
+                size="sm"
                 variant={articleFilter === "archivados" ? "default" : "outline"}
                 onClick={() => setArticleFilter("archivados")}
+                className="text-xs sm:text-sm"
               >
                 Archivados ({archivedArticles.length})
               </Button>
             </div>
           </div>
 
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Título</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="min-w-[150px]">Título</TableHead>
+                <TableHead className="hidden sm:table-cell min-w-[100px]">Categoría</TableHead>
+                <TableHead className="hidden md:table-cell min-w-[80px]">Estado</TableHead>
+                <TableHead className="hidden lg:table-cell min-w-[80px]">Fecha</TableHead>
+                <TableHead className="text-right min-w-[80px]">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -200,35 +205,35 @@ export default function WriterPage() {
                 ) : (
                   displayArticles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium max-w-md">
-                        <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors">
+                      <TableCell className="font-medium max-w-xs sm:max-w-md">
+                        <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors line-clamp-2">
                           {article.titulo}
                         </Link>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{getCategoryLabel(article.categoria)}</Badge>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="outline" className="text-xs">{getCategoryLabel(article.categoria)}</Badge>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={article.publicado ? "default" : "secondary"}>
-                          {article.publicado ? "Publicado" : "Borrador"}
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant={article.publicado ? "default" : "secondary"} className="text-xs">
+                          {article.publicado ? "Publicado" : "Archivado"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                         {new Date(article.creadoEn || "").toLocaleDateString("es-ES")}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleTogglePublish(article.id, article.publicado)}
                             title={article.publicado ? "Despublicar" : "Publicar"}
                           >
-                            {article.publicado ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {article.publicado ? <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" /> : <Eye className="w-3 h-3 sm:w-4 sm:h-4" />}
                           </Button>
-                          <Button variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
                             <Link href={`/escritor/editar/${article.id}`}>
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Link>
                           </Button>
                           <Button
@@ -237,7 +242,7 @@ export default function WriterPage() {
                             onClick={() => handleDeleteArticle(article.id)}
                             className="text-destructive hover:text-destructive"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -247,37 +252,38 @@ export default function WriterPage() {
               })()}
             </TableBody>
           </Table>
+          </div>
         </Card>
 
-        <Card className="mt-6 p-6 bg-muted/50">
-          <h3 className="font-semibold text-foreground mb-2">Tus Estadísticas</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <Card className="mt-6 p-4 sm:p-6 bg-muted/50">
+          <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">Tus Estadísticas</h3>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <div>
-              <p className="text-2xl font-bold text-foreground">{articles.length + archivedArticles.length}</p>
-              <p className="text-sm text-muted-foreground">Total Artículos</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{articles.length + archivedArticles.length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{articles.filter((a) => a.publicado).length}</p>
-              <p className="text-sm text-muted-foreground">Publicados</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{articles.filter((a) => a.publicado).length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Publicados</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{archivedArticles.length}</p>
-              <p className="text-sm text-muted-foreground">Archivados</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{archivedArticles.length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Archivados</p>
             </div>
           </div>
         </Card>
 
         <AlertDialog open={deleteArticleDialogOpen} onOpenChange={setDeleteArticleDialogOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[90vw] max-w-md">
             <AlertDialogHeader>
               <AlertDialogTitle>¿Eliminar artículo?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription className="text-sm">
                 ¿Estás seguro de que deseas eliminar "{articleToDelete?.title}"? Esta acción no se puede deshacer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex gap-3 justify-end">
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDeleteArticle} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDeleteArticle} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm">
                 Eliminar
               </AlertDialogAction>
             </div>
