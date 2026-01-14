@@ -34,6 +34,7 @@ import { Trash2, Edit, Eye, EyeOff, Search, X, Shield, FileText, Users, BookOpen
 import Link from "next/link"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Input } from "@/components/ui/input"
+import { LiveStreamConfigComponent } from "@/components/live-stream-config"
 
 const USERS_PER_PAGE = 10
 
@@ -591,16 +592,12 @@ export default function AdminPage() {
 
           <TabsContent value="livestream" className="mt-6">
             <Card>
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-foreground">Transmisión en Vivo</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Configura el link de la transmisión que aparecerá en la página principal</p>
-                  </div>
-                  <Button asChild>
-                    <Link href="/admin/live-stream">Administrar</Link>
-                  </Button>
-                </div>
+              <div className="p-4 sm:p-6 border-b border-border">
+                <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-4">Transmisión en Vivo</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-6">Configura el link y los detalles de la transmisión que aparecerá en la página principal</p>
+              </div>
+              <div className="p-4 sm:p-6">
+                <LiveStreamConfigComponent />
               </div>
             </Card>
           </TabsContent>

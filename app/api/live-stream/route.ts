@@ -6,11 +6,11 @@ import { NextResponse } from "next/server"
 const configPath = join(process.cwd(), "config", "live-stream.json")
 
 interface LiveStreamConfig {
-  isActive: boolean
-  streamUrl: string
-  title: string
-  description: string
-  updatedAt: string
+  url: string
+  titulo: string
+  descripcion: string
+  activo: boolean
+  actualizadoEn?: string
 }
 
 function readConfig(): LiveStreamConfig {
@@ -19,11 +19,11 @@ function readConfig(): LiveStreamConfig {
     return JSON.parse(data)
   } catch (error) {
     return {
-      isActive: false,
-      streamUrl: "",
-      title: "Transmisión en Vivo",
-      description: "Síguenos en directo",
-      updatedAt: new Date().toISOString(),
+      url: "",
+      titulo: "Transmisión en Vivo",
+      descripcion: "Síguenos en directo",
+      activo: false,
+      actualizadoEn: new Date().toISOString(),
     }
   }
 }
@@ -39,15 +39,55 @@ export function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar que el usuario sea admin
+    const authHeader = request.headers.get("Authorization")
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "No autorizado" },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
 
     const updatedConfig: LiveStreamConfig = {
-      isActive: body.isActive,
-      streamUrl: body.streamUrl,
-      title: body.title,
-      description: body.description,
-      updatedAt: new Date().toISOString(),
+      url: body.url || "",
+      titulo: body.titulo || "Transmisión en Vivo",
+      descripcion: body.descripcion || "",
+      activo: body.activo ?? false,
+      actualizadoEn: new Date().toISOString(),
     }
+
+    // Validar URL
+    if (updatedConfig.url) {
+      try {
+        new URL(updatedConfig.url)
+      } catch {
+        return NextResponse.json(
+          { error: "URL inválida" },
+          { status: 400 }
+        )
+      }
+    }
+
+    writeConfig(updatedConfig)
+
+    return NextResponse.json(
+      { 
+        success: true, 
+        message: "Configuración guardada correctamente",
+        data: updatedConfig 
+      },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Error en POST /api/live-stream:", error)
+    return NextResponse.json(
+      { error: "Error al procesar la solicitud" },
+      { status: 500 }
+    )
+  }
+}
 
     writeConfig(updatedConfig)
 
