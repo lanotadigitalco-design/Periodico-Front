@@ -15,6 +15,7 @@ export {
   updateUserRole,
   deleteUser,
   getArticles,
+  getAdminArticles,
   getPublishedArticles,
   getArticlesByCategory,
   getArticleById,

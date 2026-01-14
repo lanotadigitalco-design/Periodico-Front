@@ -257,6 +257,13 @@ export const api = {
 function mapArticleFromAPI(data: any): Article {
   console.log("🔄 Mapeando artículo:", data)
   
+  // Extraer imagen del array imagenes o usar logo por defecto
+  const imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
+  
+  // Extraer autor del array autores o usar campos directos
+  const autor = (data.autores && data.autores[0]?.nombre) || data.autor || data.author || data.autorNombre || "Anónimo"
+  const autorId = (data.autores && data.autores[0]?.id) || data.autorId || data.authorId || undefined
+  
   const mapped: Article = {
     id: data.id?.toString() || "",
     titulo: data.titulo || data.title || "",
@@ -266,12 +273,12 @@ function mapArticleFromAPI(data: any): Article {
     resumen: data.resumen || data.excerpt || data.summary || "",
     excerpt: data.resumen || data.excerpt || data.summary || "", // Alias
     categoria: data.categoria || data.category || "tendencias",
-    imagenUrl: data.imagenUrl || data.imageUrl || data.imagen || "/placeholder.svg?height=400&width=600",
-    imageUrl: data.imagenUrl || data.imageUrl || data.imagen || "/placeholder.svg?height=400&width=600", // Alias
-    autor: data.autor || data.author || data.autorNombre || "Anónimo",
-    author: data.autor || data.author || data.autorNombre || "Anónimo", // Alias
-    autorId: data.autorId || data.authorId || undefined,
-    authorId: data.autorId || data.authorId || undefined, // Alias
+    imagenUrl: imagenUrl,
+    imageUrl: imagenUrl, // Alias
+    autor: autor,
+    author: autor, // Alias
+    autorId: autorId,
+    authorId: autorId, // Alias
     publicado: data.publicado !== undefined ? data.publicado : (data.published !== undefined ? data.published : true),
     published: data.publicado !== undefined ? data.publicado : (data.published !== undefined ? data.published : true), // Alias
     creadoEn: data.creadoEn || data.createdAt || new Date().toISOString(),
@@ -456,7 +463,7 @@ export const getUsers = async (): Promise<User[]> => {
 
   try {
     const response = await apiRequest("/usuarios", { method: "GET" })
-    console.log("👥 getUsers respuesta:", response)
+    console.log("👥 getUsers respuesta completa:", JSON.stringify(response, null, 2))
     
     // Manejar diferentes formatos de respuesta
     let users: any[] = []
@@ -468,8 +475,40 @@ export const getUsers = async (): Promise<User[]> => {
       users = response.data
     }
     
-    console.log(`✅ Encontrados ${users.length} usuarios`)
-    return users as User[]
+    console.log(`✅ getUsers: Encontrados ${users.length} usuarios`)
+    console.log("🔍 Primer usuario:", JSON.stringify(users[0], null, 2))
+    
+    // Mapear usuarios para normalizar los roles a mayúsculas
+    const mappedUsers = users.map((u: any) => {
+      // Normalizar el nombre del rol a mayúsculas
+      let normalizedRoleName = "LECTOR" // default
+      
+      if (u.rol?.nombre) {
+        const rolName = u.rol.nombre.toUpperCase()
+        console.log(`🔄 Mapeando usuario ${u.id}: rol original = "${u.rol.nombre}" -> normalizado = "${rolName}"`)
+        
+        // Mapear roles variados a los nombres estándar
+        if (rolName === "ADMINISTRADOR" || rolName === "ADMIN") {
+          normalizedRoleName = "ADMIN"
+        } else if (rolName === "PERIODISTA" || rolName === "JOURNALIST") {
+          normalizedRoleName = "PERIODISTA"
+        } else if (rolName === "ESCRITOR" || rolName === "WRITER") {
+          normalizedRoleName = "ESCRITOR"
+        } else if (rolName === "LECTOR" || rolName === "READER") {
+          normalizedRoleName = "LECTOR"
+        }
+      }
+      
+      return {
+        ...u,
+        rol: {
+          ...u.rol,
+          nombre: normalizedRoleName
+        }
+      }
+    })
+    
+    return mappedUsers as User[]
   } catch (error) {
     console.error("❌ Error cargando usuarios:", error)
     return []
@@ -484,23 +523,50 @@ export const updateUserRole = async (
 
   try {
     console.log(`🔄 Actualizando rol del usuario ${userId} a ${roleNombre}`)
+    
+    // Convertir nombres de roles a valores que el backend espera
+    const roleMap: Record<string, string> = {
+      "LECTOR": "lector",
+      "ESCRITOR": "escritor",
+      "PERIODISTA": "periodista",
+      "ADMIN": "administrador",
+    }
+    const roleValue = roleMap[roleNombre] || roleNombre.toLowerCase()
+    
+    console.log(`📤 Intentando actualizar rol a: ${roleValue}`)
+    
+    // El backend requiere un endpoint específico para roles que aún no existe
+    // Por ahora se muestra un mensaje indicando que esta funcionalidad requiere
+    // que el backend implemente un endpoint PATCH /usuarios/{id}/rol o similar
+    
     const response = await apiRequest(`/usuarios/${userId}`, {
       method: "PATCH",
-      data: { rol: { nombre: roleNombre } },
+      data: { nombre: roleValue }, // Intentar enviar como nombre
     })
     console.log("✅ Rol actualizado:", response)
     return true
   } catch (error) {
-    console.error("❌ Error actualizando rol:", error)
+    console.error("❌ Error actualizando rol - El backend aún no soporta esta operación:", error)
+    alert("La funcionalidad de cambiar roles aún no está disponible en el backend.\nContacta al administrador del sistema.")
     return false
   }
 }
 
-export const deleteUser = async (userId: string): Promise<boolean> => {
-  if (typeof window === "undefined") return false
+export const deleteUser = async (userId: string): Promise<{ success: boolean; message: string }> => {
+  if (typeof window === "undefined") return { success: false, message: "Error del servidor" }
 
-  const response = await apiRequest(`/usuarios/${userId}`, { method: "DELETE" })
-  return response.success || true
+  try {
+    const response = await apiRequest(`/usuarios/${userId}`, { method: "DELETE" })
+    return { success: true, message: "Usuario desactivado exitosamente" }
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error)
+    
+    console.warn("⚠️ Error al desactivar usuario:", error)
+    return { 
+      success: false, 
+      message: errorMessage 
+    }
+  }
 }
 
 // ============================================================================
@@ -537,11 +603,87 @@ export const getArticles = async (): Promise<Article[]> => {
   return mapped
 }
 
+export const getAdminArticles = async (): Promise<Article[]> => {
+  if (typeof window === "undefined") return []
+
+  try {
+    // Intentar diferentes parámetros para obtener TODOS los artículos
+    let response: any = null
+    const params = [
+      "/articulos?published=all",
+      "/articulos?includeUnpublished=true",
+      "/articulos?estado=todos",
+      "/articulos?all=true",
+      "/articulos/admin",
+    ]
+
+    for (const param of params) {
+      try {
+        console.log(`🔍 Intentando endpoint: ${param}`)
+        response = await apiRequest(param, { method: "GET" })
+        if (response && (Array.isArray(response) || response?.articulos || response?.data)) {
+          console.log(`✅ Éxito con: ${param}`)
+          break
+        }
+      } catch (error) {
+        console.log(`⚠️ ${param} no funcionó, intentando siguiente...`)
+        continue
+      }
+    }
+
+    // Si ninguno funcionó, usar el endpoint normal
+    if (!response) {
+      console.log("⚠️ Ningún endpoint especial funcionó, usando /articulos normal")
+      response = await apiRequest("/articulos", { method: "GET" })
+    }
+
+    let articles: any[] = []
+    if (Array.isArray(response)) {
+      articles = response
+    } else if (response?.articulos && Array.isArray(response.articulos)) {
+      articles = response.articulos
+    } else if (response?.data && Array.isArray(response.data)) {
+      articles = response.data
+    }
+    
+    console.log(`✅ getAdminArticles: Encontrados ${articles.length} artículos`)
+    return articles.map(mapArticleFromAPI)
+  } catch (error) {
+    console.error("❌ Error en getAdminArticles:", error)
+    return getArticles()
+  }
+}
+
 export const getPublishedArticles = async (): Promise<Article[]> => {
   const articles = await getArticles()
   // Devolver todos los artículos (incluso los que tienen publicado undefined o true)
   console.log(`getPublishedArticles: Devolviendo ${articles.length} artículos`)
   return articles
+}
+
+export const getArchivedArticles = async (): Promise<Article[]> => {
+  if (typeof window === "undefined") return []
+
+  try {
+    // Usar el endpoint específico del backend para artículos archivados
+    const response = await apiRequest("/articulos/despublicados", { method: "GET" })
+    
+    let articles: any[] = []
+    if (Array.isArray(response)) {
+      articles = response
+    } else if (response?.articulos && Array.isArray(response.articulos)) {
+      articles = response.articulos
+    } else if (response?.data && Array.isArray(response.data)) {
+      articles = response.data
+    }
+    
+    console.log(`✅ getArchivedArticles: Encontrados ${articles.length} artículos archivados`)
+    const mapped = articles.map(mapArticleFromAPI)
+    return mapped
+  } catch (error) {
+    console.error("❌ Error obteniendo artículos archivados:", error)
+    return []
+  }
 }
 
 export const getArticlesByCategory = async (
@@ -615,10 +757,16 @@ export const updateArticle = async (
   if (typeof window === "undefined") return null
 
   // Filtrar campos que el backend no acepta y transformar imagenUrl a imagenes
-  const { resumen, autor, autorId, creadoEn, actualizadoEn, imagenUrl, ...data } = updates
-  const payload = {
+  const { resumen, autor, autorId, creadoEn, actualizadoEn, imagenUrl, published, ...data } = updates
+  const payload: any = {
     ...data,
   }
+  
+  // Si viene "published", transformar a "publicado"
+  if (published !== undefined) {
+    payload.publicado = published
+  }
+  
   if (imagenUrl !== undefined) {
     payload.imagenes = imagenUrl ? [imagenUrl] : []
   }
@@ -639,11 +787,29 @@ export const updateArticle = async (
   return result ? mapArticleFromAPI(result) : null
 }
 
-export const deleteArticle = async (id: string): Promise<boolean> => {
-  if (typeof window === "undefined") return false
+export const deleteArticle = async (id: string): Promise<{ success: boolean; message: string }> => {
+  if (typeof window === "undefined") return { success: false, message: "Error del servidor" }
 
-  const response = await apiRequest(`/articulos/${id}`, { method: "DELETE" })
-  return response.success || true
+  try {
+    const response = await apiRequest(`/articulos/${id}`, { method: "DELETE" })
+    return { success: true, message: "Artículo eliminado exitosamente" }
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error)
+    
+    // Error por clave foránea - el artículo tiene datos relacionados
+    if (errorMessage.includes("llave foránea") || errorMessage.includes("violates foreign key")) {
+      return { 
+        success: false, 
+        message: "No se puede eliminar este artículo porque tiene datos vinculados. Contacta al administrador del sistema."
+      }
+    }
+    
+    console.warn("⚠️ Error al eliminar artículo:", error)
+    return { 
+      success: false, 
+      message: errorMessage 
+    }
+  }
 }
 
 export { apiClient }

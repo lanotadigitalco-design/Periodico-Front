@@ -12,7 +12,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "La Nota Digital - Noticias en Vivo",
   description: "La Nota Digital - Tu fuente confiable de noticias en tiempo real con transmisiones en vivo",
-  generator: "v0.app",
   icons: {
     icon: [
       {

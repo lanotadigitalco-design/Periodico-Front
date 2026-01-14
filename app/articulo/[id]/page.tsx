@@ -94,15 +94,13 @@ export default function ArticlePage() {
             </div>
           </div>
 
-          {article.imagenUrl && (
-            <div className="mb-8 rounded-lg overflow-hidden">
-              <img
-                src={article.imagenUrl || "/placeholder.svg"}
-                alt={article.titulo}
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
+          <div className="mb-8 rounded-lg overflow-hidden">
+            <img
+              src={article.imagenUrl || "/logo.png"}
+              alt={article.titulo}
+              className="w-full h-auto object-cover"
+            />
+          </div>
 
           <Card className="p-8">
             <div className="prose prose-lg max-w-none">

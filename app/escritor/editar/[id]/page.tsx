@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { getArticleById, updateArticle } from "@/lib/auth"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Upload, X } from "lucide-react"
 import Link from "next/link"
 
 export default function EditArticlePage() {
@@ -26,11 +26,13 @@ export default function EditArticlePage() {
   const [titulo, setTitulo] = useState("")
   const [resumen, setResumen] = useState("")
   const [contenido, setContenido] = useState("")
-  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
+  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias" | "cordoba" | "monteria">("politica")
   const [imagenUrl, setImagenUrl] = useState("")
   const [publicado, setPublicado] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState("")
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== "writer" && user.role !== "admin"))) {
@@ -74,12 +76,32 @@ export default function EditArticlePage() {
     }
 
     try {
+      // Si hay archivo subido, convertir a base64
+      let finalImageUrl = imagenUrl
+      if (uploadedFile) {
+        const reader = new FileReader()
+        reader.onload = async (event) => {
+          const base64 = event.target?.result as string
+          await updateArticle(id, {
+            titulo,
+            resumen,
+            contenido,
+            categoria,
+            imagenUrl: base64,
+            publicado,
+          })
+          router.push("/escritor")
+        }
+        reader.readAsDataURL(uploadedFile)
+        return
+      }
+
       await updateArticle(id, {
         titulo,
         resumen,
         contenido,
         categoria,
-        imagenUrl: imagenUrl || undefined,
+        imagenUrl: finalImageUrl || undefined,
         publicado,
       })
 
@@ -87,6 +109,35 @@ export default function EditArticlePage() {
     } catch (err) {
       setError("Error al actualizar el artículo")
     }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setError("Por favor sube un archivo de imagen")
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError("El archivo no debe pesar más de 5MB")
+        return
+      }
+      
+      setUploadedFile(file)
+      
+      // Crear preview
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setPreviewUrl(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError("")
+    }
+  }
+
+  const clearUpload = () => {
+    setUploadedFile(null)
+    setPreviewUrl("")
   }
 
   if (isLoading || loading) {
@@ -156,6 +207,8 @@ export default function EditArticlePage() {
                     <SelectItem value="salud">Salud</SelectItem>
                     <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
                     <SelectItem value="tendencias">Tendencias</SelectItem>
+                    <SelectItem value="cordoba">Córdoba</SelectItem>
+                    <SelectItem value="monteria">Montería</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -189,15 +242,63 @@ export default function EditArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imagenUrl">URL de Imagen (opcional)</Label>
-                <Input
-                  id="imagenUrl"
-                  type="url"
-                  value={imagenUrl}
-                  onChange={(e) => setImagenUrl(e.target.value)}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Agrega una URL de imagen para ilustrar tu artículo</p>
+                <Label>Imagen del Artículo (opcional)</Label>
+                
+                {previewUrl ? (
+                  <div className="space-y-4">
+                    <div className="relative rounded-lg overflow-hidden border border-border">
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className="w-full h-64 object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={clearUpload}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      ✅ Archivo subido: {uploadedFile?.name}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="imagen-upload"
+                      />
+                      <label htmlFor="imagen-upload" className="cursor-pointer block">
+                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium">Sube una imagen</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG, GIF hasta 5MB
+                        </p>
+                      </label>
+                    </div>
+                    
+                    <div className="relative">
+                      <Input
+                        id="imagenUrl"
+                        type="url"
+                        value={imagenUrl}
+                        onChange={(e) => setImagenUrl(e.target.value)}
+                        placeholder="O pega una URL de imagen: https://ejemplo.com/imagen.jpg"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Alternativamente, puedes usar una URL externa
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">

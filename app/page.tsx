@@ -121,7 +121,7 @@ export default function NewsPage() {
                   {featuredArticles.map((article) => (
                     <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                       <img
-                        src={article.imageUrl || "/placeholder.svg?height=400&width=600"}
+                        src={article.imageUrl || "/logo.png"}
                         alt={article.title}
                         className="w-full h-64 object-cover"
                       />
@@ -154,6 +154,11 @@ export default function NewsPage() {
                 {secondaryArticles.map((article) => (
                   <Card key={article.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="flex flex-col gap-2">
+                      <img
+                        src={article.imageUrl || "/logo.png"}
+                        alt={article.title}
+                        className="w-full h-32 object-cover rounded mb-2"
+                      />
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Badge variant="secondary" className="text-xs">
                           {getCategoryLabel(article.category)}

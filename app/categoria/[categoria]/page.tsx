@@ -55,7 +55,7 @@ export default function CategoryPage() {
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="md:col-span-1">
                     <img
-                      src={article.imagenUrl || "/placeholder.svg?height=300&width=400"}
+                      src={article.imagenUrl || "/logo.png"}
                       alt={article.titulo}
                       className="w-full h-full object-cover"
                     />

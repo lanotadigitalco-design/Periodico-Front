@@ -75,6 +75,8 @@ export function Header() {
     { name: "Deportes", href: "/categoria/deportes" },
     { name: "Cultura", href: "/categoria/cultura" },
     { name: "Mundo", href: "/categoria/mundo" },
+    { name: "Córdoba", href: "/categoria/cordoba" },
+    { name: "Montería", href: "/categoria/monteria" },
     { name: "Opinión", href: "/categoria/opinion" },
     { name: "Tecnología", href: "/categoria/tecnologia" },
     { name: "Salud", href: "/categoria/salud" },
@@ -82,8 +84,8 @@ export function Header() {
     { name: "Tendencias", href: "/categoria/tendencias" },
   ]
 
-  const mainSections = sections.slice(0, 5)
-  const moreSections = sections.slice(5)
+  const mainSections = sections.slice(0, 7)
+  const moreSections = sections.slice(7)
 
   return (
     <header className="flex-1" ref={headerRef}>

@@ -23,7 +23,7 @@ export default function NewArticlePage() {
   const [titulo, setTitulo] = useState("")
   const [resumen, setResumen] = useState("")
   const [contenido, setContenido] = useState("")
-  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias">("politica")
+  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias" | "cordoba" | "monteria">("politica")
   const [imagenUrl, setImagenUrl] = useState("")
   const [imagenFile, setImagenFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState("")
@@ -44,12 +44,6 @@ export default function NewArticlePage() {
 
     if (!titulo || !resumen || !contenido) {
       setError("Por favor completa todos los campos obligatorios")
-      setIsSubmitting(false)
-      return
-    }
-
-    if (!imagenUrl && !imagenFile) {
-      setError("Por favor agrega una imagen (URL o archivo)")
       setIsSubmitting(false)
       return
     }
@@ -200,6 +194,8 @@ export default function NewArticlePage() {
                     <SelectItem value="salud">Salud</SelectItem>
                     <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
                     <SelectItem value="tendencias">Tendencias</SelectItem>
+                    <SelectItem value="cordoba">Córdoba</SelectItem>
+                    <SelectItem value="monteria">Montería</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -233,8 +229,8 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Imagen <span className="text-destructive">*</span></Label>
-                <p className="text-xs text-muted-foreground mb-3">Puedes usar una imagen local o una URL</p>
+                <Label>Imagen <span className="text-xs text-muted-foreground">(Opcional)</span></Label>
+                <p className="text-xs text-muted-foreground mb-3">Puedes usar una imagen local o una URL. Si no agregas una, se mostrará el logo por defecto.</p>
                 
                 <div className="space-y-4">
                   {/* Subir archivo */}

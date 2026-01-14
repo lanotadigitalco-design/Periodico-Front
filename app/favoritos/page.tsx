@@ -69,15 +69,13 @@ export default function FavoritosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favorites.map((article) => (
               <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                {article.imagenUrl && (
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={article.imagenUrl || "/placeholder.svg"}
-                      alt={article.titulo}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
-                  </div>
-                )}
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={article.imagenUrl || "/logo.png"}
+                    alt={article.titulo}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform"
+                  />
+                </div>
                 <div className="p-6">
                   <Badge variant="outline" className="mb-3">
                     {getCategoryLabel(article.categoria)}
