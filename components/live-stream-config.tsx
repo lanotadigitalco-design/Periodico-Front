@@ -66,11 +66,17 @@ export function LiveStreamConfigComponent() {
     setSuccess(false)
 
     try {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        setError("No hay token de autenticación. Por favor, inicia sesión como administrador.")
+        return
+      }
+
       const response = await fetch("http://192.168.1.33:5001/api/live-stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(config),
       })
