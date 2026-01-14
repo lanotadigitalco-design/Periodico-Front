@@ -33,7 +33,7 @@ export function LiveStreamConfigComponent() {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const response = await fetch("/api/live-stream")
+        const response = await fetch("http://192.168.1.33:5001/api/live-stream")
         if (response.ok) {
           const data = await response.json()
           setConfig(data)
@@ -66,32 +66,63 @@ export function LiveStreamConfigComponent() {
     setSuccess(false)
 
     try {
-      const response = await fetch("/api/live-stream", {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        setError("No hay token de autenticación. Por favor, inicia sesión como administrador.")
+        return
+      }
+
+      console.log("📤 Enviando config:", config)
+      
+      // Solo enviar los campos que el servidor espera
+      const configToSend = {
+        url: config.url,
+        titulo: config.titulo,
+        descripcion: config.descripcion,
+        activo: config.activo
+      }
+      
+      const response = await fetch("http://192.168.1.33:5001/api/live-stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(config),
+        body: JSON.stringify(configToSend),
       })
 
+      console.log("📡 Response status:", response.status)
+      const responseData = await response.json()
+      console.log("📋 Response data:", responseData)
+
       if (!response.ok) {
-        throw new Error("Error al guardar la configuración")
+        const errorMessage = responseData.message || responseData.error || `Error ${response.status}`
+        console.error("❌ Error del servidor:", errorMessage)
+        throw new Error(errorMessage)
       }
 
       setSuccess(true)
       setSaveDialog(false)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido")
+      const errorMsg = err instanceof Error ? err.message : "Error desconocido"
+      console.error("❌ Error completo:", err)
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
   }
 
   const isValidUrl = (url: string) => {
+    if (!url) return true // URL vacía es válida (opcional)
     try {
       new URL(url)
+      // Validar que sea una URL de transmisión conocida
+      if (!url.includes("youtube.com") && !url.includes("youtu.be") && 
+          !url.includes("twitch.tv") && !url.includes("facebook.com") && 
+          !url.includes("fb.watch")) {
+        return false // Solo aceptar plataformas conocidas
+      }
       return true
     } catch {
       return false
