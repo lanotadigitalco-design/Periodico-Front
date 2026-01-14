@@ -82,7 +82,9 @@ export function LiveStreamConfigComponent() {
       })
 
       if (!response.ok) {
-        throw new Error("Error al guardar la configuración")
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.message || errorData.error || `Error ${response.status}`
+        throw new Error(errorMessage)
       }
 
       setSuccess(true)
@@ -96,8 +98,15 @@ export function LiveStreamConfigComponent() {
   }
 
   const isValidUrl = (url: string) => {
+    if (!url) return true // URL vacía es válida (opcional)
     try {
       new URL(url)
+      // Validar que sea una URL de transmisión conocida
+      if (!url.includes("youtube.com") && !url.includes("youtu.be") && 
+          !url.includes("twitch.tv") && !url.includes("facebook.com") && 
+          !url.includes("fb.watch")) {
+        return false // Solo aceptar plataformas conocidas
+      }
       return true
     } catch {
       return false
