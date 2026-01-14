@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/auth-provider"
-import { getFavoriteArticles, type Article } from "@/lib/auth"
+import { getArticles, type Article } from "@/lib/api"
 import Link from "next/link"
 import { Heart, Calendar, User } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -22,8 +22,10 @@ export default function FavoritosPage() {
     }
 
     const loadFavorites = async () => {
-      const favoriteArticles = await getFavoriteArticles(user.id)
-      setFavorites(favoriteArticles)
+      // Por ahora mostramos todos los artículos publicados
+      // En el futuro se conectará a un endpoint de favoritos del usuario
+      const allArticles = await getArticles()
+      setFavorites(allArticles)
     }
 
     loadFavorites()
