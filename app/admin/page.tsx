@@ -266,8 +266,8 @@ export default function AdminPage() {
               <div className="p-4 sm:p-6 border-b border-border">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                   <h2 className="text-lg sm:text-2xl font-semibold text-foreground">Gestión de Artículos</h2>
-                  <Button size="sm" sm:size="default" asChild className="w-full sm:w-auto">
-                    <Link href="/escritor/nuevo" className="text-xs sm:text-sm">Crear Nuevo</Link>
+                  <Button size="sm" asChild className="w-full sm:w-auto text-xs sm:text-sm">
+                    <Link href="/escritor/nuevo">Crear Nuevo</Link>
                   </Button>
                 </div>
                 
