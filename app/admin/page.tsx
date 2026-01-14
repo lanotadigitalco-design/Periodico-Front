@@ -510,7 +510,7 @@ export default function AdminPage() {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      ))}}
+                      ))}
                     </TableBody>
                   </Table>
                   </div>
