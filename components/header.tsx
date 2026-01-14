@@ -12,11 +12,11 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 
 interface LiveStreamConfig {
-  isActive: boolean
-  streamUrl: string
-  title: string
-  description: string
-  updatedAt: string
+  url: string
+  titulo: string
+  descripcion: string
+  activo: boolean
+  actualizadoEn?: string
 }
 
 export function Header() {
@@ -164,8 +164,8 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-            {liveStreamConfig?.isActive && (
-              <a href={liveStreamConfig.streamUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+            {liveStreamConfig?.activo && (
+              <a href={liveStreamConfig.url} target="_blank" rel="noopener noreferrer" className="inline-block">
                 <Badge variant="destructive" className="animate-pulse text-xs md:text-sm cursor-pointer hover:opacity-80 transition-opacity">
                   <Play className="w-2 h-2 md:w-3 md:h-3 mr-1" />
                   <span className="hidden md:inline">EN VIVO</span>

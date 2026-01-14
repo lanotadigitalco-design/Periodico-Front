@@ -1,7 +1,7 @@
 {
-  "isActive": false,
-  "streamUrl": "https://www.youtube.com/watch?v=ZA6YS0CYoTA",
-  "title": "Transmisión en Vivo",
-  "description": "Síguenos en directo",
-  "updatedAt": "2026-01-14T20:44:48.344Z"
+  "url": "https://www.youtube.com/watch?v=ZA6YS0CYoTA",
+  "titulo": "Mi Transmisión",
+  "descripcion": "Descripción aquí",
+  "activo": true,
+  "actualizadoEn": "2026-01-14T22:30:25.346Z"
 }

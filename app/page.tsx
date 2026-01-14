@@ -10,11 +10,11 @@ import Link from "next/link"
 import { LiveStreamPlayer } from "@/components/live-stream-player"
 
 interface LiveStreamConfig {
-  isActive: boolean
-  streamUrl: string
-  title: string
-  description: string
-  updatedAt: string
+  url: string
+  titulo: string
+  descripcion: string
+  activo: boolean
+  actualizadoEn?: string
 }
 
 export default function NewsPage() {
@@ -80,10 +80,10 @@ export default function NewsPage() {
           {!isLoadingStream && liveStreamConfig && (
             <div className="w-full">
               <LiveStreamPlayer
-                isActive={liveStreamConfig.isActive}
-                streamUrl={liveStreamConfig.streamUrl}
-                title={liveStreamConfig.title}
-                description={liveStreamConfig.description}
+                isActive={liveStreamConfig.activo}
+                streamUrl={liveStreamConfig.url}
+                title={liveStreamConfig.titulo}
+                description={liveStreamConfig.descripcion}
               />
             </div>
           )}
