@@ -72,18 +72,27 @@ export function LiveStreamConfigComponent() {
         return
       }
 
+      console.log("📤 Enviando config:", config)
+      
+      // No incluir actualizadoEn, lo añade el servidor
+      const { ...configToSend } = config
+      
       const response = await fetch("http://192.168.1.33:5001/api/live-stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(config),
+        body: JSON.stringify(configToSend),
       })
 
+      console.log("📡 Response status:", response.status)
+      const responseData = await response.json()
+      console.log("📋 Response data:", responseData)
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        const errorMessage = errorData.message || errorData.error || `Error ${response.status}`
+        const errorMessage = responseData.message || responseData.error || `Error ${response.status}`
+        console.error("❌ Error del servidor:", errorMessage)
         throw new Error(errorMessage)
       }
 
@@ -91,7 +100,9 @@ export function LiveStreamConfigComponent() {
       setSaveDialog(false)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido")
+      const errorMsg = err instanceof Error ? err.message : "Error desconocido"
+      console.error("❌ Error completo:", err)
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
