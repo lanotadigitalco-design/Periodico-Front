@@ -119,7 +119,7 @@ export default function WriterPage() {
             <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2">Mis Artículos</h1>
             <p className="text-xs sm:text-base text-muted-foreground">Gestiona y publica tu contenido</p>
           </div>
-          <Button size="sm" sm:size="lg" asChild className="w-full sm:w-auto">
+          <Button size="sm" asChild className="w-full sm:w-auto">
             <Link href="/escritor/nuevo">
               <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Nuevo
