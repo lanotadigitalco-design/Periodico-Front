@@ -47,6 +47,7 @@ export default function AdminPage() {
   const [currentUserPage, setCurrentUserPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState<string>("todos")
+  const [statusFilter, setStatusFilter] = useState<"todos" | "activos" | "desactivados">("todos")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<{ id: string | number; name: string } | null>(null)
   const [deleteArticleDialogOpen, setDeleteArticleDialogOpen] = useState(false)
@@ -164,7 +165,12 @@ export default function AdminPage() {
     
     const matchesRole = roleFilter === "todos" || (u.rol?.nombre || "LECTOR") === roleFilter
     
-    return matchesSearch && matchesRole
+    const matchesStatus = 
+      statusFilter === "todos" || 
+      (statusFilter === "activos" && u.activo === true) ||
+      (statusFilter === "desactivados" && u.activo === false)
+    
+    return matchesSearch && matchesRole && matchesStatus
   })
 
   // Paginación con filtros aplicados
@@ -437,12 +443,30 @@ export default function AdminPage() {
                     </SelectContent>
                   </Select>
 
-                  {(searchTerm || roleFilter !== "todos") && (
+                  <Select 
+                    value={statusFilter}
+                    onValueChange={(value) => {
+                      setStatusFilter(value as "todos" | "activos" | "desactivados")
+                      setCurrentUserPage(1)
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filtrar por estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos los estados</SelectItem>
+                      <SelectItem value="activos">Activos</SelectItem>
+                      <SelectItem value="desactivados">Desactivados</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(searchTerm || roleFilter !== "todos" || statusFilter !== "todos") && (
                     <Button
                       variant="outline"
                       onClick={() => {
                         setSearchTerm("")
                         setRoleFilter("todos")
+                        setStatusFilter("todos")
                         setCurrentUserPage(1)
                       }}
                       className="w-full"
