@@ -88,15 +88,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
-    writeConfig(updatedConfig)
-
-    return NextResponse.json(updatedConfig, { status: 200 })
-  } catch (error) {
-    console.error("Error en API:", error)
-    return NextResponse.json(
-      { error: "Error al procesar la solicitud" },
-      { status: 500 }
-    )
-  }
-}
