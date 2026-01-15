@@ -133,6 +133,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
   },
   withCredentials: false,
 })
@@ -186,8 +187,16 @@ apiClient.interceptors.response.use(
 
     if (err.response) {
       const status = err.response.status
-      const message =
-        err.response.data?.message || err.message || "Request failed"
+      let message = "Request failed"
+      
+      // Detectar si la respuesta es HTML en lugar de JSON
+      const responseData = err.response.data
+      if (typeof responseData === 'string' && responseData.includes('<!DOCTYPE')) {
+        console.error(`API: Server returned HTML error page (${status})`)
+        message = `Server error (${status}): The server might be down or unreachable`
+      } else {
+        message = responseData?.message || err.message || "Request failed"
+      }
 
       console.error(`API: Request failed - ${status}: ${message}`)
 
@@ -258,7 +267,13 @@ function mapArticleFromAPI(data: any): Article {
   console.log("🔄 Mapeando artículo:", data)
   
   // Extraer imagen del array imagenes o usar logo por defecto
-  const imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
+  let imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
+  
+  // Si la imagen es un data URI (base64), usarla directamente
+  // Si no, asumir que es una URL relativa
+  if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http") && !imagenUrl.startsWith("/")) {
+    imagenUrl = "/" + imagenUrl
+  }
   
   // Extraer autor del array autores o usar campos directos
   const autor = (data.autores && data.autores[0]?.nombre) || data.autor || data.author || data.autorNombre || "Anónimo"
@@ -607,7 +622,7 @@ export const getAdminArticles = async (): Promise<Article[]> => {
   if (typeof window === "undefined") return []
 
   try {
-    // Intentar diferentes parámetros para obtener TODOS los artículos
+    // Intentar diferentes parámetros para obtener TODOS los artículosÑ
     let response: any = null
     const params = [
       "/articulos?published=all",
