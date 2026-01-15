@@ -96,7 +96,7 @@ export function Header() {
             {/* Logo - Visible en móvil cuando el menú NO está abierto */}
             {!isMobileMenuOpen && (
               <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center flex-shrink-0 block md:hidden z-10">
-                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-40 w-40" priority />
+                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-24" priority />
               </Link>
             )}
             
