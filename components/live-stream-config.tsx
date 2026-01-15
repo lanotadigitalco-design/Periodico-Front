@@ -53,11 +53,67 @@ export function LiveStreamConfigComponent() {
     }))
   }
 
-  const handleToggleActive = () => {
-    setConfig(prev => ({
-      ...prev,
-      activo: !prev.activo
-    }))
+  const handleToggleActive = async () => {
+    const newState = !config.activo
+    
+    try {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        setError("No hay token de autenticación.")
+        return
+      }
+
+      // Solo enviar el cambio de estado, sin requerir otros campos válidos
+      const configToSend = {
+        activo: newState
+      }
+
+      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
+      
+      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify(configToSend),
+      })
+
+      if (response.status === 404) {
+        // Si no existe, crear con todos los datos
+        response = await fetch(`${baseUrl}/api/live-stream`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({
+            url: config.url,
+            titulo: config.titulo,
+            descripcion: config.descripcion,
+            activo: newState
+          }),
+        })
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.message || "Error al guardar el estado")
+        return
+      }
+
+      // Solo cambiar el estado LOCAL después de guardarlo en BD
+      setConfig(prev => ({
+        ...prev,
+        activo: newState
+      }))
+      // No mostrar mensaje de éxito al cambiar estado
+    } catch (err) {
+      console.error("❌ Error al guardar estado:", err)
+      setError("Error al guardar el estado")
+    }
   }
 
   const handleSave = async () => {

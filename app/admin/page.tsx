@@ -27,10 +27,11 @@ import {
   updateArticle,
   updateUserRole,
   deleteUser,
+  activateUser,
   type Article,
   type User,
 } from "@/lib/api"
-import { Trash2, Edit, Eye, EyeOff, Search, X, Shield, FileText, Users, BookOpen } from "lucide-react"
+import { Trash2, Edit, Eye, EyeOff, Search, X, Shield, FileText, Users, BookOpen, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Input } from "@/components/ui/input"
@@ -50,7 +51,7 @@ export default function AdminPage() {
   const [roleFilter, setRoleFilter] = useState<string>("todos")
   const [statusFilter, setStatusFilter] = useState<"todos" | "activos" | "desactivados">("todos")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [userToDelete, setUserToDelete] = useState<{ id: string | number; name: string } | null>(null)
+  const [userToDelete, setUserToDelete] = useState<{ id: string | number; name: string; activo: boolean } | null>(null)
   const [deleteArticleDialogOpen, setDeleteArticleDialogOpen] = useState(false)
   const [articleToDelete, setArticleToDelete] = useState<{ id: string; title: string } | null>(null)
 
@@ -129,21 +130,36 @@ export default function AdminPage() {
       return
     }
     const userToRemove = users.find(u => u.id === userId)
-    setUserToDelete({ id: userId, name: userToRemove ? `${userToRemove.nombre} ${userToRemove.apellido}` : "Usuario" })
+    setUserToDelete({ id: userId, name: userToRemove ? `${userToRemove.nombre} ${userToRemove.apellido}` : "Usuario", activo: userToRemove?.activo || false })
     setDeleteDialogOpen(true)
   }
 
   const confirmDeleteUser = async () => {
     if (!userToDelete) return
-    console.log(`🗑️ Eliminando usuario ${userToDelete.id}`)
-    const result = await deleteUser(String(userToDelete.id))
     
-    if (result.success) {
-      const usersData = await getUsers()
-      setUsers(usersData)
-      setCurrentUserPage(1)
-    } else {
-      alert(`Error: ${result.message}`)
+    try {
+      let result
+      
+      if (userToDelete.activo) {
+        // Desactivar usuario
+        console.log(`🔴 Desactivando usuario ${userToDelete.id}`)
+        result = await deleteUser(String(userToDelete.id))
+      } else {
+        // Activar usuario
+        console.log(`🟢 Activando usuario ${userToDelete.id}`)
+        result = await activateUser(String(userToDelete.id))
+      }
+      
+      if (result.success) {
+        const usersData = await getUsers()
+        setUsers(usersData)
+        setCurrentUserPage(1)
+      } else {
+        alert(`Error: ${result.message}`)
+      }
+    } catch (err) {
+      console.error("Error:", err)
+      alert("Error al cambiar el estado del usuario")
     }
     
     setDeleteDialogOpen(false)
@@ -528,10 +544,14 @@ export default function AdminPage() {
                               size="sm"
                               onClick={() => handleDeleteUser(u.id)}
                               disabled={String(u.id) === String(user?.id)}
-                              className="text-destructive hover:text-destructive disabled:opacity-50"
-                              title={String(u.id) === String(user?.id) ? "No puedes desactivar tu propia cuenta" : "Desactivar usuario"}
+                              className={u.activo ? "text-destructive hover:text-destructive disabled:opacity-50" : "text-green-600 hover:text-green-700 disabled:opacity-50"}
+                              title={String(u.id) === String(user?.id) ? "No puedes cambiar el estado de tu propia cuenta" : (u.activo ? "Desactivar usuario" : "Activar usuario")}
                             >
-                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                              {u.activo ? (
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                              ) : (
+                                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
+                              )}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -626,22 +646,28 @@ export default function AdminPage() {
         </Card>
       </main>
 
-      {/* Alert Dialog para confirmar desactivación de usuario */}
+      {/* Alert Dialog para confirmar desactivación/activación de usuario */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="w-[90vw] max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg">Desactivar usuario</AlertDialogTitle>
+            <AlertDialogTitle className="text-lg">
+              {userToDelete?.activo ? "Desactivar usuario" : "Activar usuario"}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              ¿Estás seguro de que quieres desactivar a <strong>{userToDelete?.name}</strong>? El usuario será desactivado pero sus datos se mantendrán en el sistema.
+              {userToDelete?.activo ? (
+                <>¿Estás seguro de que quieres desactivar a <strong>{userToDelete?.name}</strong>? El usuario será desactivado pero sus datos se mantendrán en el sistema.</>
+              ) : (
+                <>¿Estás seguro de que quieres activar a <strong>{userToDelete?.name}</strong>? El usuario volverá a tener acceso al sistema.</>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-3">
             <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDeleteUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm"
+              className={userToDelete?.activo ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm" : "bg-green-600 text-white hover:bg-green-700 text-sm"}
             >
-              Desactivar
+              {userToDelete?.activo ? "Desactivar" : "Activar"}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

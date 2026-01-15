@@ -599,6 +599,23 @@ export const deleteUser = async (userId: string): Promise<{ success: boolean; me
   }
 }
 
+export const activateUser = async (userId: string): Promise<{ success: boolean; message: string }> => {
+  if (typeof window === "undefined") return { success: false, message: "Error del servidor" }
+
+  try {
+    const response = await apiRequest(`/usuarios/${userId}/activate`, { method: "PATCH" })
+    return { success: true, message: "Usuario reactivado exitosamente" }
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error)
+    
+    console.warn("⚠️ Error al reactivar usuario:", error)
+    return { 
+      success: false, 
+      message: errorMessage 
+    }
+  }
+}
+
 // ============================================================================
 // ARTICLE MANAGEMENT FUNCTIONS
 // ============================================================================
