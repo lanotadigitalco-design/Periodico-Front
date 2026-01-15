@@ -267,7 +267,13 @@ function mapArticleFromAPI(data: any): Article {
   console.log("🔄 Mapeando artículo:", data)
   
   // Extraer imagen del array imagenes o usar logo por defecto
-  const imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
+  let imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
+  
+  // Si la imagen es un data URI (base64), usarla directamente
+  // Si no, asumir que es una URL relativa
+  if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http") && !imagenUrl.startsWith("/")) {
+    imagenUrl = "/" + imagenUrl
+  }
   
   // Extraer autor del array autores o usar campos directos
   const autor = (data.autores && data.autores[0]?.nombre) || data.autor || data.author || data.autorNombre || "Anónimo"
