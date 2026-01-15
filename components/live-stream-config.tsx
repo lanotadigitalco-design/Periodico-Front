@@ -33,7 +33,7 @@ export function LiveStreamConfigComponent() {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const response = await fetch("http://192.168.1.33:5001/api/live-stream")
+        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
         if (response.ok) {
           const data = await response.json()
           setConfig(data)
@@ -82,7 +82,7 @@ export function LiveStreamConfigComponent() {
         activo: config.activo
       }
       
-      const response = await fetch("http://192.168.1.33:5001/api/live-stream", {
+      const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

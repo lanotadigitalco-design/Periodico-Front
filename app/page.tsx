@@ -40,7 +40,7 @@ export default function NewsPage() {
   useEffect(() => {
     const loadLiveStream = async () => {
       try {
-        const response = await fetch("http://192.168.1.33:5001/api/live-stream")
+        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
         if (response.ok) {
           const data = await response.json()
           setLiveStreamConfig(data)
