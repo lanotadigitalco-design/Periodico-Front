@@ -179,11 +179,6 @@ export function Header() {
                 <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
                   {user.name} ({user.role === "admin" ? "Admin" : user.role === "writer" ? "Periodista" : "Lector"})
                 </span>
-                <Button size="sm" variant="ghost" asChild className="h-8 w-8 md:h-10 md:w-10">
-                  <Link href="/favoritos">
-                    <Heart className="w-4 h-4" />
-                  </Link>
-                </Button>
                 {user.role === "admin" && (
                   <Button size="sm" variant="outline" asChild className="hidden md:flex">
                     <Link href="/admin">Admin</Link>
