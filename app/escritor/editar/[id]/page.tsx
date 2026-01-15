@@ -76,24 +76,24 @@ export default function EditArticlePage() {
     }
 
     try {
-      // Si hay archivo subido, convertir a base64
       let finalImageUrl = imagenUrl
+
+      // Si hay archivo subido, subirlo primero
       if (uploadedFile) {
-        const reader = new FileReader()
-        reader.onload = async (event) => {
-          const base64 = event.target?.result as string
-          await updateArticle(id, {
-            titulo,
-            resumen,
-            contenido,
-            categoria,
-            imagenUrl: base64,
-            publicado,
-          })
-          router.push("/escritor")
+        const formData = new FormData()
+        formData.append("file", uploadedFile)
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error("Error al subir la imagen")
         }
-        reader.readAsDataURL(uploadedFile)
-        return
+
+        const uploadData = await uploadResponse.json()
+        finalImageUrl = uploadData.url
       }
 
       await updateArticle(id, {
@@ -107,7 +107,7 @@ export default function EditArticlePage() {
 
       router.push("/escritor")
     } catch (err) {
-      setError("Error al actualizar el artículo")
+      setError(err instanceof Error ? err.message : "Error al actualizar el artículo")
     }
   }
 
@@ -244,11 +244,11 @@ export default function EditArticlePage() {
               <div className="space-y-2">
                 <Label>Imagen del Artículo (opcional)</Label>
                 
-                {previewUrl ? (
+                {previewUrl || imagenUrl ? (
                   <div className="space-y-4">
                     <div className="relative rounded-lg overflow-hidden border border-border">
                       <img 
-                        src={previewUrl} 
+                        src={previewUrl || imagenUrl} 
                         alt="Preview" 
                         className="w-full h-64 object-cover"
                       />
@@ -257,14 +257,35 @@ export default function EditArticlePage() {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={clearUpload}
+                        onClick={() => {
+                          setImagenUrl("")
+                          clearUpload()
+                        }}
                       >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      ✅ Archivo subido: {uploadedFile?.name}
-                    </p>
+                    {uploadedFile && (
+                      <p className="text-sm text-muted-foreground">
+                        ✅ Archivo subido: {uploadedFile?.name}
+                      </p>
+                    )}
+                    {!uploadedFile && imagenUrl && (
+                      <p className="text-sm text-muted-foreground">
+                        ✅ Imagen actual cargada
+                      </p>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setImagenUrl("")
+                        clearUpload()
+                      }}
+                    >
+                      Cambiar imagen
+                    </Button>
                   </div>
                 ) : (
                   <>
@@ -283,19 +304,6 @@ export default function EditArticlePage() {
                           PNG, JPG, GIF hasta 5MB
                         </p>
                       </label>
-                    </div>
-                    
-                    <div className="relative">
-                      <Input
-                        id="imagenUrl"
-                        type="url"
-                        value={imagenUrl}
-                        onChange={(e) => setImagenUrl(e.target.value)}
-                        placeholder="O pega una URL de imagen: https://ejemplo.com/imagen.jpg"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Alternativamente, puedes usar una URL externa
-                      </p>
                     </div>
                   </>
                 )}

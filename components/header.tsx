@@ -29,21 +29,6 @@ export function Header() {
   const [liveStreamConfig, setLiveStreamConfig] = useState<LiveStreamConfig | null>(null)
   const headerRef = useRef<HTMLDivElement>(null)
 
-  // TODO: Descomentar cuando el backend esté integrado
-  // useEffect(() => {
-  //   const loadLiveStream = async () => {
-  //     try {
-  //       const data = await api.get("/live-stream")
-  //       if (data) {
-  //         setLiveStreamConfig(data)
-  //         console.log("✅ Live stream config loaded:", data)
-  //       }
-  //     } catch (error) {
-  //       console.error("Error loading live stream config:", error)
-  //     }
-  //   }
-  //   loadLiveStream()
-  // }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -93,7 +78,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-1 md:py-4">
           <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-            {/* Logo - Visible en móvil cuando el menú NO está abierto */}
+            {/* Logo - Mobile - Visible cuando el menú NO está abierto */}
             {!isMobileMenuOpen && (
               <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center flex-shrink-0 block md:hidden z-10">
                 <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-24" priority />
