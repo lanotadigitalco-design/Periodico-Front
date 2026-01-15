@@ -37,23 +37,23 @@ export default function NewsPage() {
     loadArticles()
   }, [])
 
-  useEffect(() => {
-    const loadLiveStream = async () => {
-      try {
-        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
-        if (response.ok) {
-          const data = await response.json()
-          setLiveStreamConfig(data)
-        }
-      } catch (error) {
-        console.error("Error loading live stream config:", error)
-      } finally {
-        setIsLoadingStream(false)
-      }
-    }
-
-    loadLiveStream()
-  }, [])
+  // TODO: Descomentar cuando el backend esté integrado
+  // useEffect(() => {
+  //   const loadLiveStream = async () => {
+  //     try {
+  //       const response = await fetch("/api/live-stream")
+  //       if (response.ok) {
+  //         const data = await response.json()
+  //         setLiveStreamConfig(data)
+  //       }
+  //     } catch (error) {
+  //       console.error("Error loading live stream config:", error)
+  //     } finally {
+  //       setIsLoadingStream(false)
+  //     }
+  //   }
+  //   loadLiveStream()
+  // }, [])
 
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {

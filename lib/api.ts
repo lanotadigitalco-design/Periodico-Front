@@ -133,7 +133,6 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
   },
   withCredentials: false,
 })
@@ -191,11 +190,15 @@ apiClient.interceptors.response.use(
       
       // Detectar si la respuesta es HTML en lugar de JSON
       const responseData = err.response.data
-      if (typeof responseData === 'string' && responseData.includes('<!DOCTYPE')) {
+      if (typeof responseData === 'string' && (responseData.includes('<!DOCTYPE') || responseData.includes('<html') || responseData.includes('<HTML'))) {
         console.error(`API: Server returned HTML error page (${status})`)
-        message = `Server error (${status}): The server might be down or unreachable`
+        message = `Server error (${status}): The server returned an HTML error page instead of JSON. The server might be down or unreachable.`
+      } else if (typeof responseData === 'object' && responseData?.message) {
+        message = responseData.message
+      } else if (typeof responseData === 'string') {
+        message = responseData
       } else {
-        message = responseData?.message || err.message || "Request failed"
+        message = err.message || "Request failed"
       }
 
       console.error(`API: Request failed - ${status}: ${message}`)
@@ -235,9 +238,21 @@ export async function apiRequest(
       data,
     }
 
+    console.log(`🔵 API Request: ${method.toUpperCase()} ${API_URL}${endpoint}`)
     const response = await apiClient.request(config)
-    return response.data
-  } catch (error) {
+    
+    // Validar que la respuesta sea JSON válido
+    let responseData = response.data
+    if (typeof responseData === 'string' && (responseData.includes('<!DOCTYPE') || responseData.includes('<html'))) {
+      console.error(`❌ API: Response is HTML instead of JSON for ${method.toUpperCase()} ${endpoint}`)
+      console.error("First 500 chars of response:", responseData.substring(0, 500))
+      throw new Error(`Server returned HTML instead of JSON for ${method.toUpperCase()} ${endpoint}. Status: ${response.status}`)
+    }
+    
+    console.log(`✅ API Response successful: ${method.toUpperCase()} ${endpoint}`)
+    return responseData
+  } catch (error: any) {
+    console.error(`❌ API Error for ${method.toUpperCase()} ${endpoint}:`, error.message)
     throw error
   }
 }

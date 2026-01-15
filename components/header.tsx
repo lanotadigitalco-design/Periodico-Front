@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Play, User, LogOut, Heart, ChevronDown, Menu, X } from "lucide-react"
 import { useAuth } from "./auth-provider"
 import { logout } from "@/lib/auth"
+import { api } from "@/lib/api"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
@@ -28,21 +29,21 @@ export function Header() {
   const [liveStreamConfig, setLiveStreamConfig] = useState<LiveStreamConfig | null>(null)
   const headerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const loadLiveStream = async () => {
-      try {
-        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
-        if (response.ok) {
-          const data = await response.json()
-          setLiveStreamConfig(data)
-        }
-      } catch (error) {
-        console.error("Error loading live stream config:", error)
-      }
-    }
-
-    loadLiveStream()
-  }, [])
+  // TODO: Descomentar cuando el backend esté integrado
+  // useEffect(() => {
+  //   const loadLiveStream = async () => {
+  //     try {
+  //       const data = await api.get("/live-stream")
+  //       if (data) {
+  //         setLiveStreamConfig(data)
+  //         console.log("✅ Live stream config loaded:", data)
+  //       }
+  //     } catch (error) {
+  //       console.error("Error loading live stream config:", error)
+  //     }
+  //   }
+  //   loadLiveStream()
+  // }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

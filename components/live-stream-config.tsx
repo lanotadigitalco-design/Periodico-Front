@@ -82,13 +82,13 @@ export function LiveStreamConfigComponent() {
         activo: config.activo
       }
       
-      // Intentar PUT primero (actualizar con ID 1), si falla intentar POST (crear)
+      // Intentar PATCH primero (actualizar con ID 1), si falla intentar POST (crear)
       let response: Response
-      let method = "PUT"
+      let method = "PATCH"
       
       try {
         response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream/1", {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
@@ -99,7 +99,7 @@ export function LiveStreamConfigComponent() {
         // Si PUT falla, intentar POST
         console.log("📝 PUT falló, intentando POST...")
         method = "POST"
-        response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream", {
+        response = await fetch("http://localhost:5001/api/live-stream", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
