@@ -92,7 +92,7 @@ export function Header() {
     <header className="flex-1 relative" ref={headerRef}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-1 md:py-4">
-          <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
+          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
             {/* Logo - Visible en móvil cuando el menú NO está abierto */}
             {!isMobileMenuOpen && (
               <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center flex-shrink-0 block md:hidden z-10">
@@ -111,7 +111,7 @@ export function Header() {
             </Button>
             
             {/* Navegación de Secciones - Desktop */}
-            <nav className="hidden lg:flex gap-4 ml-4 border-l border-border pl-4 flex-wrap">
+            <nav className="hidden lg:flex gap-2 ml-2 border-l border-border pl-2 flex-wrap">
               {mainSections.map((section) => {
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
