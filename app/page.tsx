@@ -37,23 +37,42 @@ export default function NewsPage() {
     loadArticles()
   }, [])
 
-  // TODO: Descomentar cuando el backend esté integrado
-  // useEffect(() => {
-  //   const loadLiveStream = async () => {
-  //     try {
-  //       const response = await fetch("/api/live-stream")
-  //       if (response.ok) {
-  //         const data = await response.json()
-  //         setLiveStreamConfig(data)
-  //       }
-  //     } catch (error) {
-  //       console.error("Error loading live stream config:", error)
-  //     } finally {
-  //       setIsLoadingStream(false)
-  //     }
-  //   }
-  //   loadLiveStream()
-  // }, [])
+  useEffect(() => {
+    const loadLiveStream = async () => {
+      try {
+        console.log("📡 Cargando live stream...")
+        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream", {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            "Accept": "application/json"
+          }
+        })
+        
+        if (!response.ok) {
+          console.warn("⚠️ Live stream no disponible:", response.status)
+          setIsLoadingStream(false)
+          return
+        }
+        
+        // Validar que sea JSON antes de parsear
+        const contentType = response.headers.get("content-type")
+        if (!contentType || !contentType.includes("application/json")) {
+          console.warn("⚠️ Respuesta no es JSON:", contentType)
+          setIsLoadingStream(false)
+          return
+        }
+        
+        const data = await response.json()
+        console.log("✅ Live stream cargado:", data)
+        setLiveStreamConfig(data)
+      } catch (error) {
+        console.error("❌ Error loading live stream config:", error)
+      } finally {
+        setIsLoadingStream(false)
+      }
+    }
+    loadLiveStream()
+  }, [])
 
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {

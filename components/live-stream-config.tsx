@@ -29,21 +29,21 @@ export function LiveStreamConfigComponent() {
   const [error, setError] = useState("")
   const [saveDialog, setSaveDialog] = useState(false)
 
-  // Cargar configuración inicial
-  useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
-        if (response.ok) {
-          const data = await response.json()
-          setConfig(data)
-        }
-      } catch (err) {
-        console.error("Error cargando configuración:", err)
-      }
-    }
-    loadConfig()
-  }, [])
+  // TODO: Descomentar cuando el backend esté listo
+  // useEffect(() => {
+  //   const loadConfig = async () => {
+  //     try {
+  //       const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
+  //       if (response.ok) {
+  //         const data = await response.json()
+  //         setConfig(data)
+  //       }
+  //     } catch (err) {
+  //       console.error("Error cargando configuración:", err)
+  //     }
+  //   }
+  //   loadConfig()
+  // }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -82,28 +82,29 @@ export function LiveStreamConfigComponent() {
         activo: config.activo
       }
       
-      // Intentar PATCH primero (actualizar con ID 1), si falla intentar POST (crear)
-      let response: Response
-      let method = "PATCH"
+      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
       
-      try {
-        response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream/1", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(configToSend),
-        })
-      } catch (putError) {
-        // Si PUT falla, intentar POST
-        console.log("📝 PUT falló, intentando POST...")
-        method = "POST"
-        response = await fetch("http://localhost:5001/api/live-stream", {
+      // Intentar PATCH primero (actualizar con ID 1)
+      console.log("📝 Intentando PATCH a ID 1...")
+      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify(configToSend),
+      })
+
+      // Si PATCH retorna 404, intentar POST para crear
+      if (response.status === 404) {
+        console.log("📝 ID 1 no existe, intentando POST para crear...")
+        response = await fetch(`${baseUrl}/api/live-stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify(configToSend),
         })
