@@ -77,14 +77,12 @@ export function Header() {
     <header className="flex-1 relative" ref={headerRef}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-1 md:py-4">
-          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-            {/* Logo - Mobile - Visible cuando el menú NO está abierto */}
-            {!isMobileMenuOpen && (
-              <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center flex-shrink-0 block md:hidden z-10">
-                <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-24" priority />
-              </Link>
-            )}
-            
+          <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
+            {/* Logo - Mobile only (muy pequeño) */}
+            <Link href="/" className="sm:hidden flex items-center justify-center flex-shrink-0">
+              <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-16" priority />
+            </Link>
+
             {/* Botón Menú Hamburguesa - Mobile */}
             <Button
               size="sm"
