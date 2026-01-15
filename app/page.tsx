@@ -120,11 +120,13 @@ export default function NewsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {featuredArticles.map((article) => (
                     <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                      <img
-                        src={article.imageUrl || "/logo.png"}
-                        alt={article.title}
-                        className="w-full h-64 object-cover"
-                      />
+                      <Link href={`/articulo/${article.id}`} className="block">
+                        <img
+                          src={article.imageUrl || "/logo.png"}
+                          alt={article.title}
+                          className="w-full h-64 object-cover hover:opacity-90 transition-opacity"
+                        />
+                      </Link>
                       <div className="p-6">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                           <Badge variant="outline">{getCategoryLabel(article.category)}</Badge>
@@ -154,11 +156,13 @@ export default function NewsPage() {
                 {secondaryArticles.map((article) => (
                   <Card key={article.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="flex flex-col gap-2">
-                      <img
-                        src={article.imageUrl || "/logo.png"}
-                        alt={article.title}
-                        className="w-full h-32 object-cover rounded mb-2"
-                      />
+                      <Link href={`/articulo/${article.id}`} className="block">
+                        <img
+                          src={article.imageUrl || "/logo.png"}
+                          alt={article.title}
+                          className="w-full h-32 object-cover rounded mb-2 hover:opacity-90 transition-opacity"
+                        />
+                      </Link>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Badge variant="secondary" className="text-xs">
                           {getCategoryLabel(article.category)}
