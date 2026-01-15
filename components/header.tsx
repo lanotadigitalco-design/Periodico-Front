@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Play, User, LogOut, Heart, ChevronDown, Menu, X } from "lucide-react"
+import { Play, User, LogOut, ChevronDown, Menu, X } from "lucide-react"
 import { useAuth } from "./auth-provider"
 import { logout } from "@/lib/auth"
 import { api } from "@/lib/api"

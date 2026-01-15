@@ -73,7 +73,7 @@ export default function ArticlePage() {
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4 text-balance">
               {article.titulo}
             </h1>
-            <p className="text-xl text-muted-foreground mb-6 text-pretty">{article.resumen}</p>
+            <p className="text-xl text-muted-foreground mb-6 text-pretty">{article.resumen || article.excerpt}</p>
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">

@@ -763,10 +763,10 @@ export const createArticle = async (
   if (typeof window === "undefined") return null
 
   // Filtrar campos que el backend no acepta y transformar imagenUrl a imagenes
-  const { resumen, autor, autorId, creadoEn, actualizadoEn, imagenUrl, ...data } = article
+  const { autor, autorId, creadoEn, actualizadoEn, imagenUrl, imageUrl, ...data } = article
   const payload = {
     ...data,
-    imagenes: imagenUrl ? [imagenUrl] : [],
+    imagenes: imagenUrl || imageUrl ? [imagenUrl || imageUrl] : [],
   }
 
   console.log("createArticle: Enviando payload:", JSON.stringify(payload, null, 2))
@@ -804,7 +804,7 @@ export const updateArticle = async (
   if (typeof window === "undefined") return null
 
   // Filtrar campos que el backend no acepta y transformar imagenUrl a imagenes
-  const { resumen, autor, autorId, creadoEn, actualizadoEn, imagenUrl, published, ...data } = updates
+  const { autor, autorId, creadoEn, actualizadoEn, imagenUrl, imageUrl, published, ...data } = updates
   const payload: any = {
     ...data,
   }
@@ -814,8 +814,8 @@ export const updateArticle = async (
     payload.publicado = published
   }
   
-  if (imagenUrl !== undefined) {
-    payload.imagenes = imagenUrl ? [imagenUrl] : []
+  if (imagenUrl !== undefined || imageUrl !== undefined) {
+    payload.imagenes = (imagenUrl || imageUrl) ? [imagenUrl || imageUrl] : []
   }
 
   const response = await apiRequest(`/articulos/${id}`, {

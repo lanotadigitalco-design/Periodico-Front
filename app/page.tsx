@@ -193,6 +193,7 @@ export default function NewsPage() {
                           {article.title}
                         </h3>
                       </Link>
+                      <p className="text-muted-foreground text-xs line-clamp-2">{article.excerpt}</p>
                       <Button variant="ghost" size="sm" className="w-fit text-xs mt-auto" asChild>
                         <Link href={`/articulo/${article.id}`}>Leer más →</Link>
                       </Button>
