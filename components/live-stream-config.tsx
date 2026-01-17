@@ -68,7 +68,7 @@ export function LiveStreamConfigComponent() {
         activo: newState
       }
 
-      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
+      const baseUrl = "https://api.lanotadigital.co"
       
       let response = await fetch(`${baseUrl}/api/live-stream/1`, {
         method: "PATCH",
@@ -138,7 +138,7 @@ export function LiveStreamConfigComponent() {
         activo: config.activo
       }
       
-      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
+      const baseUrl = "https://api.lanotadigital.co"
       
       // Intentar PATCH primero (actualizar con ID 1)
       console.log("📝 Intentando PATCH a ID 1...")
