@@ -89,9 +89,19 @@ export function Header() {
         <div className="flex items-center justify-between gap-4 py-1 md:py-4">
           <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
             {/* Logo - Mobile only (muy pequeño) */}
-            <Link href="/" className="sm:hidden flex items-center justify-center flex-shrink-0">
-              <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-16" priority />
-            </Link>
+            <Link
+  href="/"
+  className="sm:hidden flex w-full items-center justify-center"
+>
+  <Image
+    src="/logo.png"
+    alt="La Nota Digital"
+    width={500}
+    height={100}
+    className="h-10 w-auto"
+    priority
+  />
+</Link>
 
             {/* Botón Menú Hamburguesa - Mobile */}
             <Button
