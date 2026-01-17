@@ -554,30 +554,26 @@ export const updateUserRole = async (
   try {
     console.log(`🔄 Actualizando rol del usuario ${userId} a ${roleNombre}`)
     
-    // Convertir nombres de roles a valores que el backend espera
+    // Convertir nombres de roles al formato que el backend espera (minúsculas)
     const roleMap: Record<string, string> = {
       "LECTOR": "lector",
-      "ESCRITOR": "escritor",
+      "ESCRITOR": "periodista",
       "PERIODISTA": "periodista",
       "ADMIN": "administrador",
     }
     const roleValue = roleMap[roleNombre] || roleNombre.toLowerCase()
     
-    console.log(`📤 Intentando actualizar rol a: ${roleValue}`)
+    console.log(`📤 Enviando rol: ${roleValue}`)
     
-    // El backend requiere un endpoint específico para roles que aún no existe
-    // Por ahora se muestra un mensaje indicando que esta funcionalidad requiere
-    // que el backend implemente un endpoint PATCH /usuarios/{id}/rol o similar
-    
-    const response = await apiRequest(`/usuarios/${userId}`, {
+    const response = await apiRequest(`/usuarios/${userId}/rol`, {
       method: "PATCH",
-      data: { nombre: roleValue }, // Intentar enviar como nombre
+      data: { rol: roleValue },
     })
+    
     console.log("✅ Rol actualizado:", response)
     return true
   } catch (error) {
-    console.error("❌ Error actualizando rol - El backend aún no soporta esta operación:", error)
-    alert("La funcionalidad de cambiar roles aún no está disponible en el backend.\nContacta al administrador del sistema.")
+    console.error("❌ Error actualizando rol:", error)
     return false
   }
 }

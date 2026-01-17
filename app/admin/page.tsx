@@ -54,6 +54,9 @@ export default function AdminPage() {
   const [userToDelete, setUserToDelete] = useState<{ id: string | number; name: string; activo: boolean } | null>(null)
   const [deleteArticleDialogOpen, setDeleteArticleDialogOpen] = useState(false)
   const [articleToDelete, setArticleToDelete] = useState<{ id: string; title: string } | null>(null)
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false)
+  const [userToChangeRole, setUserToChangeRole] = useState<{ id: string | number; name: string; currentRole: string } | null>(null)
+  const [selectedNewRole, setSelectedNewRole] = useState<"LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN" | "">("")
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "admin")) {
@@ -120,8 +123,49 @@ export default function AdminPage() {
 
   const handleRoleChange = async (userId: number | string, newRole: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN") => {
     console.log(`🔄 Cambio de rol solicitado para usuario ${userId} a ${newRole}`)
-    // Esta funcionalidad requiere que el backend implemente un endpoint para actualizar roles
-    alert("La funcionalidad de cambiar roles será implementada cuando el backend lo soporte.")
+    try {
+      const success = await updateUserRole(userId, newRole)
+      if (success) {
+        // Recargar usuarios
+        const usersData = await getUsers()
+        setUsers(usersData)
+        console.log(`✅ Rol actualizado exitosamente`)
+      } else {
+        alert("Error al actualizar el rol del usuario")
+      }
+    } catch (error) {
+      console.error("Error al cambiar rol:", error)
+      alert("Error al cambiar el rol del usuario")
+    }
+  }
+
+  const getRoleLabel = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      "ADMIN": "Administrador",
+      "PERIODISTA": "Periodista",
+      "LECTOR": "Lector"
+    }
+    return roleMap[role] || role
+  }
+
+  const handleOpenRoleDialog = (userId: number | string, userName: string, currentRole: string) => {
+    setUserToChangeRole({ id: userId, name: userName, currentRole })
+    setSelectedNewRole("")
+    setRoleDialogOpen(true)
+  }
+
+  const confirmRoleChange = async () => {
+    if (!userToChangeRole || !selectedNewRole) return
+    
+    try {
+      await handleRoleChange(userToChangeRole.id, selectedNewRole as "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN")
+      setRoleDialogOpen(false)
+      setUserToChangeRole(null)
+      setSelectedNewRole("")
+    } catch (error) {
+      console.error("Error:", error)
+      alert("Error al cambiar el rol")
+    }
   }
 
   const handleDeleteUser = async (userId: number | string) => {
@@ -205,16 +249,6 @@ export default function AdminPage() {
       cultura: "Cultura",
     }
     return labels[cat] || cat
-  }
-
-  const getRoleLabel = (role: string) => {
-    const labels: Record<string, string> = {
-      LECTOR: "Lector",
-      ESCRITOR: "Escritor",
-      PERIODISTA: "Periodista",
-      ADMIN: "Administrador",
-    }
-    return labels[role] || role
   }
 
   const getRoleBadge = (role: string) => {
@@ -539,20 +573,32 @@ export default function AdminPage() {
                             {new Date(u.createdAt).toLocaleDateString("es-ES")}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteUser(u.id)}
-                              disabled={String(u.id) === String(user?.id)}
-                              className={u.activo ? "text-destructive hover:text-destructive disabled:opacity-50" : "text-green-600 hover:text-green-700 disabled:opacity-50"}
-                              title={String(u.id) === String(user?.id) ? "No puedes cambiar el estado de tu propia cuenta" : (u.activo ? "Desactivar usuario" : "Activar usuario")}
-                            >
-                              {u.activo ? (
-                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                              ) : (
-                                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
-                              )}
-                            </Button>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenRoleDialog(u.id, `${u.nombre} ${u.apellido}`, u.rol?.nombre || "LECTOR")}
+                                disabled={String(u.id) === String(user?.id)}
+                                className="text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                                title={String(u.id) === String(user?.id) ? "No puedes cambiar tu propio rol" : "Cambiar rol"}
+                              >
+                                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteUser(u.id)}
+                                disabled={String(u.id) === String(user?.id)}
+                                className={u.activo ? "text-destructive hover:text-destructive disabled:opacity-50" : "text-green-600 hover:text-green-700 disabled:opacity-50"}
+                                title={String(u.id) === String(user?.id) ? "No puedes cambiar el estado de tu propia cuenta" : (u.activo ? "Desactivar usuario" : "Activar usuario")}
+                              >
+                                {u.activo ? (
+                                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                ) : (
+                                  <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
+                                )}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -689,6 +735,49 @@ export default function AdminPage() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm"
             >
               Eliminar
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Alert Dialog para cambiar rol de usuario */}
+      <AlertDialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
+        <AlertDialogContent className="w-[90vw] max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold">Cambiar rol de usuario</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-foreground/70">
+              Asignar nuevo rol a <strong className="text-foreground">{userToChangeRole?.name}</strong>
+              {userToChangeRole?.currentRole && (
+                <>
+                  <br />
+                  Rol actual: <span className="font-semibold text-foreground">{getRoleLabel(userToChangeRole.currentRole)}</span>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Nuevo rol</label>
+              <Select value={selectedNewRole} onValueChange={(value) => setSelectedNewRole(value as any)}>
+                <SelectTrigger className="w-full border-border">
+                  <SelectValue placeholder="Selecciona un rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  {userToChangeRole?.currentRole !== "LECTOR" && <SelectItem value="LECTOR">Lector</SelectItem>}
+                  {userToChangeRole?.currentRole !== "PERIODISTA" && <SelectItem value="PERIODISTA">Periodista</SelectItem>}
+                  {userToChangeRole?.currentRole !== "ADMIN" && <SelectItem value="ADMIN">Administrador</SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRoleChange}
+              disabled={!selectedNewRole}
+              className="bg-blue-600 text-white hover:bg-blue-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cambiar rol
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

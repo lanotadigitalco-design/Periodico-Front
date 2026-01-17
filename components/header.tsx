@@ -159,9 +159,9 @@ export function Header() {
 
             {user ? (
               <div className="flex items-center gap-1 md:gap-2">
-                <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
-                  {user.name} ({user.role === "admin" ? "Admin" : user.role === "writer" ? "Periodista" : "Lector"})
-                </span>
+                <div className="text-xs md:text-sm text-foreground font-medium hidden sm:block">
+                  {user.nombre}
+                </div>
                 {user.role === "admin" && (
                   <Button size="sm" variant="outline" asChild className="hidden md:flex">
                     <Link href="/admin">Admin</Link>
@@ -169,7 +169,7 @@ export function Header() {
                 )}
                 {user.role === "writer" && (
                   <Button size="sm" variant="outline" asChild className="hidden md:flex">
-                    <Link href="/escritor">Mis Artículos</Link>
+                    <Link href="/periodista">Mis Artículos</Link>
                   </Button>
                 )}
                 <Button size="sm" variant="ghost" onClick={handleLogout} className="h-8 w-8 md:h-10 md:w-10">
