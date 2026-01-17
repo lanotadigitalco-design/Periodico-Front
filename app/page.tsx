@@ -137,8 +137,14 @@ export default function NewsPage() {
                   Noticias Destacadas
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredArticles.map((article) => (
-                    <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                  {featuredArticles.map((article, index) => (
+                    <Card 
+                      key={article.id} 
+                      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer animate-in fade-in duration-500 slide-in-from-bottom-4"
+                      style={{
+                        animationDelay: `${index * 150}ms`
+                      }}
+                    >
                       <Link href={`/articulo/${article.id}`} className="block">
                         <img
                           src={article.imageUrl || "/logo.png"}
@@ -172,8 +178,14 @@ export default function NewsPage() {
                 Más Noticias
               </h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {secondaryArticles.map((article) => (
-                  <Card key={article.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                {secondaryArticles.map((article, index) => (
+                  <Card 
+                    key={article.id} 
+                    className="p-4 hover:shadow-lg transition-shadow cursor-pointer animate-in fade-in duration-500 slide-in-from-bottom-4"
+                    style={{
+                      animationDelay: `${index * 150}ms`
+                    }}
+                  >
                     <div className="flex flex-col gap-2">
                       <Link href={`/articulo/${article.id}`} className="block">
                         <img

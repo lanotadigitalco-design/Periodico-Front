@@ -49,7 +49,11 @@ export function Header() {
     }
   }, [isDropdownOpen, isMobileMenuOpen])
 
-  const handleLogout = () => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    await new Promise(resolve => setTimeout(resolve, 300))
     logout()
     setUser(null)
     router.push("/")
@@ -74,7 +78,13 @@ export function Header() {
   const moreSections = sections.slice(7)
 
   return (
-    <header className="flex-1 relative" ref={headerRef}>
+    <header 
+      className={cn(
+        "flex-1 relative transition-all duration-300",
+        isLoggingOut && "opacity-0"
+      )} 
+      ref={headerRef}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-1 md:py-4">
           <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
@@ -163,12 +173,12 @@ export function Header() {
                   {user.nombre}
                 </div>
                 {user.role === "admin" && (
-                  <Button size="sm" variant="outline" asChild className="hidden md:flex">
+                  <Button size="sm" variant="outline" asChild className="text-xs sm:text-sm">
                     <Link href="/admin">Admin</Link>
                   </Button>
                 )}
                 {user.role === "writer" && (
-                  <Button size="sm" variant="outline" asChild className="hidden md:flex">
+                  <Button size="sm" variant="outline" asChild className="text-xs sm:text-sm">
                     <Link href="/periodista">Mis Artículos</Link>
                   </Button>
                 )}

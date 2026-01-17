@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { login, register } from "@/lib/auth"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
@@ -23,6 +24,8 @@ export default function LoginPage() {
   const [rol, setRol] = useState("lector")
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [isUserDisabledDialogOpen, setIsUserDisabledDialogOpen] = useState(false)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const router = useRouter()
   const { setUser } = useAuth()
 
@@ -34,8 +37,13 @@ export default function LoginPage() {
       const user = await login(email, password)
       console.log("Login response:", user)
       
-      if (user) {
+      if (user && user.id === "DISABLED") {
+        console.log("User is disabled, opening dialog")
+        setIsUserDisabledDialogOpen(true)
+        return
+      } else if (user) {
         console.log("Login successful, user role:", user.role)
+        setIsLoggingIn(true)
         // Guardar el usuario en el contexto
         setUser(user)
         
@@ -45,11 +53,11 @@ export default function LoginPage() {
           if (user.role === "admin") {
             router.push("/admin")
           } else if (user.role === "writer") {
-            router.push("/escritor")
+            router.push("/periodista")
           } else {
             router.push("/")
           }
-        }, 50)
+        }, 300)
       } else {
         setError("Email o contraseña incorrectos")
       }
@@ -61,10 +69,11 @@ export default function LoginPage() {
       const user = await register(email, password, nombre, apellido, rol)
       if (user) {
         console.log("Register successful, user:", user)
+        setIsLoggingIn(true)
         setUser(user)
         setTimeout(() => {
           router.push("/")
-        }, 50)
+        }, 300)
       } else {
         setError("El email ya está registrado")
       }
@@ -72,7 +81,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className={`min-h-screen bg-background flex items-center justify-center p-4 transition-all duration-300 ${isLoggingIn ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}>
       <Card className="w-full max-w-md p-8">
         <div className="mb-6 text-center">
           <Link href="/">
@@ -176,6 +185,30 @@ export default function LoginPage() {
           </button>
         </div>
       </Card>
+
+      {/* Alert Dialog para usuario desactivado */}
+      <AlertDialog open={isUserDisabledDialogOpen} onOpenChange={setIsUserDisabledDialogOpen}>
+        <AlertDialogContent className="w-[90vw] max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold">Cuenta desactivada</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-foreground/70">
+              Tu usuario ha sido eliminado o desactivado. Si crees que es un error, por favor contacta con el administrador.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-end gap-2">
+            <AlertDialogAction 
+              onClick={() => {
+                setIsUserDisabledDialogOpen(false)
+                setEmail("")
+                setPassword("")
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700 text-sm"
+            >
+              Entendido
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

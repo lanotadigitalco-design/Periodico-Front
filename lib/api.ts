@@ -354,6 +354,18 @@ export const login = async (
     const userData = response.usuario || response.user
 
     if (token && userData) {
+      // Verificar si el usuario está desactivado
+      if (userData.activo === false) {
+        console.log("User account is disabled")
+        return {
+          id: "DISABLED",
+          email: userData.email,
+          name: userData.nombre || userData.name,
+          role: "reader",
+          createdAt: new Date().toISOString(),
+        }
+      }
+
       setToken(token)
       const user: User = {
         id: userData.id,
@@ -367,8 +379,21 @@ export const login = async (
     }
 
     return null
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error:", error)
+    
+    // Capturar error de usuario desactivado (401)
+    if (error.message && error.message.includes("desactivado")) {
+      console.log("User account is disabled - returning DISABLED marker")
+      return {
+        id: "DISABLED",
+        email: email,
+        name: "",
+        role: "reader",
+        createdAt: new Date().toISOString(),
+      }
+    }
+    
     return null
   }
 }

@@ -312,13 +312,28 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="articles" className="w-full">
-          <TabsList className="grid w-full max-w-md sm:max-w-2xl grid-cols-2 sm:grid-cols-3 h-auto">
-            <TabsTrigger value="articles" className="text-xs sm:text-sm">Artículos ({articles.length})</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs sm:text-sm">Usuarios ({users.length})</TabsTrigger>
-            <TabsTrigger value="livestream" className="hidden sm:block">Transmisión</TabsTrigger>
+          <TabsList className="grid w-full max-w-md sm:max-w-2xl grid-cols-2 sm:grid-cols-3 h-auto gap-2">
+            <TabsTrigger 
+              value="articles" 
+              className="text-xs sm:text-sm transition-all duration-300 data-[state=active]:scale-105"
+            >
+              Artículos ({articles.length})
+            </TabsTrigger>
+            <TabsTrigger 
+              value="users" 
+              className="text-xs sm:text-sm transition-all duration-300 data-[state=active]:scale-105"
+            >
+              Usuarios ({users.length})
+            </TabsTrigger>
+            <TabsTrigger 
+              value="livestream" 
+              className="hidden sm:block transition-all duration-300 data-[state=active]:scale-105"
+            >
+              Transmisión
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="articles" className="mt-6">
+          <TabsContent value="articles" className="mt-6 animate-in fade-in duration-300 slide-in-from-bottom-4">
             <Card>
               <div className="p-4 sm:p-6 border-b border-border">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -334,7 +349,7 @@ export default function AdminPage() {
                     size="sm"
                     variant={articleFilter === "todos" ? "default" : "outline"}
                     onClick={() => setArticleFilter("todos")}
-                    className="text-xs sm:text-sm"
+                    className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     Todos ({articles.length + archivedArticles.length})
                   </Button>
@@ -342,7 +357,7 @@ export default function AdminPage() {
                     size="sm"
                     variant={articleFilter === "publicados" ? "default" : "outline"}
                     onClick={() => setArticleFilter("publicados")}
-                    className="text-xs sm:text-sm"
+                    className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     Publicados ({articles.filter(a => a.publicado).length})
                   </Button>
@@ -350,7 +365,7 @@ export default function AdminPage() {
                     size="sm"
                     variant={articleFilter === "archivados" ? "default" : "outline"}
                     onClick={() => setArticleFilter("archivados")}
-                    className="text-xs sm:text-sm"
+                    className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     Archivados ({archivedArticles.length})
                   </Button>
@@ -387,8 +402,14 @@ export default function AdminPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      displayArticles.map((article) => (
-                        <TableRow key={article.id}>
+                      displayArticles.map((article, index) => (
+                        <TableRow 
+                          key={article.id}
+                          className="animate-in fade-in duration-300 slide-in-from-left-4"
+                          style={{
+                            animationDelay: `${index * 50}ms`
+                          }}
+                        >
                           <TableCell className="font-medium max-w-xs sm:max-w-md">
                             <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors line-clamp-2">
                               {article.titulo}
@@ -441,7 +462,7 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="users" className="mt-6">
+          <TabsContent value="users" className="mt-6 animate-in fade-in duration-300 slide-in-from-bottom-4">
             <Card>
               <div className="p-4 sm:p-6 border-b border-border">
                 <div className="mb-4">
@@ -557,8 +578,14 @@ export default function AdminPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredPaginatedUsers.map((u) => (
-                        <TableRow key={u.id} className="hover:bg-muted/50">
+                      {filteredPaginatedUsers.map((u, index) => (
+                        <TableRow 
+                          key={u.id} 
+                          className="hover:bg-muted/50 animate-in fade-in duration-300 slide-in-from-left-4"
+                          style={{
+                            animationDelay: `${index * 50}ms`
+                          }}
+                        >
                           <TableCell className="font-medium text-sm line-clamp-1">{u.nombre} {u.apellido}</TableCell>
                           <TableCell className="hidden sm:table-cell text-sm">{u.email}</TableCell>
                           <TableCell className="hidden md:table-cell">
@@ -656,7 +683,7 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="livestream" className="mt-6">
+          <TabsContent value="livestream" className="mt-6 animate-in fade-in duration-300 slide-in-from-bottom-4">
             <Card>
               <div className="p-4 sm:p-6 border-b border-border">
                 <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-4">Transmisión en Vivo</h2>

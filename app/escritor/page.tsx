@@ -137,7 +137,7 @@ export default function WriterPage() {
                 size="sm"
                 variant={articleFilter === "todos" ? "default" : "outline"}
                 onClick={() => setArticleFilter("todos")}
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Todos ({articles.length + archivedArticles.length})
               </Button>
@@ -145,7 +145,7 @@ export default function WriterPage() {
                 size="sm"
                 variant={articleFilter === "publicados" ? "default" : "outline"}
                 onClick={() => setArticleFilter("publicados")}
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Publicados ({articles.filter(a => a.publicado).length})
               </Button>
@@ -153,7 +153,7 @@ export default function WriterPage() {
                 size="sm"
                 variant={articleFilter === "archivados" ? "default" : "outline"}
                 onClick={() => setArticleFilter("archivados")}
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Archivados ({archivedArticles.length})
               </Button>
@@ -203,8 +203,14 @@ export default function WriterPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  displayArticles.map((article) => (
-                    <TableRow key={article.id}>
+                  displayArticles.map((article, index) => (
+                    <TableRow 
+                      key={article.id}
+                      className="animate-in fade-in duration-300 slide-in-from-left-4"
+                      style={{
+                        animationDelay: `${index * 50}ms`
+                      }}
+                    >
                       <TableCell className="font-medium max-w-xs sm:max-w-md">
                         <Link href={`/articulo/${article.id}`} className="hover:text-primary transition-colors line-clamp-2">
                           {article.titulo}
