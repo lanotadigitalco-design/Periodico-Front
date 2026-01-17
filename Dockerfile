@@ -24,6 +24,8 @@ RUN corepack enable pnpm
 
 # Variables de entorno necesarias para el build
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV SKIP_ENV_VALIDATION=1
 
 # Build de Next.js
 RUN pnpm build
