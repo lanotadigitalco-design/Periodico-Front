@@ -41,7 +41,7 @@ export default function NewsPage() {
     const loadLiveStream = async () => {
       try {
         console.log("📡 Cargando live stream...")
-        const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream", {
+        const response = await fetch("https://api.lanotadigital.co/live-stream", {
           headers: {
             "ngrok-skip-browser-warning": "true",
             "Accept": "application/json"

@@ -33,7 +33,7 @@ export function LiveStreamConfigComponent() {
   // useEffect(() => {
   //   const loadConfig = async () => {
   //     try {
-  //       const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
+  //       const response = await fetch("https://api.lanotadigital.co/live-stream")
   //       if (response.ok) {
   //         const data = await response.json()
   //         setConfig(data)
