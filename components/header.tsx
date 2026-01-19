@@ -95,18 +95,17 @@ export function Header() {
     >
       <div className="container mx-auto px-2 md:px-4">
         {/* Logo centrado en móvil */}
-        <div className="md:hidden flex items-center justify-between gap-1 py-1.5 min-h-10">
+        <div className="lg:hidden flex items-center gap-1 py-1.5 min-h-10">
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 w-8"
+            className="h-8 w-8 flex-shrink-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </Button>
           <Link href="/" className="flex items-center justify-center flex-1">
-           <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-auto" priority />
-            
+            <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-auto" priority />
           </Link>
           <div className="flex items-center gap-2">
             {liveStreamConfig?.activo && (
@@ -143,10 +142,10 @@ export function Header() {
         </div>
 
         {/* Header Desktop */}
-        <div className="hidden md:flex items-center justify-between gap-4 py-1 md:py-3 lg:py-4">
+        <div className="hidden lg:flex items-center justify-between gap-4 py-1 md:py-3 lg:py-4">
           <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0 overflow-x-auto">
             {/* Navegación de Secciones - Desktop */}
-            <nav className="hidden md:flex gap-2 ml-4 md:ml-6 lg:ml-8 border-l border-border pl-3 md:pl-4 flex-wrap md:flex-nowrap">
+            <nav className="hidden lg:flex gap-2 ml-4 md:ml-6 lg:ml-8 border-l border-border pl-3 md:pl-4 flex-wrap md:flex-nowrap">
               {mainSections.map((section) => {
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
@@ -241,7 +240,7 @@ export function Header() {
 
         {/* Navegación de Secciones - Mobile Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card max-h-[calc(100vh-60px)] overflow-y-auto">
+          <div className="lg:hidden fixed top-14 left-0 right-0 w-full bg-card max-h-[calc(100vh-56px)] overflow-y-auto z-40 border-b border-border rounded-b-lg">
             <nav className="flex flex-col">
               <Link href="/" className="text-sm font-medium text-foreground hover:bg-muted transition-colors py-3 px-4 border-b border-border last:border-b-0">
                 Inicio
