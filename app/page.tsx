@@ -75,7 +75,7 @@ export default function NewsPage() {
         console.log("📡 Cargando live stream...");
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co";
-        const response = await fetch(apiUrl + "/api/live-stream", {
+        const response = await fetch(apiUrl + "/live-stream", {
           headers: {
             "ngrok-skip-browser-warning": "true",
             Accept: "application/json",

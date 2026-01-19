@@ -63,9 +63,9 @@ export function LiveStreamConfigComponent() {
       };
 
       const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co";
 
-      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+      let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ export function LiveStreamConfigComponent() {
 
       if (response.status === 404) {
         // Si no existe, crear con todos los datos
-        response = await fetch(`${baseUrl}/api/live-stream`, {
+        response = await fetch(`${baseUrl}/live-stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -140,7 +140,7 @@ export function LiveStreamConfigComponent() {
 
       // Intentar PATCH primero (actualizar con ID 1)
       console.log("📝 Intentando PATCH a ID 1...");
-      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+      let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +153,7 @@ export function LiveStreamConfigComponent() {
       // Si PATCH retorna 404, intentar POST para crear
       if (response.status === 404) {
         console.log("📝 ID 1 no existe, intentando POST para crear...");
-        response = await fetch(`${baseUrl}/api/live-stream`, {
+        response = await fetch(`${baseUrl}/live-stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
