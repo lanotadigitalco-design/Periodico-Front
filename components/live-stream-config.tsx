@@ -63,7 +63,7 @@ export function LiveStreamConfigComponent() {
       };
 
       const baseUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
       let response = await fetch(`${baseUrl}/api/live-stream/1`, {
         method: "PATCH",
