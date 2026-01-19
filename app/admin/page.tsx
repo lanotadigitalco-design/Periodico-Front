@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
+import { useToast } from "@/components/ui/use-toast"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,18 +36,24 @@ import { Trash2, Edit, Eye, EyeOff, Search, X, Shield, FileText, Users, BookOpen
 import Link from "next/link"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
 import { LiveStreamConfigComponent } from "@/components/live-stream-config"
 
 const USERS_PER_PAGE = 10
+const ARTICLES_PER_PAGE = 10
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
   const [articles, setArticles] = useState<Article[]>([])
   const [archivedArticles, setArchivedArticles] = useState<Article[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [articleFilter, setArticleFilter] = useState<"todos" | "publicados" | "archivados">("todos")
+  const [articleSearchTerm, setArticleSearchTerm] = useState("")
+  const [currentArticlePage, setCurrentArticlePage] = useState(1)
   const [currentUserPage, setCurrentUserPage] = useState(1)
+  const [isLoading2, setIsLoading2] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState<string>("todos")
   const [statusFilter, setStatusFilter] = useState<"todos" | "activos" | "desactivados">("todos")
@@ -96,29 +103,53 @@ export default function AdminPage() {
 
   const confirmDeleteArticle = async () => {
     if (!articleToDelete) return
+    setIsLoading2(true)
     console.log(`🗑️ Eliminando artículo ${articleToDelete.id}`)
     const result = await deleteArticle(articleToDelete.id)
     
     if (result.success) {
+      toast({
+        title: "Éxito",
+        description: "Artículo eliminado correctamente",
+        variant: "default",
+      })
       const articlesData = await getAdminArticles()
       const archivedData = await getArchivedArticles()
       setArticles(articlesData)
       setArchivedArticles(archivedData)
     } else {
-      alert(`Error: ${result.message}`)
+      toast({
+        title: "Error",
+        description: result.message,
+        variant: "destructive",
+      })
     }
     
+    setIsLoading2(false)
     setDeleteArticleDialogOpen(false)
     setArticleToDelete(null)
   }
 
   const handleTogglePublish = async (id: string, currentStatus: boolean) => {
-    await updateArticle(id, { publicado: !currentStatus })
-    // Recargar ambas listas
-    const articlesData = await getAdminArticles()
-    const archivedData = await getArchivedArticles()
-    setArticles(articlesData)
-    setArchivedArticles(archivedData)
+    const result = await updateArticle(id, { publicado: !currentStatus })
+    if (result) {
+      toast({
+        title: "Éxito",
+        description: `Artículo ${!currentStatus ? "publicado" : "despublicado"} correctamente`,
+        variant: "default",
+      })
+      // Recargar ambas listas
+      const articlesData = await getAdminArticles()
+      const archivedData = await getArchivedArticles()
+      setArticles(articlesData)
+      setArchivedArticles(archivedData)
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo cambiar el estado del artículo",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleRoleChange = async (userId: number | string, newRole: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN") => {
@@ -126,16 +157,29 @@ export default function AdminPage() {
     try {
       const success = await updateUserRole(userId, newRole)
       if (success) {
+        toast({
+          title: "Éxito",
+          description: `Rol actualizado a ${getRoleLabel(newRole)}`,
+          variant: "default",
+        })
         // Recargar usuarios
         const usersData = await getUsers()
         setUsers(usersData)
         console.log(`✅ Rol actualizado exitosamente`)
       } else {
-        alert("Error al actualizar el rol del usuario")
+        toast({
+          title: "Error",
+          description: "Error al actualizar el rol del usuario",
+          variant: "destructive",
+        })
       }
     } catch (error) {
       console.error("Error al cambiar rol:", error)
-      alert("Error al cambiar el rol del usuario")
+      toast({
+        title: "Error",
+        description: "Error al cambiar el rol del usuario",
+        variant: "destructive",
+      })
     }
   }
 
@@ -170,7 +214,11 @@ export default function AdminPage() {
 
   const handleDeleteUser = async (userId: number | string) => {
     if (String(userId) === String(user?.id)) {
-      alert("No puedes desactivar tu propia cuenta")
+      toast({
+        title: "Advertencia",
+        description: "No puedes desactivar tu propia cuenta",
+        variant: "destructive",
+      })
       return
     }
     const userToRemove = users.find(u => u.id === userId)
@@ -195,15 +243,28 @@ export default function AdminPage() {
       }
       
       if (result.success) {
+        toast({
+          title: "Éxito",
+          description: userToDelete.activo ? "Usuario desactivado correctamente" : "Usuario activado correctamente",
+          variant: "default",
+        })
         const usersData = await getUsers()
         setUsers(usersData)
         setCurrentUserPage(1)
       } else {
-        alert(`Error: ${result.message}`)
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        })
       }
     } catch (err) {
       console.error("Error:", err)
-      alert("Error al cambiar el estado del usuario")
+      toast({
+        title: "Error",
+        description: "Error al cambiar el estado del usuario",
+        variant: "destructive",
+      })
     }
     
     setDeleteDialogOpen(false)
@@ -312,7 +373,7 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="articles" className="w-full">
-          <TabsList className="grid w-full max-w-md sm:max-w-2xl grid-cols-2 sm:grid-cols-3 h-auto gap-2">
+          <TabsList className="grid w-full grid-cols-3 h-auto gap-2">
             <TabsTrigger 
               value="articles" 
               className="text-xs sm:text-sm transition-all duration-300 data-[state=active]:scale-105"
@@ -327,7 +388,7 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger 
               value="livestream" 
-              className="hidden sm:block transition-all duration-300 data-[state=active]:scale-105"
+              className="text-xs sm:text-sm transition-all duration-300 data-[state=active]:scale-105"
             >
               Transmisión
             </TabsTrigger>
@@ -341,6 +402,27 @@ export default function AdminPage() {
                   <Button size="sm" asChild className="w-full sm:w-auto text-xs sm:text-sm">
                     <Link href="/escritor/nuevo">Crear Nuevo</Link>
                   </Button>
+                </div>
+
+                {/* Búsqueda de artículos */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar artículos por título, autor..."
+                      value={articleSearchTerm}
+                      onChange={(e) => setArticleSearchTerm(e.target.value)}
+                      className="pl-10 text-xs sm:text-sm"
+                    />
+                    {articleSearchTerm && (
+                      <button
+                        onClick={() => setArticleSearchTerm("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Filtro de artículos */}
@@ -395,14 +477,29 @@ export default function AdminPage() {
                       displayArticles = [...articles, ...archivedArticles]
                     }
                     
-                    return displayArticles.length === 0 ? (
+                    // Aplicar búsqueda
+                    if (articleSearchTerm) {
+                      displayArticles = displayArticles.filter(a =>
+                        a.titulo.toLowerCase().includes(articleSearchTerm.toLowerCase()) ||
+                        (a.autor?.toLowerCase().includes(articleSearchTerm.toLowerCase()) || false)
+                      )
+                    }
+
+                    // Calcular paginación
+                    const totalPages = Math.ceil(displayArticles.length / ARTICLES_PER_PAGE)
+                    const paginatedArticles = displayArticles.slice(
+                      (currentArticlePage - 1) * ARTICLES_PER_PAGE,
+                      currentArticlePage * ARTICLES_PER_PAGE
+                    )
+                    
+                    return paginatedArticles.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                          No hay artículos {articleFilter === "archivados" ? "archivados" : "disponibles"}
+                          No hay artículos {articleFilter === "archivados" ? "archivados" : "disponibles"}{articleSearchTerm ? " que coincidan con la búsqueda" : ""}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      displayArticles.map((article, index) => (
+                      paginatedArticles.map((article, index) => (
                         <TableRow 
                           key={article.id}
                           className="animate-in fade-in duration-300 slide-in-from-left-4"
@@ -459,6 +556,73 @@ export default function AdminPage() {
                 </TableBody>
               </Table>
               </div>
+
+              {/* Paginación de artículos */}
+              {(() => {
+                let displayArticles: Article[] = []
+                if (articleFilter === "publicados") {
+                  displayArticles = articles.filter(a => a.publicado)
+                } else if (articleFilter === "archivados") {
+                  displayArticles = archivedArticles
+                } else {
+                  displayArticles = [...articles, ...archivedArticles]
+                }
+                
+                if (articleSearchTerm) {
+                  displayArticles = displayArticles.filter(a =>
+                    a.titulo.toLowerCase().includes(articleSearchTerm.toLowerCase()) ||
+                    (a.autor?.toLowerCase().includes(articleSearchTerm.toLowerCase()) || false)
+                  )
+                }
+
+                const totalPages = Math.ceil(displayArticles.length / ARTICLES_PER_PAGE)
+                
+                return totalPages > 1 ? (
+                  <div className="border-t border-border p-4">
+                    <Pagination>
+                      <PaginationContent className="justify-center gap-1">
+                        {currentArticlePage > 1 && (
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              onClick={() => setCurrentArticlePage(p => Math.max(1, p - 1))}
+                              className="cursor-pointer"
+                            />
+                          </PaginationItem>
+                        )}
+                        
+                        {Array.from({ length: totalPages }).map((_, i) => {
+                          const pageNum = i + 1
+                          if (pageNum === 1 || pageNum === totalPages || (pageNum >= currentArticlePage - 1 && pageNum <= currentArticlePage + 1)) {
+                            return (
+                              <PaginationItem key={pageNum}>
+                                <PaginationLink
+                                  onClick={() => setCurrentArticlePage(pageNum)}
+                                  isActive={currentArticlePage === pageNum}
+                                  className="cursor-pointer"
+                                >
+                                  {pageNum}
+                                </PaginationLink>
+                              </PaginationItem>
+                            )
+                          } else if (pageNum === 2 || pageNum === totalPages - 1) {
+                            return <PaginationEllipsis key={`ellipsis-${pageNum}`} />
+                          }
+                          return null
+                        })}
+                        
+                        {currentArticlePage < totalPages && (
+                          <PaginationItem>
+                            <PaginationNext 
+                              onClick={() => setCurrentArticlePage(p => Math.min(totalPages, p + 1))}
+                              className="cursor-pointer"
+                            />
+                          </PaginationItem>
+                        )}
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                ) : null
+              })()}
             </Card>
           </TabsContent>
 
@@ -756,12 +920,14 @@ export default function AdminPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-3">
-            <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="text-sm" disabled={isLoading2}>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDeleteArticle}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm"
+              disabled={isLoading2}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Eliminar
+              {isLoading2 && <Spinner className="w-3 h-3" />}
+              {isLoading2 ? "Eliminando..." : "Eliminar"}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

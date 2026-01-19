@@ -120,7 +120,7 @@ function isTokenExpired(token: string): boolean {
 
 // Usar el proxy de Next.js en cliente y ngrok en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api"
+  return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
   
 }
 

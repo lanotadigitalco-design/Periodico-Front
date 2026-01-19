@@ -7,8 +7,10 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { getArticles, getArchivedArticles, deleteArticle, updateArticle, type Article } from "@/lib/api"
-import { Trash2, Edit, PlusCircle, Eye, EyeOff } from "lucide-react"
+import { Trash2, Edit, PlusCircle, Eye, EyeOff, Search, X } from "lucide-react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -20,6 +22,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+const ARTICLES_PER_PAGE = 10
+
 export default function WriterPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
@@ -28,6 +32,8 @@ export default function WriterPage() {
   const [articleFilter, setArticleFilter] = useState<"todos" | "publicados" | "archivados">("todos")
   const [deleteArticleDialogOpen, setDeleteArticleDialogOpen] = useState(false)
   const [articleToDelete, setArticleToDelete] = useState<{ id: string; title: string } | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== "writer" && user.role !== "admin"))) {
@@ -132,11 +138,15 @@ export default function WriterPage() {
             <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-4">Mis Artículos</h2>
             
             {/* Filtro de artículos */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               <Button
                 size="sm"
                 variant={articleFilter === "todos" ? "default" : "outline"}
-                onClick={() => setArticleFilter("todos")}
+                onClick={() => {
+                  setArticleFilter("todos")
+                  setCurrentPage(1)
+                  setSearchTerm("")
+                }}
                 className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Todos ({articles.length + archivedArticles.length})
@@ -144,7 +154,11 @@ export default function WriterPage() {
               <Button
                 size="sm"
                 variant={articleFilter === "publicados" ? "default" : "outline"}
-                onClick={() => setArticleFilter("publicados")}
+                onClick={() => {
+                  setArticleFilter("publicados")
+                  setCurrentPage(1)
+                  setSearchTerm("")
+                }}
                 className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Publicados ({articles.filter(a => a.publicado).length})
@@ -152,11 +166,40 @@ export default function WriterPage() {
               <Button
                 size="sm"
                 variant={articleFilter === "archivados" ? "default" : "outline"}
-                onClick={() => setArticleFilter("archivados")}
+                onClick={() => {
+                  setArticleFilter("archivados")
+                  setCurrentPage(1)
+                  setSearchTerm("")
+                }}
                 className="text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Archivados ({archivedArticles.length})
               </Button>
+            </div>
+
+            {/* Búsqueda */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar artículos por título..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="pl-10 text-sm"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("")
+                    setCurrentPage(1)
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -182,28 +225,47 @@ export default function WriterPage() {
                   displayArticles = [...articles, ...archivedArticles]
                 }
                 
-                return displayArticles.length === 0 ? (
+                // Aplicar búsqueda
+                if (searchTerm) {
+                  displayArticles = displayArticles.filter(a =>
+                    a.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    a.title?.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                }
+
+                // Paginación
+                const totalPages = Math.ceil(displayArticles.length / ARTICLES_PER_PAGE)
+                const paginatedArticles = displayArticles.slice(
+                  (currentPage - 1) * ARTICLES_PER_PAGE,
+                  currentPage * ARTICLES_PER_PAGE
+                )
+                
+                return paginatedArticles.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-12">
                       <div className="flex flex-col items-center gap-4">
                         <p className="text-muted-foreground">
-                          {articleFilter === "publicados" 
+                          {searchTerm
+                            ? "No hay artículos que coincidan con tu búsqueda"
+                            : articleFilter === "publicados" 
                             ? "No tienes artículos publicados" 
                             : articleFilter === "archivados"
                             ? "No tienes artículos archivados"
                             : "Aún no has creado ningún artículo"}
                         </p>
-                        <Button asChild>
-                          <Link href="/escritor/nuevo">
-                            <PlusCircle className="w-4 h-4 mr-2" />
-                            Crear tu primer artículo
-                          </Link>
-                        </Button>
+                        {!searchTerm && (
+                          <Button asChild>
+                            <Link href="/escritor/nuevo">
+                              <PlusCircle className="w-4 h-4 mr-2" />
+                              Crear tu primer artículo
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  displayArticles.map((article, index) => (
+                  paginatedArticles.map((article, index) => (
                     <TableRow 
                       key={article.id}
                       className="animate-in fade-in duration-300 slide-in-from-left-4"
@@ -259,6 +321,60 @@ export default function WriterPage() {
             </TableBody>
           </Table>
           </div>
+
+          {(() => {
+            let displayArticles: Article[] = []
+            if (articleFilter === "publicados") {
+              displayArticles = articles.filter(a => a.publicado)
+            } else if (articleFilter === "archivados") {
+              displayArticles = archivedArticles
+            } else {
+              displayArticles = [...articles, ...archivedArticles]
+            }
+            
+            if (searchTerm) {
+              displayArticles = displayArticles.filter(a =>
+                a.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                a.title?.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+            }
+
+            const totalPages = Math.ceil(displayArticles.length / ARTICLES_PER_PAGE)
+            
+            return totalPages > 1 && (
+              <div className="flex justify-center p-4 border-t border-border">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )
+          })()}
         </Card>
 
         <Card className="mt-6 p-4 sm:p-6 bg-muted/50">

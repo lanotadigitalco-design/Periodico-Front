@@ -25,8 +25,8 @@ function getBackendUrl(request: NextRequest): string {
     return `http://${hostname}:5001/api`
   }
   
-  // Para cualquier otro caso, usar la API oficial
-  return process.env.NEXT_PUBLIC_API_URL || 'https://api.lanotadigital.co/api'
+  // Para cualquier otro caso, usar ngrok (acceso desde afuera de la red local)
+  return process.env.NEXT_PUBLIC_API_URL || 'https://postilioned-symmetrically-margarita.ngrok-free.dev/api'
 }
 
 async function proxyRequest(

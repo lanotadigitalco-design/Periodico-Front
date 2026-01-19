@@ -33,7 +33,7 @@ export function LiveStreamConfigComponent() {
   // useEffect(() => {
   //   const loadConfig = async () => {
   //     try {
-  //       const response = await fetch("https://api.lanotadigital.co/live-stream")
+  //       const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
   //       if (response.ok) {
   //         const data = await response.json()
   //         setConfig(data)
@@ -68,7 +68,7 @@ export function LiveStreamConfigComponent() {
         activo: newState
       }
 
-      const baseUrl = "https://api.lanotadigital.co"
+      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
       
       let response = await fetch(`${baseUrl}/api/live-stream/1`, {
         method: "PATCH",
@@ -138,7 +138,7 @@ export function LiveStreamConfigComponent() {
         activo: config.activo
       }
       
-      const baseUrl = "https://api.lanotadigital.co"
+      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
       
       // Intentar PATCH primero (actualizar con ID 1)
       console.log("📝 Intentando PATCH a ID 1...")
