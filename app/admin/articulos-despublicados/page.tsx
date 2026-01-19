@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Article } from "@/lib/api"
-import { getUnpublishedArticles, updateArticle } from "@/lib/api"
+import { getArchivedArticles, updateArticle } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
@@ -20,7 +20,7 @@ export default function ArticulosDespublicadosPage() {
   async function loadArticles() {
     try {
       setLoading(true)
-      const data = await getUnpublishedArticles()
+      const data = await getArchivedArticles()
       setArticles(data)
       setError(null)
     } catch (err) {

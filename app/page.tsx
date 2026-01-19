@@ -4,10 +4,14 @@ import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music, Search, X } from "lucide-react"
 import { getPublishedArticles, type Article } from "@/lib/auth"
 import Link from "next/link"
 import { LiveStreamPlayer } from "@/components/live-stream-player"
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+
+const ARTICLES_PER_PAGE = 8
 
 interface LiveStreamConfig {
   url: string
@@ -21,6 +25,8 @@ export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([])
   const [liveStreamConfig, setLiveStreamConfig] = useState<LiveStreamConfig | null>(null)
   const [isLoadingStream, setIsLoadingStream] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -87,7 +93,23 @@ export default function NewsPage() {
   }
 
   const featuredArticles = articles.slice(0, 2)
-  const secondaryArticles = articles.slice(2, 6)
+  
+  // Filtrar artículos por búsqueda
+  let filteredArticles = articles.slice(2)
+  if (searchTerm) {
+    filteredArticles = filteredArticles.filter(a =>
+      a.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.author?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }
+
+  // Paginación
+  const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE)
+  const paginatedArticles = filteredArticles.slice(
+    (currentPage - 1) * ARTICLES_PER_PAGE,
+    currentPage * ARTICLES_PER_PAGE
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -172,20 +194,49 @@ export default function NewsPage() {
         )}
 
           {/* Secondary News List */}
-          {secondaryArticles.length > 0 && (
-            <section>
-              <h2 className="text-3xl font-serif font-bold text-foreground mb-6 border-b border-border pb-2">
+          <section>
+            <div className="mb-6">
+              <h2 className="text-3xl font-serif font-bold text-foreground mb-4 border-b border-border pb-2">
                 Más Noticias
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {secondaryArticles.map((article, index) => (
-                  <Card 
-                    key={article.id} 
-                    className="p-4 hover:shadow-lg transition-shadow cursor-pointer animate-in fade-in duration-500 slide-in-from-bottom-4"
-                    style={{
-                      animationDelay: `${index * 150}ms`
+              
+              {/* Búsqueda */}
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar noticias por título, resumen o autor..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="pl-10 text-sm"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("")
+                      setCurrentPage(1)
                     }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {paginatedArticles.length > 0 ? (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {paginatedArticles.map((article, index) => (
+                    <Card 
+                      key={article.id} 
+                      className="p-4 hover:shadow-lg transition-shadow cursor-pointer animate-in fade-in duration-500 slide-in-from-bottom-4"
+                      style={{
+                        animationDelay: `${index * 150}ms`
+                      }}
+                    >
                     <div className="flex flex-col gap-2">
                       <Link href={`/articulo/${article.id}`} className="block">
                         <img
@@ -212,9 +263,51 @@ export default function NewsPage() {
                     </div>
                   </Card>
                 ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-8">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  {searchTerm ? "No hay artículos que coincidan con tu búsqueda" : "No hay más artículos disponibles"}
+                </p>
               </div>
+            )}
             </section>
-          )}
         </div>
 
 

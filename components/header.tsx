@@ -49,13 +49,18 @@ export function Header() {
     }
   }, [isDropdownOpen, isMobileMenuOpen])
 
+  // Resetear isLoggingOut cuando el usuario cambie
+  useEffect(() => {
+    setIsLoggingOut(false)
+  }, [user])
+
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
-    await new Promise(resolve => setTimeout(resolve, 300))
     logout()
     setUser(null)
+    setIsLoggingOut(false)
     router.push("/")
   }
 
@@ -86,23 +91,56 @@ export function Header() {
       ref={headerRef}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between gap-4 py-1 md:py-4">
-          <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
-            {/* Logo - Mobile only (muy pequeño) */}
-            <Link href="/" className="sm:hidden flex items-center justify-center flex-shrink-0">
-              <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-16" priority />
-            </Link>
+        {/* Logo centrado en móvil */}
+        <div className="sm:hidden flex items-center justify-between gap-2 py-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </Button>
+          <Link href="/" className="flex items-center justify-center flex-1">
+            <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-16" priority />
+          </Link>
+          <div className="flex items-center gap-2">
+            {liveStreamConfig?.activo && (
+              <a href={liveStreamConfig.url} target="_blank" rel="noopener noreferrer" className="inline-block">
+                <Badge variant="destructive" className="animate-pulse text-xs cursor-pointer hover:opacity-80 transition-opacity">
+                  <Play className="w-2 h-2 mr-1" />
+                </Badge>
+              </a>
+            )}
+            {user ? (
+              <div className="flex items-center gap-1">
+                {user.role === "admin" && (
+                  <Button size="sm" variant="outline" asChild className="text-xs">
+                    <Link href="/admin">Admin</Link>
+                  </Button>
+                )}
+                {user.role === "writer" && (
+                  <Button size="sm" variant="outline" asChild className="text-xs">
+                    <Link href="/escritor">Artículos</Link>
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" onClick={handleLogout} className="h-8 w-8">
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" asChild className="text-xs">
+                <Link href="/login">
+                  <User className="w-3 h-3 mr-1" />
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
 
-            {/* Botón Menú Hamburguesa - Mobile */}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="lg:hidden h-8 w-8"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </Button>
-            
+        {/* Header Desktop */}
+        <div className="hidden sm:flex items-center justify-between gap-4 py-1 md:py-4">
+          <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
             {/* Navegación de Secciones - Desktop */}
             <nav className="hidden lg:flex gap-2 ml-2 border-l border-border pl-2 flex-wrap">
               {mainSections.map((section) => {
@@ -157,7 +195,7 @@ export function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+          <div className="hidden sm:flex items-center gap-2 md:gap-4 flex-shrink-0">
             {liveStreamConfig?.activo && (
               <a href={liveStreamConfig.url} target="_blank" rel="noopener noreferrer" className="inline-block">
                 <Badge variant="destructive" className="animate-pulse text-xs md:text-sm cursor-pointer hover:opacity-80 transition-opacity">
@@ -179,7 +217,7 @@ export function Header() {
                 )}
                 {user.role === "writer" && (
                   <Button size="sm" variant="outline" asChild className="text-xs sm:text-sm">
-                    <Link href="/periodista">Mis Artículos</Link>
+                    <Link href="/escritor">Mis Artículos</Link>
                   </Button>
                 )}
                 <Button size="sm" variant="ghost" onClick={handleLogout} className="h-8 w-8 md:h-10 md:w-10">
