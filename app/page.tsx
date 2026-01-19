@@ -74,8 +74,7 @@ export default function NewsPage() {
       try {
         console.log("📡 Cargando live stream...");
         const apiUrl =
-          process.env.NEXT_PUBLIC_LIVE_STREAM_API_URL ||
-          "http://localhost:3001";
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
         const response = await fetch(apiUrl + "/api/live-stream", {
           headers: {
             "ngrok-skip-browser-warning": "true",
