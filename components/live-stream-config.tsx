@@ -63,7 +63,7 @@ export function LiveStreamConfigComponent() {
       };
 
       const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co";
+        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
 
       let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
