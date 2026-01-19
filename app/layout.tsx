@@ -41,10 +41,10 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <AuthProvider>
           <div className="relative border-b border-border bg-card sticky top-0 z-50">
-            <div className="absolute left-24 top-1/2 -translate-y-1/2 hidden md:block">
+            <div className="absolute left-16 md:left-20 lg:left-24 top-1/2 -translate-y-1/2 hidden md:block">
               <LogoSection />
             </div>
-            <div className="pl-4 md:pl-40">
+            <div className="pl-16 md:pl-32 lg:pl-40">
               <Header />
             </div>
           </div>

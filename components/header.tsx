@@ -82,6 +82,9 @@ export function Header() {
   const mainSections = sections.slice(0, 7)
   const moreSections = sections.slice(7)
 
+  // Mostrar menú hamburguesa en pantallas < md (768px)
+  const showMobileMenu = true // Se controla con Tailwind md:hidden
+
   return (
     <header 
       className={cn(
@@ -90,9 +93,9 @@ export function Header() {
       )} 
       ref={headerRef}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-2 md:px-4">
         {/* Logo centrado en móvil */}
-        <div className="sm:hidden flex items-center justify-between gap-2 py-2">
+        <div className="md:hidden flex items-center justify-between gap-1 py-1.5 min-h-10">
           <Button
             size="sm"
             variant="ghost"
@@ -102,7 +105,8 @@ export function Header() {
             {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </Button>
           <Link href="/" className="flex items-center justify-center flex-1">
-            <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-16" priority />
+           <Image src="/logo.png" alt="La Nota Digital" width={500} height={100} className="h-10 w-auto" priority />
+            
           </Link>
           <div className="flex items-center gap-2">
             {liveStreamConfig?.activo && (
@@ -115,23 +119,23 @@ export function Header() {
             {user ? (
               <div className="flex items-center gap-1">
                 {user.role === "admin" && (
-                  <Button size="sm" variant="outline" asChild className="text-xs">
+                  <Button size="sm" variant="outline" asChild className="text-xs h-7 px-2">
                     <Link href="/admin">Admin</Link>
                   </Button>
                 )}
                 {user.role === "writer" && (
-                  <Button size="sm" variant="outline" asChild className="text-xs">
+                  <Button size="sm" variant="outline" asChild className="text-xs h-7 px-2">
                     <Link href="/escritor">Artículos</Link>
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={handleLogout} className="h-8 w-8">
-                  <LogOut className="w-4 h-4" />
+                <Button size="sm" variant="ghost" onClick={handleLogout} className="h-7 w-7">
+                  <LogOut className="w-3 h-3" />
                 </Button>
               </div>
             ) : (
-              <Button size="sm" variant="outline" asChild className="text-xs">
+              <Button size="sm" variant="outline" asChild className="text-xs h-7 w-7 p-0">
                 <Link href="/login">
-                  <User className="w-3 h-3 mr-1" />
+                  <User className="w-3 h-3" />
                 </Link>
               </Button>
             )}
@@ -139,10 +143,10 @@ export function Header() {
         </div>
 
         {/* Header Desktop */}
-        <div className="hidden sm:flex items-center justify-between gap-4 py-1 md:py-4">
-          <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0">
+        <div className="hidden md:flex items-center justify-between gap-4 py-1 md:py-3 lg:py-4">
+          <div className="flex items-center gap-1 md:gap-3 flex-1 min-w-0 overflow-x-auto">
             {/* Navegación de Secciones - Desktop */}
-            <nav className="hidden lg:flex gap-2 ml-2 border-l border-border pl-2 flex-wrap">
+            <nav className="hidden md:flex gap-2 ml-4 md:ml-6 lg:ml-8 border-l border-border pl-3 md:pl-4 flex-wrap md:flex-nowrap">
               {mainSections.map((section) => {
                 const isActive = pathname.includes(section.href.split("/").pop() || "")
                 return (
@@ -195,7 +199,7 @@ export function Header() {
             </nav>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 md:gap-4 flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
             {liveStreamConfig?.activo && (
               <a href={liveStreamConfig.url} target="_blank" rel="noopener noreferrer" className="inline-block">
                 <Badge variant="destructive" className="animate-pulse text-xs md:text-sm cursor-pointer hover:opacity-80 transition-opacity">
@@ -207,7 +211,7 @@ export function Header() {
 
             {user ? (
               <div className="flex items-center gap-1 md:gap-2">
-                <div className="text-xs md:text-sm text-foreground font-medium hidden sm:block">
+                <div className="text-xs md:text-sm text-foreground font-medium hidden md:block">
                   {user.nombre}
                 </div>
                 {user.role === "admin" && (
@@ -228,7 +232,7 @@ export function Header() {
               <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
                 <Link href="/login">
                   <User className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                  <span className="hidden sm:inline">Iniciar Sesión</span>
+                  <span className="hidden md:inline">Iniciar Sesión</span>
                 </Link>
               </Button>
             )}
@@ -237,7 +241,7 @@ export function Header() {
 
         {/* Navegación de Secciones - Mobile Dropdown */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-border bg-card">
+          <div className="md:hidden border-t border-border bg-card max-h-[calc(100vh-60px)] overflow-y-auto">
             <nav className="flex flex-col">
               <Link href="/" className="text-sm font-medium text-foreground hover:bg-muted transition-colors py-3 px-4 border-b border-border last:border-b-0">
                 Inicio
