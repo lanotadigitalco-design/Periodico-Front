@@ -121,10 +121,14 @@ function isTokenExpired(token: string): boolean {
 // Usar el proxy de Next.js en cliente y API en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api"
-  
+}
+
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://api.lanotadigital.co"
 }
 
 const API_URL = getApiUrl()
+const API_BASE_URL = getApiBaseUrl()
 const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
@@ -882,6 +886,316 @@ export const deleteArticle = async (id: string): Promise<{ success: boolean; mes
       success: false, 
       message: errorMessage 
     }
+  }
+}
+
+// ============================================================================
+// UPLOAD ENDPOINTS
+// ============================================================================
+
+export interface UploadImageResponse {
+  url: string
+  filename: string
+}
+
+export interface UploadMultipleImagesResponse {
+  urls: string[]
+  filenames: string[]
+}
+
+/**
+ * Sube una única imagen al servidor
+ * @param file - El archivo de imagen a subir
+ * @returns Información del archivo subido (URL y nombre)
+ */
+export const uploadImage = async (file: File): Promise<UploadImageResponse> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const formData = new FormData()
+    formData.append("file", file)
+    
+    const token = getToken()
+    const response = await apiClient.post<UploadImageResponse>(
+      "/upload/image",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al subir la imagen"
+    console.error("Error en uploadImage:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Sube múltiples imágenes al servidor
+ * @param files - Array de archivos de imagen a subir
+ * @returns Información de los archivos subidos (URLs y nombres)
+ */
+export const uploadMultipleImages = async (files: File[]): Promise<UploadMultipleImagesResponse> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const formData = new FormData()
+    files.forEach((file) => {
+      formData.append("files", file)
+    })
+    
+    const token = getToken()
+    const response = await apiClient.post<UploadMultipleImagesResponse>(
+      "/upload/images",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al subir las imágenes"
+    console.error("Error en uploadMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Obtiene una imagen del servidor por su nombre
+ * @param filename - El nombre del archivo a recuperar
+ * @returns URL de la imagen
+ */
+export const getImageUrl = (filename: string): string => {
+  return `${API_BASE_URL}/api/upload/image/${filename}`
+}
+
+/**
+ * Obtiene múltiples imágenes del servidor
+ * @param filenames - Array de nombres de archivos a recuperar
+ * @returns Array de imágenes en base64 con su información
+ */
+export const getMultipleImages = async (filenames: string[]): Promise<Array<{
+  filename: string
+  data: string
+  mimetype: string
+}>> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.post<Array<{
+      filename: string
+      data: string
+      mimetype: string
+    }>>("/upload/images/multiple", { filenames })
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener las imágenes"
+    console.error("Error en getMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina una imagen del servidor
+ * @param filename - El nombre del archivo a eliminar
+ * @returns Mensaje de confirmación
+ */
+export const deleteImage = async (filename: string): Promise<{ message: string }> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    const response = await apiClient.delete<{ message: string }>(
+      `/upload/image/${filename}`,
+      {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar la imagen"
+    console.error("Error en deleteImage:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina múltiples imágenes del servidor
+ * @param filenames - Array de nombres de archivos a eliminar
+ * @returns Información sobre los archivos eliminados
+ */
+export const deleteMultipleImages = async (filenames: string[]): Promise<{
+  message: string
+  deleted: string[]
+}> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    const response = await apiClient.delete<{
+      message: string
+      deleted: string[]
+    }>("/upload/images/batch", {
+      data: { filenames },
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar las imágenes"
+    console.error("Error en deleteMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+// ============================================================================
+// LIVE-STREAM ENDPOINTS
+// ============================================================================
+
+export interface LiveStreamConfig {
+  id?: number
+  url: string
+  titulo: string
+  descripcion: string
+  activo: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+/**
+ * Obtiene la configuración activa de la transmisión en vivo
+ * @returns Configuración de la transmisión
+ */
+export const getLiveStreamConfig = async (): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.get<LiveStreamConfig>("/live-stream")
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener configuración de transmisión"
+    console.error("Error en getLiveStreamConfig:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Obtiene una transmisión por su ID
+ * @param id - ID de la transmisión
+ * @returns Configuración de la transmisión
+ */
+export const getLiveStreamById = async (id: number): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.get<LiveStreamConfig>(`/live-stream/${id}`)
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener transmisión"
+    console.error("Error en getLiveStreamById:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Crea una nueva configuración de transmisión en vivo
+ * @param config - Configuración de la transmisión
+ * @returns Configuración creada
+ */
+export const createLiveStream = async (config: Omit<LiveStreamConfig, "id" | "createdAt" | "updatedAt">): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.post<LiveStreamConfig>(
+      "/live-stream",
+      config,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al crear transmisión"
+    console.error("Error en createLiveStream:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Actualiza la configuración de una transmisión en vivo
+ * @param id - ID de la transmisión
+ * @param config - Campos a actualizar
+ * @returns Configuración actualizada
+ */
+export const updateLiveStream = async (id: number, config: Partial<Omit<LiveStreamConfig, "id" | "createdAt" | "updatedAt">>): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.patch<LiveStreamConfig>(
+      `/live-stream/${id}`,
+      config,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al actualizar transmisión"
+    console.error("Error en updateLiveStream:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina una transmisión en vivo
+ * @param id - ID de la transmisión
+ * @returns Mensaje de confirmación
+ */
+export const deleteLiveStream = async (id: number): Promise<{ message: string }> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.delete<{ message: string }>(
+      `/live-stream/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar transmisión"
+    console.error("Error en deleteLiveStream:", errorMessage)
+    throw new Error(errorMessage)
   }
 }
 
