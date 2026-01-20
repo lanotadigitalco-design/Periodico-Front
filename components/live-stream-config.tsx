@@ -1,20 +1,28 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { CheckCircle, AlertCircle } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 interface LiveStreamConfig {
-  url: string
-  titulo: string
-  descripcion: string
-  activo: boolean
+  url: string;
+  titulo: string;
+  descripcion: string;
+  activo: boolean;
 }
 
 export function LiveStreamConfigComponent() {
@@ -23,193 +31,192 @@ export function LiveStreamConfigComponent() {
     titulo: "Mi Transmisión",
     descripcion: "Descripción aquí",
     activo: true,
-  })
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState("")
-  const [saveDialog, setSaveDialog] = useState(false)
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [saveDialog, setSaveDialog] = useState(false);
 
-  // TODO: Descomentar cuando el backend esté listo
-  // useEffect(() => {
-  //   const loadConfig = async () => {
-  //     try {
-  //       const response = await fetch("https://postilioned-symmetrically-margarita.ngrok-free.dev/api/live-stream")
-  //       if (response.ok) {
-  //         const data = await response.json()
-  //         setConfig(data)
-  //       }
-  //     } catch (err) {
-  //       console.error("Error cargando configuración:", err)
-  //     }
-  //   }
-  //   loadConfig()
-  // }, [])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setConfig(prev => ({
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setConfig((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   const handleToggleActive = async () => {
-    const newState = !config.activo
-    
+    const newState = !config.activo;
+
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        setError("No hay token de autenticación.")
-        return
+        setError("No hay token de autenticación.");
+        return;
       }
 
       // Solo enviar el cambio de estado, sin requerir otros campos válidos
       const configToSend = {
-        activo: newState
-      }
+        activo: newState,
+      };
 
-      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
-      
-      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
+
+      let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(configToSend),
-      })
+      });
 
       if (response.status === 404) {
         // Si no existe, crear con todos los datos
-        response = await fetch(`${baseUrl}/api/live-stream`, {
+        response = await fetch(`${baseUrl}/live-stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify({
             url: config.url,
             titulo: config.titulo,
             descripcion: config.descripcion,
-            activo: newState
+            activo: newState,
           }),
-        })
+        });
       }
 
       if (!response.ok) {
-        const errorData = await response.json()
-        setError(errorData.message || "Error al guardar el estado")
-        return
+        const errorData = await response.json();
+        setError(errorData.message || "Error al guardar el estado");
+        return;
       }
 
       // Solo cambiar el estado LOCAL después de guardarlo en BD
-      setConfig(prev => ({
+      setConfig((prev) => ({
         ...prev,
-        activo: newState
-      }))
+        activo: newState,
+      }));
       // No mostrar mensaje de éxito al cambiar estado
     } catch (err) {
-      console.error("❌ Error al guardar estado:", err)
-      setError("Error al guardar el estado")
+      console.error("❌ Error al guardar estado:", err);
+      setError("Error al guardar el estado");
     }
-  }
+  };
 
   const handleSave = async () => {
-    setLoading(true)
-    setError("")
-    setSuccess(false)
+    setLoading(true);
+    setError("");
+    setSuccess(false);
 
     try {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        setError("No hay token de autenticación. Por favor, inicia sesión como administrador.")
-        return
+        setError(
+          "No hay token de autenticación. Por favor, inicia sesión como administrador.",
+        );
+        return;
       }
 
-      console.log("📤 Enviando config:", config)
-      
+      console.log("📤 Enviando config:", config);
+
       // Solo enviar los campos que el servidor espera
       const configToSend = {
         url: config.url,
         titulo: config.titulo,
         descripcion: config.descripcion,
-        activo: config.activo
-      }
-      
-      const baseUrl = "https://postilioned-symmetrically-margarita.ngrok-free.dev"
-      
+        activo: config.activo,
+      };
+
+      const baseUrl =
+        "https://postilioned-symmetrically-margarita.ngrok-free.dev";
+
       // Intentar PATCH primero (actualizar con ID 1)
-      console.log("📝 Intentando PATCH a ID 1...")
-      let response = await fetch(`${baseUrl}/api/live-stream/1`, {
+      console.log("📝 Intentando PATCH a ID 1...");
+      let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(configToSend),
-      })
+      });
 
       // Si PATCH retorna 404, intentar POST para crear
       if (response.status === 404) {
-        console.log("📝 ID 1 no existe, intentando POST para crear...")
-        response = await fetch(`${baseUrl}/api/live-stream`, {
+        console.log("📝 ID 1 no existe, intentando POST para crear...");
+        response = await fetch(`${baseUrl}/live-stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify(configToSend),
-        })
+        });
       }
 
-      console.log("📡 Response status:", response.status)
-      const responseData = await response.json()
-      console.log("📋 Response data:", responseData)
+      console.log("📡 Response status:", response.status);
+      const responseData = await response.json();
+      console.log("📋 Response data:", responseData);
 
       if (!response.ok) {
-        const errorMessage = responseData.message || responseData.error || `Error ${response.status}`
-        console.error("❌ Error del servidor:", errorMessage)
-        throw new Error(errorMessage)
+        const errorMessage =
+          responseData.message ||
+          responseData.error ||
+          `Error ${response.status}`;
+        console.error("❌ Error del servidor:", errorMessage);
+        throw new Error(errorMessage);
       }
 
-      setSuccess(true)
-      setSaveDialog(false)
-      setTimeout(() => setSuccess(false), 3000)
+      setSuccess(true);
+      setSaveDialog(false);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Error desconocido"
-      console.error("❌ Error completo:", err)
-      setError(errorMsg)
+      const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+      console.error("❌ Error completo:", err);
+      setError(errorMsg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const isValidUrl = (url: string) => {
-    if (!url) return true // URL vacía es válida (opcional)
+    if (!url) return true; // URL vacía es válida (opcional)
     try {
-      new URL(url)
+      new URL(url);
       // Validar que sea una URL de transmisión conocida
-      if (!url.includes("youtube.com") && !url.includes("youtu.be") && 
-          !url.includes("twitch.tv") && !url.includes("facebook.com") && 
-          !url.includes("fb.watch")) {
-        return false // Solo aceptar plataformas conocidas
+      if (
+        !url.includes("youtube.com") &&
+        !url.includes("youtu.be") &&
+        !url.includes("twitch.tv") &&
+        !url.includes("facebook.com") &&
+        !url.includes("fb.watch")
+      ) {
+        return false; // Solo aceptar plataformas conocidas
       }
-      return true
+      return true;
     } catch {
-      return false
+      return false;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       {success && (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
           <CheckCircle className="w-5 h-5 text-green-600" />
-          <p className="text-sm text-green-700">Configuración guardada correctamente</p>
+          <p className="text-sm text-green-700">
+            Configuración guardada correctamente
+          </p>
         </div>
       )}
 
@@ -271,7 +278,9 @@ export function LiveStreamConfigComponent() {
         <div>
           <p className="font-medium text-sm">Estado de la transmisión</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {config.activo ? "La transmisión es visible en la página principal" : "La transmisión está oculta"}
+            {config.activo
+              ? "La transmisión es visible en la página principal"
+              : "La transmisión está oculta"}
           </p>
         </div>
         <Button
@@ -301,20 +310,18 @@ export function LiveStreamConfigComponent() {
           <AlertDialogHeader>
             <AlertDialogTitle>Guardar configuración</AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              ¿Estás seguro de que deseas guardar estos cambios en la transmisión en vivo?
+              ¿Estás seguro de que deseas guardar estos cambios en la
+              transmisión en vivo?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
             <AlertDialogCancel className="text-sm">Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleSave}
-              className="text-sm"
-            >
+            <AlertDialogAction onClick={handleSave} className="text-sm">
               Guardar
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
