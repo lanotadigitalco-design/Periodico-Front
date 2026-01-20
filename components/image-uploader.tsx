@@ -5,6 +5,7 @@ import { Upload, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
+import { uploadImage, getImageUrl } from "@/lib/api"
 
 interface ImageUploaderProps {
   onImageUpload: (url: string) => void
@@ -70,39 +71,9 @@ export function ImageUploader({
     setLoading(true)
 
     try {
-      const formData = new FormData()
-      formData.append("file", fileInputRef.current.files[0])
-
-      const token = localStorage.getItem("access_token")
-      if (!token) {
-        toast({
-          title: "Error",
-          description: "No hay sesión activa",
-          variant: "destructive",
-        })
-        setLoading(false)
-        return
-      }
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Error al subir la imagen")
-      }
-
-      const data = await response.json()
-      // Convertir /upload/ a /upload/image/
-      let imageUrl = data.url
-      if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-        imageUrl = imageUrl.replace('/upload/', '/upload/image/')
-      }
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`
+      const file = fileInputRef.current.files[0]
+      const uploadResponse = await uploadImage(file)
+      const fullUrl = getImageUrl(uploadResponse.filename)
       
       onImageUpload(fullUrl)
       

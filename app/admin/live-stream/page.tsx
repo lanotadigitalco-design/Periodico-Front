@@ -38,7 +38,7 @@ export default function LiveStreamAdminPage() {
     const loadConfig = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/live-stream");
+        const response = await fetch("https://api.lanotadigital.co/api/live-stream");
         if (response.ok) {
           const data = await response.json();
           setConfig(data);
@@ -50,7 +50,6 @@ export default function LiveStreamAdminPage() {
           });
         }
       } catch (error) {
-        console.error("Error cargando configuración:", error);
         setMessage({ type: "error", text: "Error al cargar la configuración" });
       } finally {
         setIsLoading(false);
@@ -63,7 +62,7 @@ export default function LiveStreamAdminPage() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const response = await fetch("/live-stream", {
+      const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -84,7 +83,6 @@ export default function LiveStreamAdminPage() {
         });
       }
     } catch (error) {
-      console.error("Error guardando:", error);
       setMessage({ type: "error", text: "Error al guardar la configuración" });
     } finally {
       setIsSaving(false);

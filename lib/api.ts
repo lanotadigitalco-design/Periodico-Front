@@ -103,7 +103,6 @@ function decodeToken(token: string): any {
     )
     return JSON.parse(jsonPayload)
   } catch (error) {
-    console.error("Error decoding token:", error)
     return null
   }
 }
@@ -121,10 +120,14 @@ function isTokenExpired(token: string): boolean {
 // Usar el proxy de Next.js en cliente y API en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api"
-  
+}
+
+const getApiBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://api.lanotadigital.co"
 }
 
 const API_URL = getApiUrl()
+const API_BASE_URL = getApiBaseUrl()
 const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
@@ -147,13 +150,9 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    console.log(
-      `API: Making ${config.method?.toUpperCase()} request to ${config.url}`
-    )
     return config
   },
   (error: any) => {
-    console.error("API: Request interceptor error:", error)
     return Promise.reject(error)
   }
 )
@@ -161,7 +160,6 @@ apiClient.interceptors.request.use(
 // Response interceptor: Manejo de errores y refresh token
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log(`API: Request successful to ${response.config.url}`)
     return response
   },
   async (error: any | unknown) => {
@@ -169,11 +167,8 @@ apiClient.interceptors.response.use(
     const originalRequest = err.config
 
     if (err.response?.status === 401) {
-      console.warn(`API: 401 Unauthorized from ${originalRequest.url}`)
-
       if (typeof window !== "undefined") {
         const currentPath = window.location.pathname
-        console.log(`Current page path: ${currentPath}`)
 
         // Verificar si está en ruta pública
         if (!PUBLIC_ROUTES.some((route) => currentPath.startsWith(route))) {
@@ -190,7 +185,6 @@ apiClient.interceptors.response.use(
       // Detectar si la respuesta es HTML en lugar de JSON
       const responseData = err.response.data
       if (typeof responseData === 'string' && (responseData.includes('<!DOCTYPE') || responseData.includes('<html') || responseData.includes('<HTML'))) {
-        console.error(`API: Server returned HTML error page (${status})`)
         message = `Server error (${status}): The server returned an HTML error page instead of JSON. The server might be down or unreachable.`
       } else if (typeof responseData === 'object' && responseData?.message) {
         message = responseData.message
@@ -200,20 +194,16 @@ apiClient.interceptors.response.use(
         message = err.message || "Request failed"
       }
 
-      console.error(`API: Request failed - ${status}: ${message}`)
-
       if (status === 403) {
-        console.warn("API: Forbidden - insufficient permissions")
+        // Forbidden - insufficient permissions
       } else if (status >= 500) {
-        console.error("API: Server error")
+        // Server error
       }
 
       throw new Error(message)
     } else if (err.request) {
-      console.error("API: Network error:", err.message)
       throw new Error("Network error - please check your connection")
     } else {
-      console.error("API: Request setup error:", err.message)
       throw new Error(err.message || "Request failed")
     }
   }
@@ -237,21 +227,16 @@ export async function apiRequest(
       data,
     }
 
-    console.log(`🔵 API Request: ${method.toUpperCase()} ${API_URL}${endpoint}`)
     const response = await apiClient.request(config)
     
     // Validar que la respuesta sea JSON válido
     let responseData = response.data
     if (typeof responseData === 'string' && (responseData.includes('<!DOCTYPE') || responseData.includes('<html'))) {
-      console.error(`❌ API: Response is HTML instead of JSON for ${method.toUpperCase()} ${endpoint}`)
-      console.error("First 500 chars of response:", responseData.substring(0, 500))
       throw new Error(`Server returned HTML instead of JSON for ${method.toUpperCase()} ${endpoint}. Status: ${response.status}`)
     }
     
-    console.log(`✅ API Response successful: ${method.toUpperCase()} ${endpoint}`)
     return responseData
   } catch (error: any) {
-    console.error(`❌ API Error for ${method.toUpperCase()} ${endpoint}:`, error.message)
     throw error
   }
 }
@@ -278,12 +263,8 @@ export const api = {
 // ============================================================================
 
 function mapArticleFromAPI(data: any): Article {
-  console.log("🔄 Mapeando artículo:", data)
-  
   // Extraer imagen del array imagenes o usar logo por defecto
   let imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
-  
-  console.log("📸 URL de imagen antes de procesar:", imagenUrl)
   
   // Si la imagen es un data URI (base64), usarla directamente
   // Si no, asumir que es una URL relativa del API
@@ -292,8 +273,6 @@ function mapArticleFromAPI(data: any): Article {
     const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://api.lanotadigital.co"
     imagenUrl = `${apiBase}${imagenUrl}`
   }
-  
-  console.log("📸 URL de imagen después de procesar:", imagenUrl)
   
   // Extraer autor del array autores o usar campos directos
   const autor = (data.autores && data.autores[0]?.nombre) || data.autor || data.author || data.autorNombre || "Anónimo"
@@ -322,7 +301,6 @@ function mapArticleFromAPI(data: any): Article {
     updatedAt: data.actualizadoEn || data.updatedAt || new Date().toISOString(), // Alias
   }
   
-  console.log("✅ Artículo mapeado:", mapped)
   return mapped
 }
 
@@ -352,8 +330,6 @@ export const login = async (
       data: { email, password },
     })
 
-    console.log("Login API response:", JSON.stringify(response, null, 2))
-
     // Intentar con diferentes formatos de respuesta
     const token = response.access_token || response.accessToken || response.token
     const userData = response.usuario || response.user
@@ -361,7 +337,6 @@ export const login = async (
     if (token && userData) {
       // Verificar si el usuario está desactivado
       if (userData.activo === false) {
-        console.log("User account is disabled")
         return {
           id: "DISABLED",
           email: userData.email,
@@ -379,17 +354,13 @@ export const login = async (
         role: userData.rol?.toLowerCase() === "lector" ? "reader" : userData.rol?.toLowerCase() === "periodista" ? "writer" : userData.rol?.toLowerCase() === "administrador" ? "admin" : "reader",
         createdAt: new Date().toISOString(),
       }
-      console.log("Login success, returning user:", user)
       return user
     }
 
     return null
   } catch (error: any) {
-    console.error("Login error:", error)
-    
     // Capturar error de usuario desactivado (401)
     if (error.message && error.message.includes("desactivado")) {
-      console.log("User account is disabled - returning DISABLED marker")
       return {
         id: "DISABLED",
         email: email,
@@ -413,17 +384,14 @@ export const getCurrentUser = (): User | null => {
   
   // Intentar obtener del token
   const token = getToken()
-  console.log("getCurrentUser: token found?", !!token)
   
   if (token) {
     const decoded = decodeToken(token)
-    console.log("getCurrentUser: decoded token:", decoded)
     
     if (decoded && decoded.id && decoded.email) {
       // Map the role from API format to internal format
       let role: UserRole = "reader"
       const rawRole = decoded.rol || decoded.role || ""
-      console.log("getCurrentUser: rawRole from token:", rawRole)
       
       if (rawRole.toLowerCase() === "administrador") {
         role = "admin"
@@ -444,7 +412,6 @@ export const getCurrentUser = (): User | null => {
         role: role,
         createdAt: new Date().toISOString(),
       }
-      console.log("getCurrentUser: returning user:", user)
       return user
     }
   }
@@ -485,7 +452,6 @@ export const register = async (
 
     return null
   } catch (error) {
-    console.error("Register error:", error)
     return null
   }
 }
@@ -508,7 +474,6 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
     return null
   } catch (error) {
-    console.error("Token refresh error:", error)
     removeTokens()
     return null
   }
@@ -523,7 +488,6 @@ export const getUsers = async (): Promise<User[]> => {
 
   try {
     const response = await apiRequest("/usuarios", { method: "GET" })
-    console.log("👥 getUsers respuesta completa:", JSON.stringify(response, null, 2))
     
     // Manejar diferentes formatos de respuesta
     let users: any[] = []
@@ -535,9 +499,6 @@ export const getUsers = async (): Promise<User[]> => {
       users = response.data
     }
     
-    console.log(`✅ getUsers: Encontrados ${users.length} usuarios`)
-    console.log("🔍 Primer usuario:", JSON.stringify(users[0], null, 2))
-    
     // Mapear usuarios para normalizar los roles a mayúsculas
     const mappedUsers = users.map((u: any) => {
       // Normalizar el nombre del rol a mayúsculas
@@ -545,7 +506,6 @@ export const getUsers = async (): Promise<User[]> => {
       
       if (u.rol?.nombre) {
         const rolName = u.rol.nombre.toUpperCase()
-        console.log(`🔄 Mapeando usuario ${u.id}: rol original = "${u.rol.nombre}" -> normalizado = "${rolName}"`)
         
         // Mapear roles variados a los nombres estándar
         if (rolName === "ADMINISTRADOR" || rolName === "ADMIN") {
@@ -570,7 +530,6 @@ export const getUsers = async (): Promise<User[]> => {
     
     return mappedUsers as User[]
   } catch (error) {
-    console.error("❌ Error cargando usuarios:", error)
     return []
   }
 }
@@ -582,8 +541,6 @@ export const updateUserRole = async (
   if (typeof window === "undefined") return false
 
   try {
-    console.log(`🔄 Actualizando rol del usuario ${userId} a ${roleNombre}`)
-    
     // Convertir nombres de roles al formato que el backend espera (minúsculas)
     const roleMap: Record<string, string> = {
       "LECTOR": "lector",
@@ -593,17 +550,13 @@ export const updateUserRole = async (
     }
     const roleValue = roleMap[roleNombre] || roleNombre.toLowerCase()
     
-    console.log(`📤 Enviando rol: ${roleValue}`)
-    
     const response = await apiRequest(`/usuarios/${userId}/rol`, {
       method: "PATCH",
       data: { rol: roleValue },
     })
     
-    console.log("✅ Rol actualizado:", response)
     return true
   } catch (error) {
-    console.error("❌ Error actualizando rol:", error)
     return false
   }
 }
@@ -617,7 +570,7 @@ export const deleteUser = async (userId: string): Promise<{ success: boolean; me
   } catch (error: any) {
     const errorMessage = error?.message || String(error)
     
-    console.warn("⚠️ Error al desactivar usuario:", error)
+
     return { 
       success: false, 
       message: errorMessage 
@@ -634,7 +587,7 @@ export const activateUser = async (userId: string): Promise<{ success: boolean; 
   } catch (error: any) {
     const errorMessage = error?.message || String(error)
     
-    console.warn("⚠️ Error al reactivar usuario:", error)
+
     return { 
       success: false, 
       message: errorMessage 
@@ -650,10 +603,6 @@ export const getArticles = async (): Promise<Article[]> => {
   if (typeof window === "undefined") return []
 
   const response = await apiRequest("/articulos", { method: "GET" })
-  console.log("🔍 getArticles: Respuesta bruta completa:", response)
-  console.log("🔍 Tipo de respuesta:", typeof response)
-  console.log("🔍 ¿Es array?:", Array.isArray(response))
-  console.log("🔍 Keys disponibles:", Object.keys(response || {}))
   
   // Manejar diferentes formatos de respuesta
   let articles: any[] = []
@@ -668,11 +617,7 @@ export const getArticles = async (): Promise<Article[]> => {
     articles = [response]
   }
   
-  console.log(`✅ getArticles: Encontrados ${articles.length} artículos`)
-  console.log("🔍 Primer artículo antes de mapear:", articles[0])
-  
   const mapped = articles.map(mapArticleFromAPI)
-  console.log("✅ Artículos mapeados:", mapped)
   return mapped
 }
 
@@ -692,21 +637,17 @@ export const getAdminArticles = async (): Promise<Article[]> => {
 
     for (const param of params) {
       try {
-        console.log(`🔍 Intentando endpoint: ${param}`)
         response = await apiRequest(param, { method: "GET" })
         if (response && (Array.isArray(response) || response?.articulos || response?.data)) {
-          console.log(`✅ Éxito con: ${param}`)
           break
         }
       } catch (error) {
-        console.log(`⚠️ ${param} no funcionó, intentando siguiente...`)
         continue
       }
     }
 
     // Si ninguno funcionó, usar el endpoint normal
     if (!response) {
-      console.log("⚠️ Ningún endpoint especial funcionó, usando /articulos normal")
       response = await apiRequest("/articulos", { method: "GET" })
     }
 
@@ -719,10 +660,8 @@ export const getAdminArticles = async (): Promise<Article[]> => {
       articles = response.data
     }
     
-    console.log(`✅ getAdminArticles: Encontrados ${articles.length} artículos`)
     return articles.map(mapArticleFromAPI)
   } catch (error) {
-    console.error("❌ Error en getAdminArticles:", error)
     return getArticles()
   }
 }
@@ -730,7 +669,6 @@ export const getAdminArticles = async (): Promise<Article[]> => {
 export const getPublishedArticles = async (): Promise<Article[]> => {
   const articles = await getArticles()
   // Devolver todos los artículos (incluso los que tienen publicado undefined o true)
-  console.log(`getPublishedArticles: Devolviendo ${articles.length} artículos`)
   return articles
 }
 
@@ -750,11 +688,9 @@ export const getArchivedArticles = async (): Promise<Article[]> => {
       articles = response.data
     }
     
-    console.log(`✅ getArchivedArticles: Encontrados ${articles.length} artículos archivados`)
     const mapped = articles.map(mapArticleFromAPI)
     return mapped
   } catch (error) {
-    console.error("❌ Error obteniendo artículos archivados:", error)
     return []
   }
 }
@@ -795,14 +731,12 @@ export const createArticle = async (
     imagenes: imagenUrl || imageUrl ? [imagenUrl || imageUrl] : [],
   }
 
-  console.log("createArticle: Enviando payload:", JSON.stringify(payload, null, 2))
 
   const response = await apiRequest("/articulos", {
     method: "POST",
     data: payload,
   })
   
-  console.log("createArticle: Respuesta API:", JSON.stringify(response, null, 2))
   
   // Manejar diferentes formatos de respuesta
   let result: any = null
@@ -815,11 +749,9 @@ export const createArticle = async (
   }
   
   if (!result) {
-    console.error("createArticle: No se encontró artículo en la respuesta")
     return null
   }
   
-  console.log("createArticle: Artículo mapeado:", JSON.stringify(mapArticleFromAPI(result), null, 2))
   return mapArticleFromAPI(result)
 }
 
@@ -877,11 +809,320 @@ export const deleteArticle = async (id: string): Promise<{ success: boolean; mes
       }
     }
     
-    console.warn("⚠️ Error al eliminar artículo:", error)
     return { 
       success: false, 
       message: errorMessage 
     }
+  }
+}
+
+// ============================================================================
+// UPLOAD ENDPOINTS
+// ============================================================================
+
+export interface UploadImageResponse {
+  url: string
+  filename: string
+}
+
+export interface UploadMultipleImagesResponse {
+  urls: string[]
+  filenames: string[]
+}
+
+/**
+ * Sube una única imagen al servidor
+ * @param file - El archivo de imagen a subir
+ * @returns Información del archivo subido (URL y nombre)
+ */
+export const uploadImage = async (file: File): Promise<UploadImageResponse> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const formData = new FormData()
+    formData.append("file", file)
+    
+    const token = getToken()
+    const response = await apiClient.post<UploadImageResponse>(
+      "/upload/image",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al subir la imagen"
+    console.error("Error en uploadImage:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Sube múltiples imágenes al servidor
+ * @param files - Array de archivos de imagen a subir
+ * @returns Información de los archivos subidos (URLs y nombres)
+ */
+export const uploadMultipleImages = async (files: File[]): Promise<UploadMultipleImagesResponse> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const formData = new FormData()
+    files.forEach((file) => {
+      formData.append("files", file)
+    })
+    
+    const token = getToken()
+    const response = await apiClient.post<UploadMultipleImagesResponse>(
+      "/upload/images",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al subir las imágenes"
+    console.error("Error en uploadMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Obtiene una imagen del servidor por su nombre
+ * @param filename - El nombre del archivo a recuperar
+ * @returns URL de la imagen
+ */
+export const getImageUrl = (filename: string): string => {
+  return `${API_BASE_URL}/api/upload/image/${filename}`
+}
+
+/**
+ * Obtiene múltiples imágenes del servidor
+ * @param filenames - Array de nombres de archivos a recuperar
+ * @returns Array de imágenes en base64 con su información
+ */
+export const getMultipleImages = async (filenames: string[]): Promise<Array<{
+  filename: string
+  data: string
+  mimetype: string
+}>> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.post<Array<{
+      filename: string
+      data: string
+      mimetype: string
+    }>>("/upload/images/multiple", { filenames })
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener las imágenes"
+    console.error("Error en getMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina una imagen del servidor
+ * @param filename - El nombre del archivo a eliminar
+ * @returns Mensaje de confirmación
+ */
+export const deleteImage = async (filename: string): Promise<{ message: string }> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    const response = await apiClient.delete<{ message: string }>(
+      `/upload/image/${filename}`,
+      {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    )
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar la imagen"
+    console.error("Error en deleteImage:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina múltiples imágenes del servidor
+ * @param filenames - Array de nombres de archivos a eliminar
+ * @returns Información sobre los archivos eliminados
+ */
+export const deleteMultipleImages = async (filenames: string[]): Promise<{
+  message: string
+  deleted: string[]
+}> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    const response = await apiClient.delete<{
+      message: string
+      deleted: string[]
+    }>("/upload/images/batch", {
+      data: { filenames },
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+    
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar las imágenes"
+    console.error("Error en deleteMultipleImages:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+// ============================================================================
+// LIVE-STREAM ENDPOINTS
+// ============================================================================
+
+export interface LiveStreamConfig {
+  id?: number
+  url: string
+  titulo: string
+  descripcion: string
+  activo: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+/**
+ * Obtiene la configuración activa de la transmisión en vivo
+ * @returns Configuración de la transmisión
+ */
+export const getLiveStreamConfig = async (): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.get<LiveStreamConfig>("/live-stream")
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener configuración de transmisión"
+    console.error("Error en getLiveStreamConfig:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Obtiene una transmisión por su ID
+ * @param id - ID de la transmisión
+ * @returns Configuración de la transmisión
+ */
+export const getLiveStreamById = async (id: number): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const response = await apiClient.get<LiveStreamConfig>(`/live-stream/${id}`)
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al obtener transmisión"
+    console.error("Error en getLiveStreamById:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Crea una nueva configuración de transmisión en vivo
+ * @param config - Configuración de la transmisión
+ * @returns Configuración creada
+ */
+export const createLiveStream = async (config: Omit<LiveStreamConfig, "id" | "createdAt" | "updatedAt">): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.post<LiveStreamConfig>(
+      "/live-stream",
+      config,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al crear transmisión"
+    console.error("Error en createLiveStream:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Actualiza la configuración de una transmisión en vivo
+ * @param id - ID de la transmisión
+ * @param config - Campos a actualizar
+ * @returns Configuración actualizada
+ */
+export const updateLiveStream = async (id: number, config: Partial<Omit<LiveStreamConfig, "id" | "createdAt" | "updatedAt">>): Promise<LiveStreamConfig> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.patch<LiveStreamConfig>(
+      `/live-stream/${id}`,
+      config,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al actualizar transmisión"
+    console.error("Error en updateLiveStream:", errorMessage)
+    throw new Error(errorMessage)
+  }
+}
+
+/**
+ * Elimina una transmisión en vivo
+ * @param id - ID de la transmisión
+ * @returns Mensaje de confirmación
+ */
+export const deleteLiveStream = async (id: number): Promise<{ message: string }> => {
+  if (typeof window === "undefined") throw new Error("Este método solo funciona en el cliente")
+  
+  try {
+    const token = getToken()
+    if (!token) throw new Error("No hay token de autenticación")
+    
+    const response = await apiClient.delete<{ message: string }>(
+      `/live-stream/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.message || error?.message || "Error al eliminar transmisión"
+    console.error("Error en deleteLiveStream:", errorMessage)
+    throw new Error(errorMessage)
   }
 }
 

@@ -24,7 +24,6 @@ export default function ArticulosDespublicadosPage() {
       setArticles(data)
       setError(null)
     } catch (err) {
-      console.error("Error cargando artículos:", err)
       setError("Error al cargar los artículos")
     } finally {
       setLoading(false)
@@ -37,7 +36,6 @@ export default function ArticulosDespublicadosPage() {
       // Recargar la lista
       loadArticles()
     } catch (err) {
-      console.error("Error al publicar:", err)
       alert("Error al publicar el artículo")
     }
   }

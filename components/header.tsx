@@ -54,6 +54,26 @@ export function Header() {
     setIsLoggingOut(false)
   }, [user])
 
+  // Cargar configuración del live stream
+  useEffect(() => {
+    const loadLiveStreamConfig = async () => {
+      try {
+        const response = await fetch("https://api.lanotadigital.co/api/live-stream")
+        if (response.ok) {
+          const text = await response.text()
+          if (text) {
+            const data = JSON.parse(text)
+            setLiveStreamConfig(data)
+          }
+        }
+      } catch (error) {
+        // Error silencioso, usar logo por defecto
+      }
+    }
+
+    loadLiveStreamConfig()
+  }, [])
+
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {

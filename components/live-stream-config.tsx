@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle, AlertCircle } from "lucide-react";
+import { getLiveStreamById, createLiveStream, updateLiveStream } from "@/lib/api";
 
 interface LiveStreamConfig {
   url: string;
@@ -37,6 +38,33 @@ export function LiveStreamConfigComponent() {
   const [error, setError] = useState("");
   const [saveDialog, setSaveDialog] = useState(false);
 
+  // Cargar configuración existente al montar
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        console.log("📡 Cargando configuración existente del live stream...");
+        const data = await getLiveStreamById(1);
+        console.log("✅ Configuración cargada:", data);
+        
+        if (data && data.url) {
+          setConfig({
+            url: data.url || "",
+            titulo: data.titulo || "Mi Transmisión",
+            descripcion: data.descripcion || "Descripción aquí",
+            activo: data.activo ?? true,
+          });
+          console.log("✅ Formulario actualizado con datos guardados");
+        } else {
+          console.warn("⚠️ Datos incompletos recibidos:", data);
+        }
+      } catch (err) {
+        console.warn("⚠️ No se pudo cargar configuración existente:", err);
+        // Usar valores por defecto
+      }
+    };
+    loadConfig();
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -51,50 +79,17 @@ export function LiveStreamConfigComponent() {
     const newState = !config.activo;
 
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        setError("No hay token de autenticación.");
-        return;
-      }
-
-      // Solo enviar el cambio de estado, sin requerir otros campos válidos
-      const configToSend = {
-        activo: newState,
-      };
-
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
-
-      let response = await fetch(`${baseUrl}/live-stream/1`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(configToSend),
-      });
-
-      if (response.status === 404) {
-        // Si no existe, crear con todos los datos
-        response = await fetch(`${baseUrl}/live-stream`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            url: config.url,
-            titulo: config.titulo,
-            descripcion: config.descripcion,
-            activo: newState,
-          }),
+      // Intentar actualizar con ID 1
+      try {
+        await updateLiveStream(1, { activo: newState });
+      } catch (error) {
+        // Si no existe, crear con el nuevo estado
+        await createLiveStream({
+          url: config.url,
+          titulo: config.titulo,
+          descripcion: config.descripcion,
+          activo: newState,
         });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "Error al guardar el estado");
-        return;
       }
 
       // Solo cambiar el estado LOCAL después de guardarlo en BD
@@ -110,20 +105,25 @@ export function LiveStreamConfigComponent() {
   };
 
   const handleSave = async () => {
+    console.log("🔴 [GUARDAR INICIADO]");
     setLoading(true);
     setError("");
     setSuccess(false);
 
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
+      console.log("🔴 [1] Validando URL...");
+      // Validar URL si no está vacía
+      if (config.url && !isValidUrl(config.url)) {
+        console.log("🔴 [1] URL inválida:", config.url);
         setError(
-          "No hay token de autenticación. Por favor, inicia sesión como administrador.",
+          "Por favor ingresa una URL de transmisión válida (YouTube, Twitch, Facebook, etc.)",
         );
+        setLoading(false);
         return;
       }
 
-      console.log("📤 Enviando config:", config);
+      console.log("🔴 [2] URL válida, preparando datos...");
+      console.log("📤 Config actual:", config);
 
       // Solo enviar los campos que el servidor espera
       const configToSend = {
@@ -132,53 +132,30 @@ export function LiveStreamConfigComponent() {
         descripcion: config.descripcion,
         activo: config.activo,
       };
+      
+      console.log("🔴 [3] Datos a enviar:", configToSend);
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
-
-      // Intentar PATCH primero (actualizar con ID 1)
-      console.log("📝 Intentando PATCH a ID 1...");
-      let response = await fetch(`${baseUrl}/live-stream/1`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(configToSend),
-      });
-
-      // Si PATCH retorna 404, intentar POST para crear
-      if (response.status === 404) {
-        console.log("📝 ID 1 no existe, intentando POST para crear...");
-        response = await fetch(`${baseUrl}/live-stream`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(configToSend),
-        });
+      // Intentar actualizar con ID 1
+      try {
+        console.log("🔴 [4] Intentando PATCH /live-stream/1...");
+        console.log("📤 Datos PATCH:", configToSend);
+        const result = await updateLiveStream(1, configToSend);
+        console.log("✅ [4] PATCH exitoso:", result);
+      } catch (error) {
+        // Si no existe, crear
+        console.log("🔴 [5] PATCH falló, intentando POST /live-stream...");
+        console.log("📤 Datos POST:", configToSend);
+        const result = await createLiveStream(configToSend);
+        console.log("✅ [5] POST exitoso:", result);
       }
 
-      console.log("📡 Response status:", response.status);
-      const responseData = await response.json();
-      console.log("📋 Response data:", responseData);
-
-      if (!response.ok) {
-        const errorMessage =
-          responseData.message ||
-          responseData.error ||
-          `Error ${response.status}`;
-        console.error("❌ Error del servidor:", errorMessage);
-        throw new Error(errorMessage);
-      }
-
+      console.log("✅ [FIN] Live stream guardado correctamente");
       setSuccess(true);
       setSaveDialog(false);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Error desconocido";
-      console.error("❌ Error completo:", err);
+      console.error("❌ [ERROR FINAL]:", err);
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -293,7 +270,12 @@ export function LiveStreamConfigComponent() {
           Cancelar
         </Button>
         <Button
-          onClick={() => setSaveDialog(true)}
+          onClick={() => {
+            console.log("🔘 [CLICK] Botón Guardar clickeado");
+            console.log("🔘 [CONFIG ACTUAL]:", config);
+            console.log("🔘 [URL VÁLIDA?]:", isValidUrl(config.url));
+            setSaveDialog(true)
+          }}
           disabled={!config.url || !isValidUrl(config.url) || loading}
           size="sm"
         >

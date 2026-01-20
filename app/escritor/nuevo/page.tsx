@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { createArticle } from "@/lib/auth"
+import { uploadImage, getImageUrl } from "@/lib/api"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
@@ -59,30 +60,12 @@ export default function NewArticlePage() {
 
       // Si se seleccionó un archivo, subirlo primero
       if (imagenFile && !imagenUrl) {
-        const formData = new FormData()
-        formData.append("file", imagenFile)
-
-        const token = localStorage.getItem("authToken")
-
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
-          method: "POST",
-          headers: token ? {
-            Authorization: `Bearer ${token}`,
-          } : {},
-          body: formData,
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error("Error al subir la imagen")
+        try {
+          const uploadResponse = await uploadImage(imagenFile)
+          finalImagenUrl = getImageUrl(uploadResponse.filename)
+        } catch (uploadError) {
+          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen")
         }
-
-        const uploadData = await uploadResponse.json()
-        // Convertir /upload/ a /upload/image/
-        let imageUrl = uploadData.url
-        if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-          imageUrl = imageUrl.replace('/upload/', '/upload/image/')
-        }
-        finalImagenUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`
       }
 
       await createArticle({

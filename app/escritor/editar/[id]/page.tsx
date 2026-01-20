@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getArticleById, updateArticle } from "@/lib/auth";
+import { uploadImage, getImageUrl } from "@/lib/api";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import Link from "next/link";
 
@@ -102,25 +103,12 @@ export default function EditArticlePage() {
 
       // Si hay archivo subido, subirlo primero
       if (uploadedFile) {
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Error al subir la imagen");
+        try {
+          const uploadResponse = await uploadImage(uploadedFile);
+          finalImageUrl = getImageUrl(uploadResponse.filename);
+        } catch (uploadError) {
+          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
         }
-
-        const uploadData = await uploadResponse.json();
-        // Convertir /upload/ a /upload/image/
-        let imageUrl = uploadData.url;
-        if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-          imageUrl = imageUrl.replace('/upload/', '/upload/image/');
-        }
-        finalImageUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`;
       }
 
       await updateArticle(id, {

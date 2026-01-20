@@ -75,20 +75,15 @@ export default function AdminPage() {
     if (user?.role === "admin") {
       const loadData = async () => {
         try {
-          console.log("👥 Cargando datos del admin...")
           const articlesData = await getAdminArticles()
           const archivedData = await getArchivedArticles()
-          console.log("✅ Artículos cargados:", articlesData.length)
-          console.log("✅ Artículos archivados cargados:", archivedData.length)
           
           const usersData = await getUsers()
-          console.log("✅ Usuarios cargados:", usersData)
           
           setArticles(articlesData)
           setArchivedArticles(archivedData)
           setUsers(usersData)
         } catch (error) {
-          console.error("❌ Error cargando datos:", error)
         }
       }
       loadData()
@@ -104,7 +99,6 @@ export default function AdminPage() {
   const confirmDeleteArticle = async () => {
     if (!articleToDelete) return
     setIsLoading2(true)
-    console.log(`🗑️ Eliminando artículo ${articleToDelete.id}`)
     const result = await deleteArticle(articleToDelete.id)
     
     if (result.success) {
@@ -153,7 +147,6 @@ export default function AdminPage() {
   }
 
   const handleRoleChange = async (userId: number | string, newRole: "LECTOR" | "ESCRITOR" | "PERIODISTA" | "ADMIN") => {
-    console.log(`🔄 Cambio de rol solicitado para usuario ${userId} a ${newRole}`)
     try {
       const success = await updateUserRole(userId, newRole)
       if (success) {
@@ -165,7 +158,6 @@ export default function AdminPage() {
         // Recargar usuarios
         const usersData = await getUsers()
         setUsers(usersData)
-        console.log(`✅ Rol actualizado exitosamente`)
       } else {
         toast({
           title: "Error",
@@ -174,7 +166,6 @@ export default function AdminPage() {
         })
       }
     } catch (error) {
-      console.error("Error al cambiar rol:", error)
       toast({
         title: "Error",
         description: "Error al cambiar el rol del usuario",
@@ -207,7 +198,6 @@ export default function AdminPage() {
       setUserToChangeRole(null)
       setSelectedNewRole("")
     } catch (error) {
-      console.error("Error:", error)
       alert("Error al cambiar el rol")
     }
   }
@@ -234,11 +224,9 @@ export default function AdminPage() {
       
       if (userToDelete.activo) {
         // Desactivar usuario
-        console.log(`🔴 Desactivando usuario ${userToDelete.id}`)
         result = await deleteUser(String(userToDelete.id))
       } else {
         // Activar usuario
-        console.log(`🟢 Activando usuario ${userToDelete.id}`)
         result = await activateUser(String(userToDelete.id))
       }
       
@@ -259,7 +247,6 @@ export default function AdminPage() {
         })
       }
     } catch (err) {
-      console.error("Error:", err)
       toast({
         title: "Error",
         description: "Error al cambiar el estado del usuario",
