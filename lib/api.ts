@@ -118,9 +118,9 @@ function isTokenExpired(token: string): boolean {
 // API CONFIGURATION
 // ============================================================================
 
-// Usar el proxy de Next.js en cliente y ngrok en servidor (para evitar problemas de CORS)
+// Usar el proxy de Next.js en cliente y API en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "https://postilioned-symmetrically-margarita.ngrok-free.dev/api"
+  return process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api"
   
 }
 
@@ -129,10 +129,9 @@ const PUBLIC_ROUTES = ["/login", "/register", "/"]
 
 const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 30000, // Aumentado para ngrok
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "69420",
   },
   withCredentials: false,
 })

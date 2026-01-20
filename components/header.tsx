@@ -165,7 +165,7 @@ export function Header() {
               })}
               
               {/* Dropdown de más categorías */}
-              <div className="relative">
+              <div className="relative" ref={useRef(null)}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
@@ -175,7 +175,7 @@ export function Header() {
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-md shadow-lg z-50 min-w-max">
+                  <div className="fixed bg-card border border-border rounded-md shadow-lg z-50 min-w-max" style={{top: '3.5rem', left: 'auto', right: 'auto'}}>
                     {moreSections.map((section) => {
                       const isActive = pathname.includes(section.href.split("/").pop() || "")
                       return (

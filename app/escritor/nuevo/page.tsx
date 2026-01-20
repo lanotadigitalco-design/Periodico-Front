@@ -16,6 +16,7 @@ import { createArticle } from "@/lib/auth"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
+import { ImageUploader } from "@/components/image-uploader"
 
 export default function NewArticlePage() {
   const { user, isLoading } = useAuth()
@@ -183,7 +184,7 @@ export default function NewArticlePage() {
                   <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-none">
                     <SelectItem value="politica">Política</SelectItem>
                     <SelectItem value="economia">Economía</SelectItem>
                     <SelectItem value="deportes">Deportes</SelectItem>
@@ -230,24 +231,16 @@ export default function NewArticlePage() {
 
               <div className="space-y-2">
                 <Label>Imagen <span className="text-xs text-muted-foreground">(Opcional)</span></Label>
-                <p className="text-xs text-muted-foreground mb-3">Puedes usar una imagen local o una URL. Si no agregas una, se mostrará el logo por defecto.</p>
+                <p className="text-xs text-muted-foreground mb-3">Puedes subir una imagen o usar una URL. Si no agregas una, se mostrará el logo por defecto.</p>
                 
                 <div className="space-y-4">
-                  {/* Subir archivo */}
-                  <div className="space-y-2">
-                    <Label htmlFor="imagenFile" className="text-sm">Subir Imagen</Label>
-                    <div className="relative">
-                      <Input
-                        id="imagenFile"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageFileChange}
-                        disabled={isSubmitting}
-                        className="cursor-pointer"
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Formatos: JPG, PNG, GIF, WebP. Máximo 5MB</p>
-                  </div>
+                  {/* ImageUploader Component */}
+                  <ImageUploader 
+                    onImageUpload={(url) => {
+                      handleImageUrlChange(url)
+                      setPreviewUrl(url)
+                    }}
+                  />
 
                   {/* Preview de imagen */}
                   {(previewUrl || imagenUrl) && (
@@ -277,22 +270,24 @@ export default function NewArticlePage() {
                   )}
 
                   {/* O usar URL */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-px bg-border"></div>
-                      <span className="text-xs text-muted-foreground px-2">O</span>
-                      <div className="flex-1 h-px bg-border"></div>
+                  {!imagenUrl && !previewUrl && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-px bg-border"></div>
+                        <span className="text-xs text-muted-foreground px-2">O</span>
+                        <div className="flex-1 h-px bg-border"></div>
+                      </div>
+                      <Label htmlFor="imagenUrl" className="text-sm">Usar URL de Imagen</Label>
+                      <Input
+                        id="imagenUrl"
+                        type="url"
+                        value={imagenUrl}
+                        onChange={(e) => handleImageUrlChange(e.target.value)}
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                        disabled={isSubmitting}
+                      />
                     </div>
-                    <Label htmlFor="imagenUrl" className="text-sm">Usar URL de Imagen</Label>
-                    <Input
-                      id="imagenUrl"
-                      type="url"
-                      value={imagenUrl}
-                      onChange={(e) => handleImageUrlChange(e.target.value)}
-                      placeholder="https://ejemplo.com/imagen.jpg"
-                      disabled={imagenFile !== null || isSubmitting}
-                    />
-                  </div>
+                  )}
                 </div>
               </div>
 
