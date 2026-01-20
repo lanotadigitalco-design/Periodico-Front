@@ -47,7 +47,7 @@ export default function NewsPage() {
     const loadLiveStream = async () => {
       try {
         console.log("📡 Cargando live stream...")
-        const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/live-stream`, {
           headers: {
             "Accept": "application/json"
           }

@@ -70,7 +70,6 @@ export function LiveStreamConfigComponent() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(configToSend),
       });
@@ -82,7 +81,6 @@ export function LiveStreamConfigComponent() {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify({
             url: config.url,
@@ -136,7 +134,7 @@ export function LiveStreamConfigComponent() {
       };
 
       const baseUrl =
-        "https://postilioned-symmetrically-margarita.ngrok-free.dev";
+        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
 
       // Intentar PATCH primero (actualizar con ID 1)
       console.log("📝 Intentando PATCH a ID 1...");
@@ -145,7 +143,6 @@ export function LiveStreamConfigComponent() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(configToSend),
       });
@@ -158,7 +155,6 @@ export function LiveStreamConfigComponent() {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify(configToSend),
         });
