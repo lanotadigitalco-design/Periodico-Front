@@ -28,7 +28,7 @@ function getBackendUrl(request: NextRequest): string {
 
   // Para cualquier otro caso, usar ngrok (acceso desde afuera de la red local)
   const url =
-    process.env.NEXT_PUBLIC_API_URL + "/api" ||
+    process.env.NEXT_PUBLIC_API_URL ||
     "https://api.lanotadigital.co/api";
   return url;
 }

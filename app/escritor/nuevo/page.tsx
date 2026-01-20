@@ -16,7 +16,6 @@ import { createArticle } from "@/lib/auth"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
-import { ImageUploader } from "@/components/image-uploader"
 
 export default function NewArticlePage() {
   const { user, isLoading } = useAuth()
@@ -63,8 +62,13 @@ export default function NewArticlePage() {
         const formData = new FormData()
         formData.append("file", imagenFile)
 
-        const uploadResponse = await fetch("/api/upload", {
+        const token = localStorage.getItem("authToken")
+
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
           method: "POST",
+          headers: token ? {
+            Authorization: `Bearer ${token}`,
+          } : {},
           body: formData,
         })
 
@@ -73,7 +77,12 @@ export default function NewArticlePage() {
         }
 
         const uploadData = await uploadResponse.json()
-        finalImagenUrl = uploadData.url
+        // Convertir /upload/ a /upload/image/
+        let imageUrl = uploadData.url
+        if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
+          imageUrl = imageUrl.replace('/upload/', '/upload/image/')
+        }
+        finalImagenUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`
       }
 
       await createArticle({
@@ -234,13 +243,21 @@ export default function NewArticlePage() {
                 <p className="text-xs text-muted-foreground mb-3">Puedes subir una imagen o usar una URL. Si no agregas una, se mostrará el logo por defecto.</p>
                 
                 <div className="space-y-4">
-                  {/* ImageUploader Component */}
-                  <ImageUploader 
-                    onImageUpload={(url) => {
-                      handleImageUrlChange(url)
-                      setPreviewUrl(url)
-                    }}
-                  />
+                  {/* Input de archivo */}
+                  {!imagenUrl && !previewUrl && (
+                    <div className="space-y-2">
+                      <Label htmlFor="imagenFile" className="text-sm">Subir Imagen</Label>
+                      <Input
+                        id="imagenFile"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        disabled={isSubmitting}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground">PNG, JPG o GIF (máx 5MB)</p>
+                    </div>
+                  )}
 
                   {/* Preview de imagen */}
                   {(previewUrl || imagenUrl) && (
@@ -249,8 +266,14 @@ export default function NewArticlePage() {
                         src={previewUrl || imagenUrl}
                         alt="Vista previa"
                         className="w-full h-48 object-cover rounded-lg border border-border"
-                        onError={() => {
-                          setError("No se pudo cargar la imagen")
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement
+                          console.error("❌ Error cargando imagen:", {
+                            src: img.src,
+                            error: img.naturalWidth === 0 ? "No se pudo cargar" : "Error desconocido",
+                            statusText: "Ver Network en DevTools"
+                          })
+                          setError(`No se pudo cargar la imagen: ${img.src}`)
                         }}
                       />
                       <Button

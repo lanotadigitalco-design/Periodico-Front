@@ -283,11 +283,17 @@ function mapArticleFromAPI(data: any): Article {
   // Extraer imagen del array imagenes o usar logo por defecto
   let imagenUrl = (data.imagenes && data.imagenes[0]) || data.imagenUrl || data.imageUrl || data.imagen || "/logo.png"
   
+  console.log("📸 URL de imagen antes de procesar:", imagenUrl)
+  
   // Si la imagen es un data URI (base64), usarla directamente
-  // Si no, asumir que es una URL relativa
-  if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http") && !imagenUrl.startsWith("/")) {
-    imagenUrl = "/" + imagenUrl
+  // Si no, asumir que es una URL relativa del API
+  if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http")) {
+    // Agregar el dominio del API para URLs relativas
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://api.lanotadigital.co"
+    imagenUrl = `${apiBase}${imagenUrl}`
   }
+  
+  console.log("📸 URL de imagen después de procesar:", imagenUrl)
   
   // Extraer autor del array autores o usar campos directos
   const autor = (data.autores && data.autores[0]?.nombre) || data.autor || data.author || data.autorNombre || "Anónimo"
