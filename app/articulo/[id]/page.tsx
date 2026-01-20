@@ -94,12 +94,24 @@ export default function ArticlePage() {
             </div>
           </div>
 
-          <div className="mb-8 rounded-lg overflow-hidden">
-            <img
-              src={article.imagenUrl || "/logo.png"}
-              alt={article.titulo}
-              className="w-full h-auto object-cover"
-            />
+          <div className="mb-8 rounded-lg overflow-hidden bg-muted min-h-96 flex items-center justify-center">
+            {article.imagenUrl && article.imagenUrl.trim() ? (
+              <img
+                src={article.imagenUrl}
+                alt={article.titulo}
+                className="w-full h-auto object-cover"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement
+                  img.src = "/logo.png"
+                }}
+              />
+            ) : (
+              <img
+                src="/logo.png"
+                alt="La Nota Digital"
+                className="w-full h-auto object-cover p-8"
+              />
+            )}
           </div>
 
           <Card className="p-8">
