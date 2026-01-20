@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music, Search, X } from "lucide-react"
 import { getPublishedArticles, type Article } from "@/lib/auth"
+import { getLiveStreamById } from "@/lib/api"
 import Link from "next/link"
 import { LiveStreamPlayer } from "@/components/live-stream-player"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
@@ -14,6 +15,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 const ARTICLES_PER_PAGE = 8
 
 interface LiveStreamConfig {
+  id?: number
   url: string
   titulo: string
   descripcion: string
@@ -31,10 +33,12 @@ export default function NewsPage() {
   useEffect(() => {
     const loadArticles = async () => {
       try {
+        console.log("📰 Iniciando carga de noticias...")
         const data = await getPublishedArticles()
+        console.log("✅ Noticias cargadas:", data)
         setArticles(data || [])
       } catch (error) {
-
+        console.error("❌ Error cargando noticias:", error)
         setArticles([])
       }
     }
@@ -44,40 +48,54 @@ export default function NewsPage() {
   useEffect(() => {
     const loadLiveStream = async () => {
       try {
-        const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
-          headers: {
-            "Accept": "application/json"
+        console.log("📡 [INICIO] Cargando live stream...")
+        
+        let data = null
+        
+        try {
+          // Intentar obtener por ID primero
+          console.log("📝 [1] Intentando GET /live-stream/1...")
+          data = await getLiveStreamById(1)
+          console.log("📝 [1] Respuesta recibida:", JSON.stringify(data))
+        } catch (error) {
+          console.warn("⚠️ [1] Error en GET /live-stream/1:", error)
+          try {
+            console.log("📝 [2] Intentando GET /live-stream (activa)...")
+            data = await getLiveStreamConfig()
+            console.log("📝 [2] Respuesta recibida:", JSON.stringify(data))
+          } catch (error2) {
+            console.error("❌ [2] Ambos endpoints fallaron:", error2)
+            throw error2
           }
-        })
-        
-        if (!response.ok) {
-          setIsLoadingStream(false)
-          return
         }
         
-        // Validar que sea JSON antes de parsear
-        const contentType = response.headers.get("content-type")
-        if (!contentType || !contentType.includes("application/json")) {
-          setIsLoadingStream(false)
-          return
-        }
+        console.log("📊 [RESULTADO] data:", data)
+        console.log("📊 [RESULTADO] data?.url:", data?.url)
+        console.log("📊 [RESULTADO] data?.activo:", data?.activo)
         
-        // Validar que hay contenido antes de parsear
-        const text = await response.text()
-        if (!text) {
-          setIsLoadingStream(false)
-          return
+        // Mostrar si tiene datos válidos
+        if (data && data.url && data.activo === true) {
+          console.log("✅ [MOSTRAR] Live stream válido y activo")
+          console.log("✅ [MOSTRAR] URL:", data.url)
+          setLiveStreamConfig(data)
+        } else {
+          console.warn("⚠️ [NO MOSTRAR] Falta data, url o no está activo")
+          setLiveStreamConfig(null)
         }
-        
-        const data = JSON.parse(text)
-        setLiveStreamConfig(data)
       } catch (error) {
-        // Error al cargar, ignorar silenciosamente
+        console.error("❌ [ERROR] Error total:", error)
+        setLiveStreamConfig(null)
       } finally {
+        console.log("⏹️ [FIN] setIsLoadingStream = false")
         setIsLoadingStream(false)
       }
     }
+    
     loadLiveStream()
+    
+    // Recargar cada 30 segundos
+    const interval = setInterval(loadLiveStream, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   const getCategoryLabel = (cat: string) => {
@@ -118,13 +136,20 @@ export default function NewsPage() {
         <div>
         {/* Bloque de transmisión en vivo - Centro de la pantalla */}
         <section className="w-full flex flex-col items-center mb-12 md:mb-16">
-          {!isLoadingStream && liveStreamConfig && (
+          {/* DEBUG: Mostrar estado del live stream */}
+          <div className="w-full mb-4 p-3 bg-blue-100 border border-blue-300 rounded text-xs font-mono text-blue-900 hidden">
+            <div>liveStreamConfig: {JSON.stringify(liveStreamConfig)}</div>
+            <div>activo: {liveStreamConfig?.activo?.toString()}</div>
+            <div>url: {liveStreamConfig?.url}</div>
+          </div>
+          
+          {liveStreamConfig?.activo && liveStreamConfig?.url && (
             <div className="w-full">
               <LiveStreamPlayer
-                isActive={liveStreamConfig.activo}
+                isActive={true}
                 streamUrl={liveStreamConfig.url}
-                title={liveStreamConfig.titulo}
-                description={liveStreamConfig.descripcion}
+                title={liveStreamConfig.titulo || "Transmisión en Vivo"}
+                description={liveStreamConfig.descripcion || "Síguenos en directo"}
               />
             </div>
           )}

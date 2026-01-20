@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getArticleById, updateArticle } from "@/lib/auth";
+import { uploadImage, getImageUrl } from "@/lib/api";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import Link from "next/link";
 
@@ -102,24 +103,12 @@ export default function EditArticlePage() {
 
       // Si hay archivo subido, subirlo primero
       if (uploadedFile) {
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        const uploadResponse = await fetch("https://api.lanotadigital.co/api/upload/image", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Error al subir la imagen");
+        try {
+          const uploadResponse = await uploadImage(uploadedFile);
+          finalImageUrl = getImageUrl(uploadResponse.filename);
+        } catch (uploadError) {
+          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
         }
-
-        const uploadData = await uploadResponse.json();
-        // El backend retorna /api/uploads/filename, convertimos a URL completa
-        const imageUrl = uploadData.url.startsWith('http')
-          ? uploadData.url
-          : `https://api.lanotadigital.co${uploadData.url}`
-        finalImageUrl = imageUrl;
       }
 
       await updateArticle(id, {

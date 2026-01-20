@@ -5,6 +5,7 @@ import { Upload, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
+import { uploadImage, getImageUrl } from "@/lib/api"
 
 interface ImageUploaderProps {
   onImageUpload: (url: string) => void
@@ -70,37 +71,9 @@ export function ImageUploader({
     setLoading(true)
 
     try {
-      const formData = new FormData()
-      formData.append("file", fileInputRef.current.files[0])
-
-      const token = localStorage.getItem("access_token")
-      if (!token) {
-        toast({
-          title: "Error",
-          description: "No hay sesión activa",
-          variant: "destructive",
-        })
-        setLoading(false)
-        return
-      }
-
-      const response = await fetch("https://api.lanotadigital.co/api/upload/image", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Error al subir la imagen")
-      }
-
-      const data = await response.json()
-      // El backend retorna /api/uploads/filename, convertimos a URL completa
-      const fullUrl = data.url.startsWith('http') 
-        ? data.url 
-        : `https://api.lanotadigital.co${data.url}`
+      const file = fileInputRef.current.files[0]
+      const uploadResponse = await uploadImage(file)
+      const fullUrl = getImageUrl(uploadResponse.filename)
       
       onImageUpload(fullUrl)
       
@@ -116,6 +89,7 @@ export function ImageUploader({
         fileInputRef.current.value = ""
       }
     } catch (error) {
+      console.error("Error:", error)
       toast({
         title: "Error al subir",
         description: error instanceof Error ? error.message : "Error desconocido",

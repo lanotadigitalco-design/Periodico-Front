@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { createArticle } from "@/lib/auth"
+import { uploadImage, getImageUrl } from "@/lib/api"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
@@ -59,29 +60,12 @@ export default function NewArticlePage() {
 
       // Si se seleccionó un archivo, subirlo primero
       if (imagenFile && !imagenUrl) {
-        const formData = new FormData()
-        formData.append("file", imagenFile)
-
-        const token = localStorage.getItem("authToken")
-
-        const uploadResponse = await fetch("https://api.lanotadigital.co/api/upload/image", {
-          method: "POST",
-          headers: token ? {
-            Authorization: `Bearer ${token}`,
-          } : {},
-          body: formData,
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error("Error al subir la imagen")
+        try {
+          const uploadResponse = await uploadImage(imagenFile)
+          finalImagenUrl = getImageUrl(uploadResponse.filename)
+        } catch (uploadError) {
+          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen")
         }
-
-        const uploadData = await uploadResponse.json()
-        // El backend retorna /api/uploads/filename, convertimos a URL completa
-        const imageUrl = uploadData.url.startsWith('http')
-          ? uploadData.url
-          : `https://api.lanotadigital.co${uploadData.url}`
-        finalImagenUrl = imageUrl
       }
 
       await createArticle({
@@ -97,6 +81,7 @@ export default function NewArticlePage() {
 
       router.push("/escritor")
     } catch (err) {
+      console.error("Error:", err)
       setError(err instanceof Error ? err.message : "Error al crear el artículo")
     } finally {
       setIsSubmitting(false)
@@ -266,7 +251,11 @@ export default function NewArticlePage() {
                         className="w-full h-48 object-cover rounded-lg border border-border"
                         onError={(e) => {
                           const img = e.target as HTMLImageElement
-
+                          console.error("❌ Error cargando imagen:", {
+                            src: img.src,
+                            error: img.naturalWidth === 0 ? "No se pudo cargar" : "Error desconocido",
+                            statusText: "Ver Network en DevTools"
+                          })
                           setError(`No se pudo cargar la imagen: ${img.src}`)
                         }}
                       />
