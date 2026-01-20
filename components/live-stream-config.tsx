@@ -62,8 +62,7 @@ export function LiveStreamConfigComponent() {
         activo: newState,
       };
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
+      const baseUrl = "https://api.lanotadigital.co/api";
 
       let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
@@ -104,7 +103,6 @@ export function LiveStreamConfigComponent() {
       }));
       // No mostrar mensaje de éxito al cambiar estado
     } catch (err) {
-      console.error("❌ Error al guardar estado:", err);
       setError("Error al guardar el estado");
     }
   };
@@ -123,8 +121,6 @@ export function LiveStreamConfigComponent() {
         return;
       }
 
-      console.log("📤 Enviando config:", config);
-
       // Solo enviar los campos que el servidor espera
       const configToSend = {
         url: config.url,
@@ -133,11 +129,9 @@ export function LiveStreamConfigComponent() {
         activo: config.activo,
       };
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
+      const baseUrl = "https://api.lanotadigital.co/api";
 
       // Intentar PATCH primero (actualizar con ID 1)
-      console.log("📝 Intentando PATCH a ID 1...");
       let response = await fetch(`${baseUrl}/live-stream/1`, {
         method: "PATCH",
         headers: {
@@ -149,7 +143,6 @@ export function LiveStreamConfigComponent() {
 
       // Si PATCH retorna 404, intentar POST para crear
       if (response.status === 404) {
-        console.log("📝 ID 1 no existe, intentando POST para crear...");
         response = await fetch(`${baseUrl}/live-stream`, {
           method: "POST",
           headers: {
@@ -160,16 +153,13 @@ export function LiveStreamConfigComponent() {
         });
       }
 
-      console.log("📡 Response status:", response.status);
       const responseData = await response.json();
-      console.log("📋 Response data:", responseData);
 
       if (!response.ok) {
         const errorMessage =
           responseData.message ||
           responseData.error ||
           `Error ${response.status}`;
-        console.error("❌ Error del servidor:", errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -178,7 +168,6 @@ export function LiveStreamConfigComponent() {
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Error desconocido";
-      console.error("❌ Error completo:", err);
       setError(errorMsg);
     } finally {
       setLoading(false);

@@ -64,7 +64,7 @@ export default function NewArticlePage() {
 
         const token = localStorage.getItem("authToken")
 
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        const uploadResponse = await fetch("https://api.lanotadigital.co/api/upload/image", {
           method: "POST",
           headers: token ? {
             Authorization: `Bearer ${token}`,
@@ -77,12 +77,11 @@ export default function NewArticlePage() {
         }
 
         const uploadData = await uploadResponse.json()
-        // Convertir /upload/ a /upload/image/
-        let imageUrl = uploadData.url
-        if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-          imageUrl = imageUrl.replace('/upload/', '/upload/image/')
-        }
-        finalImagenUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`
+        // El backend retorna /api/uploads/filename, convertimos a URL completa
+        const imageUrl = uploadData.url.startsWith('http')
+          ? uploadData.url
+          : `https://api.lanotadigital.co${uploadData.url}`
+        finalImagenUrl = imageUrl
       }
 
       await createArticle({
@@ -98,7 +97,6 @@ export default function NewArticlePage() {
 
       router.push("/escritor")
     } catch (err) {
-      console.error("Error:", err)
       setError(err instanceof Error ? err.message : "Error al crear el artículo")
     } finally {
       setIsSubmitting(false)
@@ -268,11 +266,7 @@ export default function NewArticlePage() {
                         className="w-full h-48 object-cover rounded-lg border border-border"
                         onError={(e) => {
                           const img = e.target as HTMLImageElement
-                          console.error("❌ Error cargando imagen:", {
-                            src: img.src,
-                            error: img.naturalWidth === 0 ? "No se pudo cargar" : "Error desconocido",
-                            statusText: "Ver Network en DevTools"
-                          })
+
                           setError(`No se pudo cargar la imagen: ${img.src}`)
                         }}
                       />

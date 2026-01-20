@@ -84,7 +84,7 @@ export function ImageUploader({
         return
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+      const response = await fetch("https://api.lanotadigital.co/api/upload/image", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,12 +97,10 @@ export function ImageUploader({
       }
 
       const data = await response.json()
-      // Convertir /upload/ a /upload/image/
-      let imageUrl = data.url
-      if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-        imageUrl = imageUrl.replace('/upload/', '/upload/image/')
-      }
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`
+      // El backend retorna /api/uploads/filename, convertimos a URL completa
+      const fullUrl = data.url.startsWith('http') 
+        ? data.url 
+        : `https://api.lanotadigital.co${data.url}`
       
       onImageUpload(fullUrl)
       
@@ -118,7 +116,6 @@ export function ImageUploader({
         fileInputRef.current.value = ""
       }
     } catch (error) {
-      console.error("Error:", error)
       toast({
         title: "Error al subir",
         description: error instanceof Error ? error.message : "Error desconocido",

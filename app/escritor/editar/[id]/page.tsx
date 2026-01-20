@@ -105,7 +105,7 @@ export default function EditArticlePage() {
         const formData = new FormData();
         formData.append("file", uploadedFile);
 
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        const uploadResponse = await fetch("https://api.lanotadigital.co/api/upload/image", {
           method: "POST",
           body: formData,
         });
@@ -115,12 +115,11 @@ export default function EditArticlePage() {
         }
 
         const uploadData = await uploadResponse.json();
-        // Convertir /upload/ a /upload/image/
-        let imageUrl = uploadData.url;
-        if (imageUrl.startsWith('/upload/') && !imageUrl.startsWith('/upload/image/')) {
-          imageUrl = imageUrl.replace('/upload/', '/upload/image/');
-        }
-        finalImageUrl = imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${imageUrl}`;
+        // El backend retorna /api/uploads/filename, convertimos a URL completa
+        const imageUrl = uploadData.url.startsWith('http')
+          ? uploadData.url
+          : `https://api.lanotadigital.co${uploadData.url}`
+        finalImageUrl = imageUrl;
       }
 
       await updateArticle(id, {

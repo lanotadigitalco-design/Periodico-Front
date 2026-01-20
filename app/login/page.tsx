@@ -46,19 +46,15 @@ export default function LoginPage() {
 
   const onLoginSubmit = async (data: LoginInput) => {
     const user = await login(data.email, data.password)
-    console.log("Login response:", user)
     
     if (user && user.id === "DISABLED") {
-      console.log("User is disabled, opening dialog")
       setIsUserDisabledDialogOpen(true)
       return
     } else if (user) {
-      console.log("Login successful, user role:", user.role)
       setIsLoggingIn(true)
       setUser(user)
       
       setTimeout(() => {
-        console.log("Redirecting based on role:", user.role)
         if (user.role === "admin") {
           router.push("/admin")
         } else if (user.role === "writer") {
@@ -78,7 +74,6 @@ export default function LoginPage() {
   const onRegisterSubmit = async (data: RegisterInput) => {
     const user = await register(data.email, data.password, data.nombre, data.apellido, rol)
     if (user) {
-      console.log("Register successful, user:", user)
       setIsLoggingIn(true)
       setUser(user)
       setTimeout(() => {

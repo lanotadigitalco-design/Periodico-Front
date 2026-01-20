@@ -31,12 +31,10 @@ export default function NewsPage() {
   useEffect(() => {
     const loadArticles = async () => {
       try {
-        console.log("📰 Iniciando carga de noticias...")
         const data = await getPublishedArticles()
-        console.log("✅ Noticias cargadas:", data)
         setArticles(data || [])
       } catch (error) {
-        console.error("❌ Error cargando noticias:", error)
+
         setArticles([])
       }
     }
@@ -46,15 +44,13 @@ export default function NewsPage() {
   useEffect(() => {
     const loadLiveStream = async () => {
       try {
-        console.log("📡 Cargando live stream...")
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/live-stream`, {
+        const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
           headers: {
             "Accept": "application/json"
           }
         })
         
         if (!response.ok) {
-          console.warn("⚠️ Live stream no disponible:", response.status)
           setIsLoadingStream(false)
           return
         }
@@ -62,16 +58,21 @@ export default function NewsPage() {
         // Validar que sea JSON antes de parsear
         const contentType = response.headers.get("content-type")
         if (!contentType || !contentType.includes("application/json")) {
-          console.warn("⚠️ Respuesta no es JSON:", contentType)
           setIsLoadingStream(false)
           return
         }
         
-        const data = await response.json()
-        console.log("✅ Live stream cargado:", data)
+        // Validar que hay contenido antes de parsear
+        const text = await response.text()
+        if (!text) {
+          setIsLoadingStream(false)
+          return
+        }
+        
+        const data = JSON.parse(text)
         setLiveStreamConfig(data)
       } catch (error) {
-        console.error("❌ Error loading live stream config:", error)
+        // Error al cargar, ignorar silenciosamente
       } finally {
         setIsLoadingStream(false)
       }

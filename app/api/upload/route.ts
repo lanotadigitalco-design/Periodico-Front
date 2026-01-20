@@ -20,36 +20,30 @@ export async function POST(request: Request) {
       return Response.json({ error: "File size exceeds 5MB limit" }, { status: 400 })
     }
 
-    // Crear nombre único para el archivo usando timestamp + random
+    // Crear nombre único para el archivo
     const ext = file.name.split(".").pop() || "jpg"
     const timestamp = Date.now()
     const random = Math.random().toString(36).substring(2, 9)
     const filename = `${timestamp}-${random}.${ext}`
 
-    // Crear directorio public/uploads si no existe
-    const uploadDir = path.join(process.cwd(), "public", "uploads")
-    try {
-      await mkdir(uploadDir, { recursive: true })
-    } catch (err) {
-      // El directorio ya existe
-    }
+    // Crear directorio public/uploads/image si no existe
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "image")
+    await mkdir(uploadDir, { recursive: true })
 
     // Guardar archivo
     const filepath = path.join(uploadDir, filename)
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const buffer = Buffer.from(await file.arrayBuffer())
     await writeFile(filepath, buffer)
 
     // Retornar URL relativa
-    const url = `/uploads/${filename}`
+    const url = `/uploads/image/${filename}`
 
-    return Response.json({ 
+    return Response.json({
       success: true,
       url,
       filename
     })
   } catch (error) {
-    console.error("Upload error:", error)
     return Response.json(
       { error: "Error uploading file" },
       { status: 500 }
