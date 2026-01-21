@@ -298,10 +298,8 @@ function mapArticleFromAPI(data: any): Article {
   // Si no, asumir que es una URL relativa del API
   if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http")) {
     // Agregar el dominio del API para URLs relativas
-    const apiBase =
-      process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-      "https://api.lanotadigital.co";
-    imagenUrl = `${apiBase}${imagenUrl}`;
+    const apiBase = "https://api.lanotadigital.co/api";
+    imagenUrl = `${apiBase}/upload/image/${imagenUrl}`;
   }
 
   // Extraer autor del array autores o usar campos directos
@@ -893,7 +891,39 @@ export const deleteArticle = async (
     return { success: false, message: "Error del servidor" };
 
   try {
+    // Primero obtener el artículo para saber qué imágenes tiene
+    let articleImages: string[] = [];
+    try {
+      const article = await getArticleById(id);
+      if (article?.imagenUrl) {
+        const filename = article.imagenUrl.split("/").pop();
+        if (filename) {
+          articleImages.push(filename);
+        }
+      }
+    } catch (error) {
+      console.warn("No se pudo obtener las imágenes del artículo:", error);
+    }
+
+    // Eliminar el artículo
     const response = await apiRequest(`/articulos/${id}`, { method: "DELETE" });
+
+    // Intentar eliminar las imágenes asociadas
+    if (articleImages.length > 0) {
+      try {
+        for (const filename of articleImages) {
+          await deleteImage(filename);
+          console.log("Imagen eliminada:", filename);
+        }
+      } catch (deleteError) {
+        console.warn(
+          "No se pudieron eliminar todas las imágenes:",
+          deleteError,
+        );
+        // No fallar si las imágenes no se pueden eliminar
+      }
+    }
+
     return { success: true, message: "Artículo eliminado exitosamente" };
   } catch (error: any) {
     const errorMessage = error?.message || String(error);
@@ -1013,7 +1043,7 @@ export const uploadMultipleImages = async (
  * @returns URL de la imagen
  */
 export const getImageUrl = (filename: string): string => {
-  return `${API_BASE_URL}/api/upload/image/${filename}`;
+  return `${API_BASE_URL}/upload/image/${filename}`;
 };
 
 /**

@@ -1,42 +1,47 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Upload, X, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
-import { uploadImage, getImageUrl } from "@/lib/api"
+import { useState, useRef } from "react";
+import { Upload, X, Loader2, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { uploadImage, getImageUrl, deleteImage } from "@/lib/api";
 
 interface ImageUploaderProps {
-  onImageUpload: (url: string) => void
-  multiple?: boolean
-  maxSize?: number // en MB
+  onImageUpload: (url: string) => void;
+  currentImage?: string; // Para pasar la URL de imagen actual
+  onImageDelete?: () => void; // Callback cuando se elimine la imagen
+  multiple?: boolean;
+  maxSize?: number; // en MB
 }
 
-export function ImageUploader({ 
-  onImageUpload, 
+export function ImageUploader({
+  onImageUpload,
+  currentImage,
+  onImageDelete,
   multiple = false,
-  maxSize = 5 
+  maxSize = 5,
 }: ImageUploaderProps) {
-  const [loading, setLoading] = useState(false)
-  const [preview, setPreview] = useState<string>("")
-  const [fileName, setFileName] = useState<string>("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [preview, setPreview] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // Validar tamaño
-    const fileSizeMB = file.size / (1024 * 1024)
+    const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSize) {
       toast({
         title: "Archivo muy grande",
         description: `El archivo no debe exceder ${maxSize}MB`,
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Validar que sea imagen
@@ -45,18 +50,18 @@ export function ImageUploader({
         title: "Archivo inválido",
         description: "Solo se permiten archivos de imagen",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Preview
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
-      setPreview(event.target?.result as string)
-      setFileName(file.name)
-    }
-    reader.readAsDataURL(file)
-  }
+      setPreview(event.target?.result as string);
+      setFileName(file.name);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleUpload = async () => {
     if (!fileInputRef.current?.files?.[0]) {
@@ -64,56 +69,120 @@ export function ImageUploader({
         title: "Error",
         description: "Selecciona una imagen",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      const file = fileInputRef.current.files[0]
-      const uploadResponse = await uploadImage(file)
-      const fullUrl = getImageUrl(uploadResponse.filename)
-      
-      onImageUpload(fullUrl)
-      
+      const file = fileInputRef.current.files[0];
+      const uploadResponse = await uploadImage(file);
+      const fullUrl = getImageUrl(uploadResponse.filename);
+
+      onImageUpload(fullUrl);
+
       toast({
         title: "✓ Imagen subida",
         description: "La imagen se ha subido correctamente",
-      })
+      });
 
       // Reset
-      setPreview("")
-      setFileName("")
+      setPreview("");
+      setFileName("");
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""
+        fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error("Error:", error)
+      console.error("Error:", error);
       toast({
         title: "Error al subir",
-        description: error instanceof Error ? error.message : "Error desconocido",
+        description:
+          error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setPreview("")
-    setFileName("")
+    setPreview("");
+    setFileName("");
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
+
+  const handleDeleteCurrentImage = async () => {
+    if (!currentImage) return;
+
+    setDeleting(true);
+    try {
+      const filename = currentImage.split("/").pop();
+      if (filename) {
+        await deleteImage(filename);
+        toast({
+          title: "✓ Imagen eliminada",
+          description: "La imagen se ha eliminado correctamente",
+        });
+        if (onImageDelete) {
+          onImageDelete();
+        }
+      }
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      toast({
+        title: "Error al eliminar",
+        description:
+          error instanceof Error ? error.message : "Error desconocido",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <h3 className="font-semibold">Subir Imagen</h3>
+        <h3 className="font-semibold">Imagen del Artículo</h3>
 
-        {preview ? (
+        {currentImage && !preview ? (
+          <div className="space-y-3">
+            <div className="relative inline-block w-full">
+              <img
+                src={currentImage}
+                alt="Imagen actual"
+                className="w-full max-h-64 object-cover rounded-lg border"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">✅ Imagen actual</p>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="outline"
+                size="sm"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Cambiar imagen
+              </Button>
+              <Button
+                onClick={handleDeleteCurrentImage}
+                variant="destructive"
+                size="sm"
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                {deleting ? "Eliminando..." : "Eliminar"}
+              </Button>
+            </div>
+          </div>
+        ) : preview ? (
           <div className="space-y-3">
             <div className="relative inline-block">
               <img
@@ -142,11 +211,15 @@ export function ImageUploader({
             </div>
           </div>
         ) : (
-          <div className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 cursor-pointer transition"
-            onClick={() => fileInputRef.current?.click()}>
+          <div
+            className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 cursor-pointer transition"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
             <p className="text-sm font-medium">Selecciona una imagen</p>
-            <p className="text-xs text-muted-foreground">PNG, JPG o GIF (máx {maxSize}MB)</p>
+            <p className="text-xs text-muted-foreground">
+              PNG, JPG o GIF (máx {maxSize}MB)
+            </p>
           </div>
         )}
 
@@ -159,5 +232,5 @@ export function ImageUploader({
         />
       </div>
     </Card>
-  )
+  );
 }

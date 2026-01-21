@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getArticleById, updateArticle } from "@/lib/auth";
-import { uploadImage, getImageUrl } from "@/lib/api";
+import { uploadImage, deleteImage } from "@/lib/api";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import Link from "next/link";
 
@@ -48,6 +48,7 @@ export default function EditArticlePage() {
     | "monteria"
   >("politica");
   const [imagenUrl, setImagenUrl] = useState("");
+  const [originalImageUrl, setOriginalImageUrl] = useState(""); // Para trackear la imagen original
   const [publicado, setPublicado] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,7 @@ export default function EditArticlePage() {
         const article = await getArticleById(id);
         if (article) {
           // Verificar que el usuario sea el autor o admin
-          if (article.autorId !== user.id && user.role !== "admin") {
+          if (article.autorId !== String(user.id) && user.role !== "admin") {
             router.push("/escritor");
             return;
           }
@@ -79,6 +80,7 @@ export default function EditArticlePage() {
           setContenido(article.contenido);
           setCategoria(article.categoria);
           setImagenUrl(article.imagenUrl || "");
+          setOriginalImageUrl(article.imagenUrl || ""); // Guardar URL original
           setPublicado(article.publicado || false);
           setLoading(false);
         } else {
@@ -105,9 +107,30 @@ export default function EditArticlePage() {
       if (uploadedFile) {
         try {
           const uploadResponse = await uploadImage(uploadedFile);
-          finalImageUrl = getImageUrl(uploadResponse.filename);
+          finalImageUrl = uploadResponse.filename;
+
+          // Eliminar la imagen anterior si existe y es diferente
+          if (originalImageUrl && originalImageUrl !== finalImageUrl) {
+            try {
+              const filename = originalImageUrl.split("/").pop();
+              if (filename) {
+                await deleteImage(filename);
+                console.log("Imagen anterior eliminada:", filename);
+              }
+            } catch (deleteError) {
+              console.warn(
+                "No se pudo eliminar la imagen anterior:",
+                deleteError,
+              );
+              // No detener el proceso si falla la eliminación
+            }
+          }
         } catch (uploadError) {
-          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
+          throw new Error(
+            uploadError instanceof Error
+              ? uploadError.message
+              : "Error al subir la imagen",
+          );
         }
       }
 
@@ -155,6 +178,24 @@ export default function EditArticlePage() {
   const clearUpload = () => {
     setUploadedFile(null);
     setPreviewUrl("");
+  };
+
+  const handleRemoveImage = async () => {
+    // Si hay una imagen cargada, intentar eliminarla del servidor
+    if (originalImageUrl) {
+      try {
+        const filename = originalImageUrl.split("/").pop();
+        if (filename) {
+          await deleteImage(filename);
+          console.log("Imagen eliminada:", filename);
+        }
+      } catch (deleteError) {
+        console.warn("No se pudo eliminar la imagen:", deleteError);
+      }
+    }
+    setImagenUrl("");
+    setOriginalImageUrl("");
+    clearUpload();
   };
 
   if (isLoading || loading) {
@@ -283,22 +324,19 @@ export default function EditArticlePage() {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={() => {
-                          setImagenUrl("");
-                          clearUpload();
-                        }}
+                        onClick={handleRemoveImage}
                       >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
                     {uploadedFile && (
                       <p className="text-sm text-muted-foreground">
-                        ✅ Archivo subido: {uploadedFile?.name}
+                        ✅ Archivo nuevo seleccionado: {uploadedFile?.name}
                       </p>
                     )}
                     {!uploadedFile && imagenUrl && (
                       <p className="text-sm text-muted-foreground">
-                        ✅ Imagen actual cargada
+                        ✅ Imagen actual del artículo
                       </p>
                     )}
                     <Button
