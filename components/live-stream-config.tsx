@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
@@ -17,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle, AlertCircle } from "lucide-react";
-import { getLiveStreamById, createLiveStream, updateLiveStream } from "@/lib/api";
+import { getLiveStream, createLiveStream, updateLiveStream } from "@/lib/api";
 
 interface LiveStreamConfig {
   url: string;
@@ -43,9 +41,9 @@ export function LiveStreamConfigComponent() {
     const loadConfig = async () => {
       try {
         console.log("📡 Cargando configuración existente del live stream...");
-        const data = await getLiveStreamById(1);
+        const data = await getLiveStream();
         console.log("✅ Configuración cargada:", data);
-        
+
         if (data && data.url) {
           setConfig({
             url: data.url || "",
@@ -132,7 +130,7 @@ export function LiveStreamConfigComponent() {
         descripcion: config.descripcion,
         activo: config.activo,
       };
-      
+
       console.log("🔴 [3] Datos a enviar:", configToSend);
 
       // Intentar actualizar con ID 1
@@ -274,7 +272,7 @@ export function LiveStreamConfigComponent() {
             console.log("🔘 [CLICK] Botón Guardar clickeado");
             console.log("🔘 [CONFIG ACTUAL]:", config);
             console.log("🔘 [URL VÁLIDA?]:", isValidUrl(config.url));
-            setSaveDialog(true)
+            setSaveDialog(true);
           }}
           disabled={!config.url || !isValidUrl(config.url) || loading}
           size="sm"
