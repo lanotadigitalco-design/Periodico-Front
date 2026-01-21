@@ -1,70 +1,96 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/auth-provider"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { createArticle } from "@/lib/auth"
-import { uploadImage, getImageUrl } from "@/lib/api"
-import { ArrowLeft, Save } from "lucide-react"
-import Link from "next/link"
-import { useEffect } from "react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth-provider";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { createArticle } from "@/lib/auth";
+import { uploadImage, getImageUrl } from "@/lib/api";
+import { ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function NewArticlePage() {
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
-  const [titulo, setTitulo] = useState("")
-  const [resumen, setResumen] = useState("")
-  const [contenido, setContenido] = useState("")
-  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias" | "cordoba" | "monteria">("politica")
-  const [imagenUrl, setImagenUrl] = useState("")
-  const [imagenFile, setImagenFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState("")
-  const [publicado, setPublicado] = useState(false)
-  const [error, setError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const [titulo, setTitulo] = useState("");
+  const [resumen, setResumen] = useState("");
+  const [contenido, setContenido] = useState("");
+  const [categoria, setCategoria] = useState<
+    | "politica"
+    | "economia"
+    | "deportes"
+    | "cultura"
+    | "mundo"
+    | "opinion"
+    | "tecnologia"
+    | "salud"
+    | "entretenimiento"
+    | "tendencias"
+    | "cordoba"
+    | "monteria"
+  >("politica");
+  const [imagenUrl, setImagenUrl] = useState("");
+  const [imagenFile, setImagenFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [publicado, setPublicado] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== "writer" && user.role !== "admin"))) {
-      router.push("/login")
+    if (
+      !isLoading &&
+      (!user || (user.role !== "writer" && user.role !== "admin"))
+    ) {
+      router.push("/login");
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
     if (!titulo || !resumen || !contenido) {
-      setError("Por favor completa todos los campos obligatorios")
-      setIsSubmitting(false)
-      return
+      setError("Por favor completa todos los campos obligatorios");
+      setIsSubmitting(false);
+      return;
     }
 
     if (!user) {
-      setError("Debes iniciar sesión para crear un artículo")
-      setIsSubmitting(false)
-      return
+      setError("Debes iniciar sesión para crear un artículo");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
-      let finalImagenUrl = imagenUrl
+      let finalImagenUrl = imagenUrl;
 
       // Si se seleccionó un archivo, subirlo primero
       if (imagenFile && !imagenUrl) {
         try {
-          const uploadResponse = await uploadImage(imagenFile)
-          finalImagenUrl = getImageUrl(uploadResponse.filename)
+          const uploadResponse = await uploadImage(imagenFile);
+          finalImagenUrl = uploadResponse.filename;
         } catch (uploadError) {
-          throw new Error(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen")
+          throw new Error(
+            uploadError instanceof Error
+              ? uploadError.message
+              : "Error al subir la imagen",
+          );
         }
       }
 
@@ -77,49 +103,51 @@ export default function NewArticlePage() {
         autor: user.name,
         autorId: user.id,
         publicado,
-      })
+      });
 
-      router.push("/escritor")
+      router.push("/escritor");
     } catch (err) {
-      console.error("Error:", err)
-      setError(err instanceof Error ? err.message : "Error al crear el artículo")
+      console.error("Error:", err);
+      setError(
+        err instanceof Error ? err.message : "Error al crear el artículo",
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
       // Validar que sea imagen
       if (!file.type.startsWith("image/")) {
-        setError("Por favor selecciona un archivo de imagen válido")
-        return
+        setError("Por favor selecciona un archivo de imagen válido");
+        return;
       }
 
       // Validar tamaño (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setError("La imagen no debe superar 5MB")
-        return
+        setError("La imagen no debe superar 5MB");
+        return;
       }
 
-      setImagenFile(file)
-      setImagenUrl("") // Limpiar URL si se selecciona archivo
+      setImagenFile(file);
+      setImagenUrl(""); // Limpiar URL si se selecciona archivo
 
       // Crear preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (event) => {
-        setPreviewUrl(event.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+        setPreviewUrl(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleImageUrlChange = (url: string) => {
-    setImagenUrl(url)
-    setImagenFile(null)
-    setPreviewUrl("") // Limpiar preview
-  }
+    setImagenUrl(url);
+    setImagenFile(null);
+    setPreviewUrl(""); // Limpiar preview
+  };
 
   if (isLoading) {
     return (
@@ -130,11 +158,11 @@ export default function NewArticlePage() {
           </Card>
         </main>
       </div>
-    )
+    );
   }
 
   if (!user || (user.role !== "writer" && user.role !== "admin")) {
-    return null
+    return null;
   }
 
   return (
@@ -149,8 +177,12 @@ export default function NewArticlePage() {
 
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-2">Crear Nuevo Artículo</h1>
-            <p className="text-muted-foreground">Escribe y publica tu contenido periodístico</p>
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-2">
+              Crear Nuevo Artículo
+            </h1>
+            <p className="text-muted-foreground">
+              Escribe y publica tu contenido periodístico
+            </p>
           </div>
 
           <Card className="p-8">
@@ -172,7 +204,10 @@ export default function NewArticlePage() {
                 <Label htmlFor="categoria">
                   Categoría <span className="text-destructive">*</span>
                 </Label>
-                <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+                <Select
+                  value={categoria}
+                  onValueChange={(value: any) => setCategoria(value)}
+                >
                   <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
@@ -185,7 +220,9 @@ export default function NewArticlePage() {
                     <SelectItem value="opinion">Opinión</SelectItem>
                     <SelectItem value="tecnologia">Tecnología</SelectItem>
                     <SelectItem value="salud">Salud</SelectItem>
-                    <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
+                    <SelectItem value="entretenimiento">
+                      Entretenimiento
+                    </SelectItem>
                     <SelectItem value="tendencias">Tendencias</SelectItem>
                     <SelectItem value="cordoba">Córdoba</SelectItem>
                     <SelectItem value="monteria">Montería</SelectItem>
@@ -222,14 +259,24 @@ export default function NewArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Imagen <span className="text-xs text-muted-foreground">(Opcional)</span></Label>
-                <p className="text-xs text-muted-foreground mb-3">Puedes subir una imagen o usar una URL. Si no agregas una, se mostrará el logo por defecto.</p>
-                
+                <Label>
+                  Imagen{" "}
+                  <span className="text-xs text-muted-foreground">
+                    (Opcional)
+                  </span>
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Puedes subir una imagen o usar una URL. Si no agregas una, se
+                  mostrará el logo por defecto.
+                </p>
+
                 <div className="space-y-4">
                   {/* Input de archivo */}
                   {!imagenUrl && !previewUrl && (
                     <div className="space-y-2">
-                      <Label htmlFor="imagenFile" className="text-sm">Subir Imagen</Label>
+                      <Label htmlFor="imagenFile" className="text-sm">
+                        Subir Imagen
+                      </Label>
                       <Input
                         id="imagenFile"
                         type="file"
@@ -238,7 +285,9 @@ export default function NewArticlePage() {
                         disabled={isSubmitting}
                         className="cursor-pointer"
                       />
-                      <p className="text-xs text-muted-foreground">PNG, JPG o GIF (máx 5MB)</p>
+                      <p className="text-xs text-muted-foreground">
+                        PNG, JPG o GIF (máx 5MB)
+                      </p>
                     </div>
                   )}
 
@@ -250,13 +299,16 @@ export default function NewArticlePage() {
                         alt="Vista previa"
                         className="w-full h-48 object-cover rounded-lg border border-border"
                         onError={(e) => {
-                          const img = e.target as HTMLImageElement
+                          const img = e.target as HTMLImageElement;
                           console.error("❌ Error cargando imagen:", {
                             src: img.src,
-                            error: img.naturalWidth === 0 ? "No se pudo cargar" : "Error desconocido",
-                            statusText: "Ver Network en DevTools"
-                          })
-                          setError(`No se pudo cargar la imagen: ${img.src}`)
+                            error:
+                              img.naturalWidth === 0
+                                ? "No se pudo cargar"
+                                : "Error desconocido",
+                            statusText: "Ver Network en DevTools",
+                          });
+                          setError(`No se pudo cargar la imagen: ${img.src}`);
                         }}
                       />
                       <Button
@@ -265,9 +317,9 @@ export default function NewArticlePage() {
                         size="sm"
                         className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white"
                         onClick={() => {
-                          setImagenFile(null)
-                          setImagenUrl("")
-                          setPreviewUrl("")
+                          setImagenFile(null);
+                          setImagenUrl("");
+                          setPreviewUrl("");
                         }}
                       >
                         ✕
@@ -280,10 +332,14 @@ export default function NewArticlePage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-px bg-border"></div>
-                        <span className="text-xs text-muted-foreground px-2">O</span>
+                        <span className="text-xs text-muted-foreground px-2">
+                          O
+                        </span>
                         <div className="flex-1 h-px bg-border"></div>
                       </div>
-                      <Label htmlFor="imagenUrl" className="text-sm">Usar URL de Imagen</Label>
+                      <Label htmlFor="imagenUrl" className="text-sm">
+                        Usar URL de Imagen
+                      </Label>
                       <Input
                         id="imagenUrl"
                         type="url"
@@ -298,18 +354,36 @@ export default function NewArticlePage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id="publicado" checked={publicado} onCheckedChange={setPublicado} />
+                <Switch
+                  id="publicado"
+                  checked={publicado}
+                  onCheckedChange={setPublicado}
+                />
                 <Label htmlFor="publicado">Publicar inmediatamente</Label>
               </div>
 
-              {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</p>}
+              {error && (
+                <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+                  {error}
+                </p>
+              )}
 
               <div className="flex gap-3">
                 <Button type="submit" size="lg" disabled={isSubmitting}>
                   <Save className="w-4 h-4 mr-2" />
-                  {isSubmitting ? "Procesando..." : publicado ? "Publicar Artículo" : "Guardar Borrador"}
+                  {isSubmitting
+                    ? "Procesando..."
+                    : publicado
+                      ? "Publicar Artículo"
+                      : "Guardar Borrador"}
                 </Button>
-                <Button type="button" variant="outline" size="lg" asChild disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  asChild
+                  disabled={isSubmitting}
+                >
                   <Link href="/escritor">Cancelar</Link>
                 </Button>
               </div>
@@ -318,5 +392,5 @@ export default function NewArticlePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
