@@ -85,21 +85,25 @@ export function Header() {
   }
 
   const sections = [
-    { name: "Política", href: "/categoria/politica" },
+   { name: "Política", href: "/categoria/politica" },
     { name: "Economía", href: "/categoria/economia" },
+    { name: "Educacion", href: "/categoria/educacion" },
+    { name: "Judicial", href: "/categoria/judicial" },
     { name: "Deportes", href: "/categoria/deportes" },
     { name: "Cultura", href: "/categoria/cultura" },
     { name: "Mundo", href: "/categoria/mundo" },
+    { name: "Colombia", href: "/categoria/colombia" },
     { name: "Córdoba", href: "/categoria/cordoba" },
     { name: "Montería", href: "/categoria/monteria" },
     { name: "Opinión", href: "/categoria/opinion" },
+    { name: "Turismo", href: "/categoria/turismo" },
     { name: "Tecnología", href: "/categoria/tecnologia" },
     { name: "Salud", href: "/categoria/salud" },
     { name: "Entretenimiento", href: "/categoria/entretenimiento" },
     { name: "Tendencias", href: "/categoria/tendencias" },
   ]
 
-  const mainSections = sections.slice(0, 7)
+  const mainSections = sections.slice(0, 9)
   const moreSections = sections.slice(7)
 
   // Mostrar menú hamburguesa en pantallas < md (768px)

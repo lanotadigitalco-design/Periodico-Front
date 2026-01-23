@@ -1,43 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Play,
-  Clock,
-  Twitter,
-  Facebook,
-  Youtube,
-  Instagram,
-  Newspaper,
-  Info,
-  DollarSign,
-  Zap,
-  MapPin,
-  Phone,
-  Mail,
-  Music,
-  Search,
-  X,
-} from "lucide-react";
-import { getPublishedArticles, type Article } from "@/lib/auth";
-import { getLiveStream } from "@/lib/api";
-import Link from "next/link";
-import { LiveStreamPlayer } from "@/components/live-stream-player";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
-const ARTICLES_PER_PAGE = 8;
+import { useEffect, useState } from "react"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music } from "lucide-react"
+import { getPublishedArticles, type Article } from "@/lib/auth"
+import Link from "next/link"
+import { LiveStreamPlayer } from "@/components/live-stream-player"
+import Script from "next/dist/client/script"
 
 interface LiveStreamConfig {
   id?: number;
@@ -116,29 +87,27 @@ export default function NewsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const getCategoryLabel = (cat: string) => {
-    const labels: Record<string, string> = {
-      politica: "Política",
-      economia: "Economía",
-      deportes: "Deportes",
-      cultura: "Cultura",
-      tecnologia: "Tecnología",
-    };
-    return labels[cat] || cat;
+ const getCategoryLabel = (cat: string | undefined) => {
+  if (!cat) return ""; // o puedes devolver "Sin categoría"
+  const labels: Record<string, string> = {
+    politica: "Política",
+    judicial: "Judicial",
+    economia: "Economía",
+    deportes: "Deportes",
+    cultura: "Cultura",
+    mundo: "Mundo",
+    opinion: "Opinión",
+    tecnologia: "Tecnología",
+    salud: "Salud",
+    entretenimiento: "Entretenimiento",
+    turismo: "Turismo",
+    tendencias: "Tendencias",
+    colombia: "Colombia",
+    cordoba: "Córdoba",
+    monteria: "Montería",
   };
-
-  const featuredArticles = articles.slice(0, 2);
-
-  // Filtrar artículos por búsqueda
-  let filteredArticles = articles.slice(2);
-  if (searchTerm) {
-    filteredArticles = filteredArticles.filter(
-      (a) =>
-        a.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.author?.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }
+  return labels[cat.toLowerCase()] || cat;
+};
 
   // Paginación
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
@@ -393,17 +362,17 @@ export default function NewsPage() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card mt-12">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-serif font-bold text-lg mb-4">
-                La Nota Digital
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Tu fuente confiable de noticias en tiempo real
-              </p>
-            </div>
+   <footer className="border-t border-border bg-card mt-12 w-full">
+  {/* fondo full-bleed */}
+  <div className="w-full px-6 py-8">
+    {/* contenido centrado y con ancho legible */}
+    <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 className="font-serif font-bold text-lg mb-4">La Nota Digital</h3>
+        <p className="text-sm text-muted-foreground">Tu fuente confiable de noticias en tiempo real</p>
+      </div>
+
+
             <div>
               <h4 className="font-semibold mb-4">Información</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -493,7 +462,11 @@ export default function NewsPage() {
             <p>&copy; 2026 La Nota Digital. Todos los derechos reservados.</p>
           </div>
         </div>
+      <Script
+
+/>
       </footer>
     </div>
-  );
+    
+  )
 }
