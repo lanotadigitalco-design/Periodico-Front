@@ -1,50 +1,42 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Article } from "@/lib/api";
-import { getPublishedArticles, updateArticle } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
+import { useEffect, useState } from "react"
+import { Article } from "@/lib/api"
+import { getArchivedArticles, updateArticle } from "@/lib/api"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Spinner } from "@/components/ui/spinner"
+import Link from "next/link"
 
 export default function ArticulosDespublicadosPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [articles, setArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadArticles();
-  }, []);
+    loadArticles()
+  }, [])
 
   async function loadArticles() {
     try {
-      setLoading(true);
-      const data = await getPublishedArticles();
-      setArticles(data);
-      setError(null);
+      setLoading(true)
+      const data = await getArchivedArticles()
+      setArticles(data)
+      setError(null)
     } catch (err) {
-      console.error("Error cargando artículos:", err);
-      setError("Error al cargar los artículos");
+      setError("Error al cargar los artículos")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   async function handlePublish(id: string) {
     try {
-      await updateArticle(id, { publicado: true });
+      await updateArticle(id, { publicado: true })
       // Recargar la lista
-      loadArticles();
+      loadArticles()
     } catch (err) {
-      console.error("Error al publicar:", err);
-      alert("Error al publicar el artículo");
+      alert("Error al publicar el artículo")
     }
   }
 
@@ -53,7 +45,7 @@ export default function ArticulosDespublicadosPage() {
       <div className="flex items-center justify-center min-h-screen">
         <Spinner />
       </div>
-    );
+    )
   }
 
   return (
@@ -62,8 +54,7 @@ export default function ArticulosDespublicadosPage() {
         <div>
           <h1 className="text-3xl font-bold">Artículos Despublicados</h1>
           <p className="text-gray-500 mt-1">
-            Total: {articles.length}{" "}
-            {articles.length === 1 ? "artículo" : "artículos"}
+            Total: {articles.length} {articles.length === 1 ? "artículo" : "artículos"}
           </p>
         </div>
         <Link href="/admin">
@@ -97,10 +88,7 @@ export default function ArticulosDespublicadosPage() {
                     {article.creadoEn && (
                       <>
                         <span>•</span>
-                        <span>
-                          Creado:{" "}
-                          {new Date(article.creadoEn).toLocaleDateString()}
-                        </span>
+                        <span>Creado: {new Date(article.creadoEn).toLocaleDateString()}</span>
                       </>
                     )}
                   </div>
@@ -130,5 +118,5 @@ export default function ArticulosDespublicadosPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -1,99 +1,137 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { useAuth } from "@/components/auth-provider"
-import { Header } from "@/components/header"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { getArticleById, updateArticle } from "@/lib/auth"
-import { ArrowLeft, Save, Upload, X } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/components/auth-provider";
+import { Header } from "@/components/header";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { getArticleById, updateArticle } from "@/lib/auth";
+import { uploadImage, deleteImage } from "@/lib/api";
+import { ArrowLeft, Save, Upload, X } from "lucide-react";
+import Link from "next/link";
 
 export default function EditArticlePage() {
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
 
-  const [titulo, setTitulo] = useState("")
-  const [resumen, setResumen] = useState("")
-  const [contenido, setContenido] = useState("")
-  const [categoria, setCategoria] = useState<"politica" | "economia" | "deportes" | "cultura" | "mundo" | "opinion" | "tecnologia" | "salud" | "entretenimiento" | "tendencias" | "cordoba" | "monteria">("politica")
-  const [imagenUrl, setImagenUrl] = useState("")
-  const [publicado, setPublicado] = useState(false)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState("")
+  const [titulo, setTitulo] = useState("");
+  const [resumen, setResumen] = useState("");
+  const [contenido, setContenido] = useState("");
+  const [categoria, setCategoria] = useState<
+    | "politica"
+    | "economia"
+    | "deportes"
+    | "cultura"
+    | "mundo"
+    | "opinion"
+    | "tecnologia"
+    | "salud"
+    | "entretenimiento"
+    | "tendencias"
+    | "cordoba"
+    | "monteria"
+  >("politica");
+  const [imagenUrl, setImagenUrl] = useState("");
+  const [originalImageUrl, setOriginalImageUrl] = useState(""); // Para trackear la imagen original
+  const [publicado, setPublicado] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== "writer" && user.role !== "admin"))) {
-      router.push("/login")
+    if (
+      !isLoading &&
+      (!user || (user.role !== "writer" && user.role !== "admin"))
+    ) {
+      router.push("/login");
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     if (user) {
       const loadArticle = async () => {
-        const article = await getArticleById(id)
+        const article = await getArticleById(id);
         if (article) {
           // Verificar que el usuario sea el autor o admin
-          if (article.autorId !== user.id && user.role !== "admin") {
-            router.push("/escritor")
-            return
+          if (article.autorId !== String(user.id) && user.role !== "admin") {
+            router.push("/escritor");
+            return;
           }
 
-          setTitulo(article.titulo)
-          setResumen(article.resumen || "")
-          setContenido(article.contenido)
-          setCategoria(article.categoria)
-          setImagenUrl(article.imagenUrl || "")
-          setPublicado(article.publicado || false)
-          setLoading(false)
+          setTitulo(article.titulo);
+          setResumen(article.resumen || "");
+          setContenido(article.contenido);
+          setCategoria(article.categoria);
+          setImagenUrl(article.imagenUrl || "");
+          setOriginalImageUrl(article.imagenUrl || ""); // Guardar URL original
+          setPublicado(article.publicado || false);
+          setLoading(false);
         } else {
-          router.push("/escritor")
+          router.push("/escritor");
         }
-      }
-      loadArticle()
+      };
+      loadArticle();
     }
-  }, [user, id, router])
+  }, [user, id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!titulo || !resumen || !contenido) {
-      setError("Por favor completa todos los campos obligatorios")
-      return
+      setError("Por favor completa todos los campos obligatorios");
+      return;
     }
 
     try {
-      let finalImageUrl = imagenUrl
+      let finalImageUrl = imagenUrl;
 
       // Si hay archivo subido, subirlo primero
       if (uploadedFile) {
-        const formData = new FormData()
-        formData.append("file", uploadedFile)
+        try {
+          const uploadResponse = await uploadImage(uploadedFile);
+          finalImageUrl = uploadResponse.filename;
 
-        const uploadResponse = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error("Error al subir la imagen")
+          // Eliminar la imagen anterior si existe y es diferente
+          if (originalImageUrl && originalImageUrl !== finalImageUrl) {
+            try {
+              const filename = originalImageUrl.split("/").pop();
+              if (filename) {
+                await deleteImage(filename);
+                console.log("Imagen anterior eliminada:", filename);
+              }
+            } catch (deleteError) {
+              console.warn(
+                "No se pudo eliminar la imagen anterior:",
+                deleteError,
+              );
+              // No detener el proceso si falla la eliminación
+            }
+          }
+        } catch (uploadError) {
+          throw new Error(
+            uploadError instanceof Error
+              ? uploadError.message
+              : "Error al subir la imagen",
+          );
         }
-
-        const uploadData = await uploadResponse.json()
-        finalImageUrl = uploadData.url
       }
 
       await updateArticle(id, {
@@ -103,42 +141,62 @@ export default function EditArticlePage() {
         categoria,
         imagenUrl: finalImageUrl || undefined,
         publicado,
-      })
+      });
 
-      router.push("/escritor")
+      router.push("/escritor");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al actualizar el artículo")
+      setError(
+        err instanceof Error ? err.message : "Error al actualizar el artículo",
+      );
     }
-  }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
-        setError("Por favor sube un archivo de imagen")
-        return
+        setError("Por favor sube un archivo de imagen");
+        return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setError("El archivo no debe pesar más de 5MB")
-        return
+        setError("El archivo no debe pesar más de 5MB");
+        return;
       }
-      
-      setUploadedFile(file)
-      
+
+      setUploadedFile(file);
+
       // Crear preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (event) => {
-        setPreviewUrl(event.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-      setError("")
+        setPreviewUrl(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError("");
     }
-  }
+  };
 
   const clearUpload = () => {
-    setUploadedFile(null)
-    setPreviewUrl("")
-  }
+    setUploadedFile(null);
+    setPreviewUrl("");
+  };
+
+  const handleRemoveImage = async () => {
+    // Si hay una imagen cargada, intentar eliminarla del servidor
+    if (originalImageUrl) {
+      try {
+        const filename = originalImageUrl.split("/").pop();
+        if (filename) {
+          await deleteImage(filename);
+          console.log("Imagen eliminada:", filename);
+        }
+      } catch (deleteError) {
+        console.warn("No se pudo eliminar la imagen:", deleteError);
+      }
+    }
+    setImagenUrl("");
+    setOriginalImageUrl("");
+    clearUpload();
+  };
 
   if (isLoading || loading) {
     return (
@@ -150,11 +208,11 @@ export default function EditArticlePage() {
           </Card>
         </main>
       </div>
-    )
+    );
   }
 
   if (!user || (user.role !== "writer" && user.role !== "admin")) {
-    return null
+    return null;
   }
 
   return (
@@ -169,8 +227,12 @@ export default function EditArticlePage() {
 
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-2">Editar Artículo</h1>
-            <p className="text-muted-foreground">Actualiza el contenido de tu artículo</p>
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-2">
+              Editar Artículo
+            </h1>
+            <p className="text-muted-foreground">
+              Actualiza el contenido de tu artículo
+            </p>
           </div>
 
           <Card className="p-8">
@@ -192,7 +254,10 @@ export default function EditArticlePage() {
                 <Label htmlFor="categoria">
                   Categoría <span className="text-destructive">*</span>
                 </Label>
-                <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+                <Select
+                  value={categoria}
+                  onValueChange={(value: any) => setCategoria(value)}
+                >
                   <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
@@ -205,7 +270,9 @@ export default function EditArticlePage() {
                     <SelectItem value="opinion">Opinión</SelectItem>
                     <SelectItem value="tecnologia">Tecnología</SelectItem>
                     <SelectItem value="salud">Salud</SelectItem>
-                    <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
+                    <SelectItem value="entretenimiento">
+                      Entretenimiento
+                    </SelectItem>
                     <SelectItem value="tendencias">Tendencias</SelectItem>
                     <SelectItem value="cordoba">Córdoba</SelectItem>
                     <SelectItem value="monteria">Montería</SelectItem>
@@ -243,13 +310,13 @@ export default function EditArticlePage() {
 
               <div className="space-y-2">
                 <Label>Imagen del Artículo (opcional)</Label>
-                
+
                 {previewUrl || imagenUrl ? (
                   <div className="space-y-4">
                     <div className="relative rounded-lg overflow-hidden border border-border">
-                      <img 
-                        src={previewUrl || imagenUrl} 
-                        alt="Preview" 
+                      <img
+                        src={previewUrl || imagenUrl}
+                        alt="Preview"
                         className="w-full h-64 object-cover"
                       />
                       <Button
@@ -257,22 +324,19 @@ export default function EditArticlePage() {
                         variant="destructive"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={() => {
-                          setImagenUrl("")
-                          clearUpload()
-                        }}
+                        onClick={handleRemoveImage}
                       >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
                     {uploadedFile && (
                       <p className="text-sm text-muted-foreground">
-                        ✅ Archivo subido: {uploadedFile?.name}
+                        ✅ Archivo nuevo seleccionado: {uploadedFile?.name}
                       </p>
                     )}
                     {!uploadedFile && imagenUrl && (
                       <p className="text-sm text-muted-foreground">
-                        ✅ Imagen actual cargada
+                        ✅ Imagen actual del artículo
                       </p>
                     )}
                     <Button
@@ -280,8 +344,8 @@ export default function EditArticlePage() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setImagenUrl("")
-                        clearUpload()
+                        setImagenUrl("");
+                        clearUpload();
                       }}
                     >
                       Cambiar imagen
@@ -297,7 +361,10 @@ export default function EditArticlePage() {
                         className="hidden"
                         id="imagen-upload"
                       />
-                      <label htmlFor="imagen-upload" className="cursor-pointer block">
+                      <label
+                        htmlFor="imagen-upload"
+                        className="cursor-pointer block"
+                      >
                         <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="text-sm font-medium">Sube una imagen</p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -310,7 +377,11 @@ export default function EditArticlePage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id="publicado" checked={publicado} onCheckedChange={setPublicado} />
+                <Switch
+                  id="publicado"
+                  checked={publicado}
+                  onCheckedChange={setPublicado}
+                />
                 <Label htmlFor="publicado">Publicar artículo</Label>
               </div>
 
@@ -330,5 +401,5 @@ export default function EditArticlePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

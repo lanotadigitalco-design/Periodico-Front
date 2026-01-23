@@ -4,79 +4,86 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog"
 import { login, register } from "@/lib/auth"
 import { useAuth } from "@/components/auth-provider"
+import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from "@/lib/validation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [nombre, setNombre] = useState("")
-  const [apellido, setApellido] = useState("")
-  const [rol, setRol] = useState("lector")
-  const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const [rol] = useState("lector")
   const [isUserDisabledDialogOpen, setIsUserDisabledDialogOpen] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const { setUser } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  const loginForm = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
 
-    if (isLogin) {
-      const user = await login(email, password)
-      console.log("Login response:", user)
+  const registerForm = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      email: "",
+      password: "",
+    },
+  })
+
+  const onLoginSubmit = async (data: LoginInput) => {
+    const user = await login(data.email, data.password)
+    
+    if (user && user.id === "DISABLED") {
+      setIsUserDisabledDialogOpen(true)
+      return
+    } else if (user) {
+      setIsLoggingIn(true)
+      setUser(user)
       
-      if (user && user.id === "DISABLED") {
-        console.log("User is disabled, opening dialog")
-        setIsUserDisabledDialogOpen(true)
-        return
-      } else if (user) {
-        console.log("Login successful, user role:", user.role)
-        setIsLoggingIn(true)
-        // Guardar el usuario en el contexto
-        setUser(user)
-        
-        // Redirigir basado en el rol - usar setTimeout para asegurar que el state se actualice
-        setTimeout(() => {
-          console.log("Redirecting based on role:", user.role)
-          if (user.role === "admin") {
-            router.push("/admin")
-          } else if (user.role === "writer") {
-            router.push("/periodista")
-          } else {
-            router.push("/")
-          }
-        }, 300)
-      } else {
-        setError("Email o contraseña incorrectos")
-      }
-    } else {
-      if (!nombre || !apellido) {
-        setError("Por favor ingresa tu nombre y apellido")
-        return
-      }
-      const user = await register(email, password, nombre, apellido, rol)
-      if (user) {
-        console.log("Register successful, user:", user)
-        setIsLoggingIn(true)
-        setUser(user)
-        setTimeout(() => {
+      setTimeout(() => {
+        if (user.role === "admin") {
+          router.push("/admin")
+        } else if (user.role === "writer") {
+          router.push("/escritor")
+        } else {
           router.push("/")
-        }, 300)
-      } else {
-        setError("El email ya está registrado")
-      }
+        }
+      }, 300)
+    } else {
+      loginForm.setError("email", {
+        type: "manual",
+        message: "Email o contraseña incorrectos",
+      })
+    }
+  }
+
+  const onRegisterSubmit = async (data: RegisterInput) => {
+    const user = await register(data.email, data.password, data.nombre, data.apellido, rol)
+    if (user) {
+      setIsLoggingIn(true)
+      setUser(user)
+      setTimeout(() => {
+        router.push("/")
+      }, 300)
+    } else {
+      registerForm.setError("email", {
+        type: "manual",
+        message: "El email ya está registrado",
+      })
     }
   }
 
@@ -90,7 +97,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground">{isLogin ? "Inicia sesión" : "Crea tu cuenta"}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={isLogin ? loginForm.handleSubmit(onLoginSubmit) : registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
           {!isLogin && (
             <>
               <div className="space-y-2">
@@ -98,35 +105,26 @@ export default function LoginPage() {
                 <Input
                   id="nombre"
                   type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
                   placeholder="Tu nombre"
                   required
+                  {...registerForm.register("nombre")}
                 />
+                {registerForm.formState.errors.nombre && (
+                  <p className="text-sm text-destructive">{registerForm.formState.errors.nombre.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="apellido">Apellido</Label>
                 <Input
                   id="apellido"
                   type="text"
-                  value={apellido}
-                  onChange={(e) => setApellido(e.target.value)}
                   placeholder="Tu apellido"
                   required
+                  {...registerForm.register("apellido")}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="rol">Rol</Label>
-                <Select value={rol} onValueChange={setRol}>
-                  <SelectTrigger id="rol">
-                    <SelectValue placeholder="Selecciona un rol" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="lector">Lector</SelectItem>
-                    <SelectItem value="periodista">Periodista</SelectItem>
-                    <SelectItem value="administrador">Administrador</SelectItem>
-                  </SelectContent>
-                </Select>
+                {registerForm.formState.errors.apellido && (
+                  <p className="text-sm text-destructive">{registerForm.formState.errors.apellido.message}</p>
+                )}
               </div>
             </>
           )}
@@ -136,11 +134,15 @@ export default function LoginPage() {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
               required
+              {...(isLogin ? loginForm.register("email") : registerForm.register("email"))}
             />
+            {(isLogin ? loginForm.formState.errors.email : registerForm.formState.errors.email) && (
+              <p className="text-sm text-destructive">
+                {(isLogin ? loginForm.formState.errors.email : registerForm.formState.errors.email)?.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -149,10 +151,9 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                {...(isLogin ? loginForm.register("password") : registerForm.register("password"))}
               />
               <button
                 type="button"
@@ -163,11 +164,18 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {(isLogin ? loginForm.formState.errors.password : registerForm.formState.errors.password) && (
+              <p className="text-sm text-destructive">
+                {(isLogin ? loginForm.formState.errors.password : registerForm.formState.errors.password)?.message}
+              </p>
+            )}
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <Button type="submit" className="w-full">
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isLogin ? loginForm.formState.isSubmitting : registerForm.formState.isSubmitting}
+          >
             {isLogin ? "Iniciar Sesión" : "Registrarse"}
           </Button>
         </form>
@@ -177,7 +185,6 @@ export default function LoginPage() {
             type="button"
             onClick={() => {
               setIsLogin(!isLogin)
-              setError("")
             }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

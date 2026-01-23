@@ -1,86 +1,93 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Alert } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
-import { LiveStreamPlayer } from "@/components/live-stream-player"
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Alert } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { LiveStreamPlayer } from "@/components/live-stream-player";
 
 interface LiveStreamConfig {
-  isActive: boolean
-  streamUrl: string
-  title: string
-  description: string
-  updatedAt: string
+  isActive: boolean;
+  streamUrl: string;
+  title: string;
+  description: string;
+  updatedAt: string;
 }
 
 export default function LiveStreamAdminPage() {
-  const [config, setConfig] = useState<LiveStreamConfig | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [config, setConfig] = useState<LiveStreamConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [formData, setFormData] = useState({
     isActive: false,
     streamUrl: "",
     title: "Transmisión en Vivo",
     description: "Síguenos en directo",
-  })
+  });
 
   // Cargar configuración al montar
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        setIsLoading(true)
-        const response = await fetch("/api/live-stream")
+        setIsLoading(true);
+        const response = await fetch("https://api.lanotadigital.co/api/live-stream");
         if (response.ok) {
-          const data = await response.json()
-          setConfig(data)
+          const data = await response.json();
+          setConfig(data);
           setFormData({
             isActive: data.isActive,
             streamUrl: data.streamUrl,
             title: data.title,
             description: data.description,
-          })
+          });
         }
       } catch (error) {
-        console.error("Error cargando configuración:", error)
-        setMessage({ type: "error", text: "Error al cargar la configuración" })
+        setMessage({ type: "error", text: "Error al cargar la configuración" });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadConfig()
-  }, [])
+    loadConfig();
+  }, []);
 
   const handleSave = async () => {
     try {
-      setIsSaving(true)
-      const response = await fetch("/api/live-stream", {
+      setIsSaving(true);
+      const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setConfig(data)
-        setMessage({ type: "success", text: "Configuración guardada correctamente" })
-        setTimeout(() => setMessage(null), 3000)
+        const data = await response.json();
+        setConfig(data);
+        setMessage({
+          type: "success",
+          text: "Configuración guardada correctamente",
+        });
+        setTimeout(() => setMessage(null), 3000);
       } else {
-        setMessage({ type: "error", text: "Error al guardar la configuración" })
+        setMessage({
+          type: "error",
+          text: "Error al guardar la configuración",
+        });
       }
     } catch (error) {
-      console.error("Error guardando:", error)
-      setMessage({ type: "error", text: "Error al guardar la configuración" })
+      setMessage({ type: "error", text: "Error al guardar la configuración" });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -89,21 +96,26 @@ export default function LiveStreamAdminPage() {
           <Loader2 className="w-8 h-8 animate-spin" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Administrar Transmisión en Vivo</h1>
+          <h1 className="text-4xl font-bold mb-2">
+            Administrar Transmisión en Vivo
+          </h1>
           <p className="text-muted-foreground">
-            Configura y controla la transmisión en vivo que aparecerá en la página principal
+            Configura y controla la transmisión en vivo que aparecerá en la
+            página principal
           </p>
         </div>
 
         {message && (
-          <Alert variant={message.type === "success" ? "default" : "destructive"}>
+          <Alert
+            variant={message.type === "success" ? "default" : "destructive"}
+          >
             <div className="flex items-center gap-2">
               {message.type === "success" ? (
                 <CheckCircle2 className="w-4 h-4" />
@@ -125,7 +137,9 @@ export default function LiveStreamAdminPage() {
             {/* Toggle Activo/Inactivo */}
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-base font-semibold">Estado de la transmisión</Label>
+                <Label className="text-base font-semibold">
+                  Estado de la transmisión
+                </Label>
                 <p className="text-sm text-muted-foreground mt-1">
                   {formData.isActive ? "✅ Activo" : "⏸️ Inactivo"}
                 </p>
@@ -147,7 +161,9 @@ export default function LiveStreamAdminPage() {
                 id="streamUrl"
                 placeholder="https://youtube.com/watch?v=... o https://twitch.tv/... o https://facebook.com/video.php?v=..."
                 value={formData.streamUrl}
-                onChange={(e) => setFormData({ ...formData, streamUrl: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, streamUrl: e.target.value })
+                }
               />
               <p className="text-xs text-muted-foreground">
                 Soporta: YouTube, Twitch, Facebook Live o URL de embed directa
@@ -162,7 +178,9 @@ export default function LiveStreamAdminPage() {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
               />
             </div>
 
@@ -174,14 +192,19 @@ export default function LiveStreamAdminPage() {
               <Input
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
               />
             </div>
 
             {/* Info de última actualización */}
             {config && (
               <div className="pt-4 border-t text-sm text-muted-foreground">
-                <p>Última actualización: {new Date(config.updatedAt).toLocaleString("es-ES")}</p>
+                <p>
+                  Última actualización:{" "}
+                  {new Date(config.updatedAt).toLocaleString("es-ES")}
+                </p>
               </div>
             )}
 
@@ -213,5 +236,5 @@ export default function LiveStreamAdminPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
