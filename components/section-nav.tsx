@@ -5,22 +5,24 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 const mainSections = [
-  { name: "Política", href: "/categoria/politica" },
-  { name: "Economía", href: "/categoria/economia" },
-  { name: "Deportes", href: "/categoria/deportes" },
-  { name: "Cultura", href: "/categoria/cultura" },
-  { name: "Mundo", href: "/categoria/mundo" },
-  { name: "Córdoba", href: "/categoria/cordoba" },
-  { name: "Montería", href: "/categoria/monteria" },
+  { name: "Política", href: "/categoria/Politica" },
+  { name: "Economía", href: "/categoria/Economia" },
+  { name: "Cultura", href: "/categoria/Cultura" },
+  { name: "Colombia", href: "/categoria/Colombia" },
+  { name: "Córdoba", href: "/categoria/Cordoba" },
+  { name: "Montería", href: "/categoria/Monteria" },
+  { name: "Judicial", href: "/categoria/Judicial" },
 ]
 
 const moreSections = [
-  { name: "Opinión", href: "/categoria/opinion" },
-  { name: "Tecnología", href: "/categoria/tecnologia" },
-  { name: "Salud", href: "/categoria/salud" },
-  { name: "Entretenimiento", href: "/categoria/entretenimiento" },
-  { name: "Tendencias", href: "/categoria/tendencias" },
-  
+  { name: "Opinión", href: "/categoria/Opinion" },
+  { name: "Turismo", href: "/categoria/Turismo" },
+  { name: "Tecnología", href: "/categoria/Tecnologia" },
+  { name: "Salud", href: "/categoria/Salud" },
+  { name: "Entretenimiento", href: "/categoria/Entretenimiento" },
+  { name: "Tendencias", href: "/categoria/Tendencias" },
+  { name: "Deportes", href: "/categoria/Deportes" },
+  { name: "Mundo", href: "/categoria/Mundo" },
 ]
 
 export function SectionNav() {
