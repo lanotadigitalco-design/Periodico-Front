@@ -46,7 +46,11 @@ export interface Article {
     | "tecnologia"
     | "salud"
     | "entretenimiento"
-    | "tendencias";
+    | "tendencias"
+    | "turismo"
+    | "educacion"
+    | "colombia"
+    | "judicial";
   autor?: string;
   author?: string; // Alias para compatibilidad
   autorId?: string;

@@ -368,7 +368,7 @@ export default function NewArticlePage() {
                 </p>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col md:flex-row gap-3">
                 <Button type="submit" size="lg" disabled={isSubmitting}>
                   <Save className="w-4 h-4 mr-2" />
                   {isSubmitting

@@ -12,6 +12,10 @@ const mainSections = [
   { name: "Mundo", href: "/categoria/mundo" },
   { name: "Córdoba", href: "/categoria/cordoba" },
   { name: "Montería", href: "/categoria/monteria" },
+  { name: "Turismo", href: "/categoria/turismo" },
+  { name: "Educación", href: "/categoria/educacion" },
+  { name: "Colombia", href: "/categoria/colombia" },
+  { name: "Judicial", href: "/categoria/judicial" },
 ]
 
 const moreSections = [

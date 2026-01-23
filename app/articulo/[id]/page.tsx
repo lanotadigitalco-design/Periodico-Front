@@ -30,8 +30,20 @@ export default function ArticlePage() {
       economia: "Economía",
       deportes: "Deportes",
       cultura: "Cultura",
+      mundo: "Mundo",
+      cordoba: "Córdoba",
+      monteria: "Montería",
+      turismo: "Turismo",
+      educacion: "Educación",
+      colombia: "Colombia",
+      judicial: "Judicial",
+      opinion: "Opinión",
+      tecnologia: "Tecnología",
+      salud: "Salud",
+      entretenimiento: "Entretenimiento",
+      tendencias: "Tendencias",
     }
-    return labels[cat] || cat
+    return labels[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)
   }
 
   if (!article) {
