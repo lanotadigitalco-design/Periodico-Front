@@ -303,15 +303,15 @@ export default function NewArticlePage() {
 
               {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</p>}
 
-              <div className="flex gap-3">
-                <Button type="submit" size="lg" disabled={isSubmitting}>
-                  <Save className="w-4 h-4 mr-2" />
-                  {isSubmitting ? "Procesando..." : publicado ? "Publicar Artículo" : "Guardar Borrador"}
-                </Button>
-                <Button type="button" variant="outline" size="lg" asChild disabled={isSubmitting}>
-                  <Link href="/escritor">Cancelar</Link>
-                </Button>
-              </div>
+             <div className="flex flex-col sm:flex-row gap-3">
+  <Button type="submit" size="lg" disabled={isSubmitting}>
+    <Save className="w-4 h-4 mr-2" />
+    {isSubmitting ? "Procesando..." : publicado ? "Publicar Artículo" : "Guardar Borrador"}
+  </Button>
+  <Button type="button" variant="outline" size="lg" asChild disabled={isSubmitting}>
+    <Link href="/escritor">Cancelar</Link>
+  </Button>
+</div>
             </form>
           </Card>
         </div>
