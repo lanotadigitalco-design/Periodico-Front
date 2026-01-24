@@ -1,14 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Play, Clock, Twitter, Facebook, Youtube, Instagram, Newspaper, Info, DollarSign, Zap, MapPin, Phone, Mail, Music } from "lucide-react"
-import { getPublishedArticles, type Article } from "@/lib/auth"
-import Link from "next/link"
-import { LiveStreamPlayer } from "@/components/live-stream-player"
-import Script from "next/dist/client/script"
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
+import { getPublishedArticles, type Article } from "@/lib/auth";
+import { getLiveStream } from "@/lib/api";
+import Link from "next/link";
+import { LiveStreamPlayer } from "@/components/live-stream-player";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ARTICLES_PER_PAGE = 8;
 
 interface LiveStreamConfig {
   id?: number;
@@ -108,8 +119,21 @@ export default function NewsPage() {
     };
     return labels[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
   };
-  return labels[cat.toLowerCase()] || cat;
-};
+
+  const featuredArticles = articles.slice(0, 2);
+
+  // Filtrar artículos por búsqueda
+  let filteredArticles = articles.slice(2);
+  if (searchTerm) {
+    filteredArticles = filteredArticles.filter((a) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        (a.title && a.title.toLowerCase().includes(searchLower)) ||
+        (a.excerpt && a.excerpt.toLowerCase().includes(searchLower)) ||
+        (a.author && a.author.toLowerCase().includes(searchLower))
+      );
+    });
+  }
 
   // Paginación
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
@@ -363,6 +387,5 @@ export default function NewsPage() {
         </div>
       )}
     </div>
-    
-  )
+  );
 }
