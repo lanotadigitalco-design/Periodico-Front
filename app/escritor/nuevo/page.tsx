@@ -211,21 +211,22 @@ export default function NewArticlePage() {
                   <SelectTrigger id="categoria">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="max-h-none">
-                    <SelectItem value="politica">Política</SelectItem>
-                    <SelectItem value="economia">Economía</SelectItem>
-                    <SelectItem value="deportes">Deportes</SelectItem>
-                    <SelectItem value="cultura">Cultura</SelectItem>
-                    <SelectItem value="mundo">Mundo</SelectItem>
-                    <SelectItem value="opinion">Opinión</SelectItem>
-                    <SelectItem value="tecnologia">Tecnología</SelectItem>
-                    <SelectItem value="salud">Salud</SelectItem>
-                    <SelectItem value="entretenimiento">
-                      Entretenimiento
-                    </SelectItem>
-                    <SelectItem value="tendencias">Tendencias</SelectItem>
-                    <SelectItem value="cordoba">Córdoba</SelectItem>
-                    <SelectItem value="monteria">Montería</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="Politica">Política</SelectItem>
+                     <SelectItem value="Judicial">Judicial</SelectItem>
+                    <SelectItem value="Economia">Economía</SelectItem>
+                    <SelectItem value="Deportes">Deportes</SelectItem>
+                    <SelectItem value="Cultura">Cultura</SelectItem>
+                    <SelectItem value="Mundo">Mundo</SelectItem>
+                    <SelectItem value="Opinion">Opinión</SelectItem>
+                    <SelectItem value="Tecnologia">Tecnología</SelectItem>
+                    <SelectItem value="Salud">Salud</SelectItem>
+                    <SelectItem value="Entretenimiento">Entretenimiento</SelectItem>
+                     <SelectItem value="Turismo">Turismo</SelectItem>
+                    <SelectItem value="Tendencias">Tendencias</SelectItem>
+                     <SelectItem value="Colombia">Colombia</SelectItem>
+                    <SelectItem value="Cordoba">Córdoba</SelectItem>
+                    <SelectItem value="Monteria">Montería</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

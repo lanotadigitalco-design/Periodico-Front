@@ -19,12 +19,14 @@ const mainSections = [
 ]
 
 const moreSections = [
-  { name: "Opinión", href: "/categoria/opinion" },
-  { name: "Tecnología", href: "/categoria/tecnologia" },
-  { name: "Salud", href: "/categoria/salud" },
-  { name: "Entretenimiento", href: "/categoria/entretenimiento" },
-  { name: "Tendencias", href: "/categoria/tendencias" },
-  
+  { name: "Opinión", href: "/categoria/Opinion" },
+  { name: "Turismo", href: "/categoria/Turismo" },
+  { name: "Tecnología", href: "/categoria/Tecnologia" },
+  { name: "Salud", href: "/categoria/Salud" },
+  { name: "Entretenimiento", href: "/categoria/Entretenimiento" },
+  { name: "Tendencias", href: "/categoria/Tendencias" },
+  { name: "Deportes", href: "/categoria/Deportes" },
+  { name: "Mundo", href: "/categoria/Mundo" },
 ]
 
 export function SectionNav() {

@@ -40,7 +40,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      
        <head>
+  <Script
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5288202685612411"
+  strategy="afterInteractive"
+  crossOrigin="anonymous"
+/>
         {/* Google tag (gtag.js) */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-PDCZYWMEZW"></script>
         <script
@@ -52,7 +58,9 @@ export default function RootLayout({
               gtag('config', 'G-PDCZYWMEZW');
             `,
           }}
+          
         />
+        
       </head>
 
       <body className={`font-sans antialiased`}>
