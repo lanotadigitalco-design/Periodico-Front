@@ -5,13 +5,17 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 const mainSections = [
-  { name: "Política", href: "/categoria/Politica" },
-  { name: "Economía", href: "/categoria/Economia" },
-  { name: "Cultura", href: "/categoria/Cultura" },
-  { name: "Colombia", href: "/categoria/Colombia" },
-  { name: "Córdoba", href: "/categoria/Cordoba" },
-  { name: "Montería", href: "/categoria/Monteria" },
-  { name: "Judicial", href: "/categoria/Judicial" },
+  { name: "Política", href: "/categoria/politica" },
+  { name: "Economía", href: "/categoria/economia" },
+  { name: "Deportes", href: "/categoria/deportes" },
+  { name: "Cultura", href: "/categoria/cultura" },
+  { name: "Mundo", href: "/categoria/mundo" },
+  { name: "Córdoba", href: "/categoria/cordoba" },
+  { name: "Montería", href: "/categoria/monteria" },
+  { name: "Turismo", href: "/categoria/turismo" },
+  { name: "Educación", href: "/categoria/educacion" },
+  { name: "Colombia", href: "/categoria/colombia" },
+  { name: "Judicial", href: "/categoria/judicial" },
 ]
 
 const moreSections = [

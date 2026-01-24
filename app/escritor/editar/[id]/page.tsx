@@ -387,7 +387,7 @@ export default function EditArticlePage() {
 
               {error && <p className="text-sm text-destructive">{error}</p>}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col md:flex-row gap-3">
                 <Button type="submit" size="lg">
                   <Save className="w-4 h-4 mr-2" />
                   Guardar Cambios

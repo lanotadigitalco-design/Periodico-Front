@@ -13,6 +13,28 @@ export default function ArticulosDespublicadosPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const getCategoryLabel = (cat: string) => {
+    const labels: Record<string, string> = {
+      politica: "Política",
+      economia: "Economía",
+      deportes: "Deportes",
+      cultura: "Cultura",
+      mundo: "Mundo",
+      cordoba: "Córdoba",
+      monteria: "Montería",
+      turismo: "Turismo",
+      educacion: "Educación",
+      colombia: "Colombia",
+      judicial: "Judicial",
+      opinion: "Opinión",
+      tecnologia: "Tecnología",
+      salud: "Salud",
+      entretenimiento: "Entretenimiento",
+      tendencias: "Tendencias",
+    }
+    return labels[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)
+  }
+
   useEffect(() => {
     loadArticles()
   }, [])
@@ -82,7 +104,7 @@ export default function ArticulosDespublicadosPage() {
                 <CardTitle className="text-lg">{article.titulo}</CardTitle>
                 <CardDescription>
                   <div className="flex gap-2 text-sm mt-2">
-                    <span>Categoría: {article.categoria}</span>
+                    <span>Categoría: {getCategoryLabel(article.categoria)}</span>
                     <span>•</span>
                     <span>Autor: {article.autor}</span>
                     {article.creadoEn && (

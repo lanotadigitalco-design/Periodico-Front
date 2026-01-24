@@ -51,6 +51,18 @@ export default function CategoryPage() {
       economia: "Economía",
       deportes: "Deportes",
       cultura: "Cultura",
+      mundo: "Mundo",
+      cordoba: "Córdoba",
+      monteria: "Montería",
+      turismo: "Turismo",
+      educacion: "Educación",
+      colombia: "Colombia",
+      judicial: "Judicial",
+      opinion: "Opinión",
+      tecnologia: "Tecnología",
+      salud: "Salud",
+      entretenimiento: "Entretenimiento",
+      tendencias: "Tendencias",
     }
     if (labels[cat]) return labels[cat]
     // Capitalizar la primera letra si no está en el diccionario
