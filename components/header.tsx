@@ -96,19 +96,15 @@ export function Header() {
     { name: "Córdoba", href: "/categoria/cordoba" },
     { name: "Montería", href: "/categoria/monteria" },
     { name: "Turismo", href: "/categoria/turismo" },
-    { name: "Educación", href: "/categoria/educacion" },
-    { name: "Colombia", href: "/categoria/colombia" },
-    { name: "Judicial", href: "/categoria/judicial" },
     { name: "Opinión", href: "/categoria/opinion" },
-    { name: "Turismo", href: "/categoria/turismo" },
     { name: "Tecnología", href: "/categoria/tecnologia" },
     { name: "Salud", href: "/categoria/salud" },
     { name: "Entretenimiento", href: "/categoria/entretenimiento" },
     { name: "Tendencias", href: "/categoria/tendencias" },
   ]
 
-  const mainSections = sections.slice(0, 9)
-  const moreSections = sections.slice(7)
+  const mainSections = sections.slice(0, 10)
+  const moreSections = sections.slice(10)
 
   // Mostrar menú hamburguesa en pantallas < md (768px)
   const showMobileMenu = true // Se controla con Tailwind md:hidden
