@@ -97,6 +97,12 @@ export default function WriterPage() {
       economia: "Economía",
       deportes: "Deportes",
       cultura: "Cultura",
+      tecnologia: "Tecnología",
+      salud: "Salud",
+      ciencia: "Ciencia",
+      entretenimiento: "Entretenimiento",
+      opinion: "Opinión",
+        
     }
     return labels[cat] || cat
   }
