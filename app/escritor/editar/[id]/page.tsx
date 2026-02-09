@@ -268,6 +268,7 @@ export default function EditArticlePage() {
                 <SelectContent>
                                <SelectItem value="Politica">Política</SelectItem>
                                 <SelectItem value="Judicial">Judicial</SelectItem>
+                                <SelectItem value="Educacion">Educación</SelectItem>
                                <SelectItem value="Economia">Economía</SelectItem>
                                <SelectItem value="Deportes">Deportes</SelectItem>
                                <SelectItem value="Cultura">Cultura</SelectItem>
