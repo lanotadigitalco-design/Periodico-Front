@@ -43,6 +43,10 @@ export default function NewArticlePage() {
     | "tendencias"
     | "cordoba"
     | "monteria"
+    | "turismo"
+    | "educacion"
+    | "colombia"
+    | "judicial"
   >("politica");
   const [imagenUrl, setImagenUrl] = useState("");
   const [imagenFile, setImagenFile] = useState<File | null>(null);
@@ -214,6 +218,7 @@ export default function NewArticlePage() {
                   <SelectContent>
                     <SelectItem value="Politica">Política</SelectItem>
                      <SelectItem value="Judicial">Judicial</SelectItem>
+                      <SelectItem value="Educacion">Educación</SelectItem>
                     <SelectItem value="Economia">Economía</SelectItem>
                     <SelectItem value="Deportes">Deportes</SelectItem>
                     <SelectItem value="Cultura">Cultura</SelectItem>
