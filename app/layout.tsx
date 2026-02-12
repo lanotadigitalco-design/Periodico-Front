@@ -17,6 +17,8 @@ import {
   Instagram,
 } from "lucide-react";
 
+const _geist = Geist({ subsets: ["latin"] });
+const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "La Nota Digital - Noticias en Vivo",
   description:
