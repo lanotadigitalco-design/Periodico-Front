@@ -97,19 +97,16 @@ export function LiveStreamConfigComponent() {
       }));
       // No mostrar mensaje de éxito al cambiar estado
     } catch (err) {
-      console.error("❌ Error al guardar estado:", err);
       setError("Error al guardar el estado");
     }
   };
 
   const handleSave = async () => {
-    console.log("🔴 [GUARDAR INICIADO]");
     setLoading(true);
     setError("");
     setSuccess(false);
 
     try {
-      console.log("🔴 [1] Validando URL...");
       // Validar URL si no está vacía
       if (config.url && !isValidUrl(config.url)) {
         console.log("🔴 [1] URL inválida:", config.url);

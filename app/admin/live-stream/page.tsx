@@ -38,7 +38,9 @@ export default function LiveStreamAdminPage() {
     const loadConfig = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("https://api.lanotadigital.co/api/live-stream");
+        const response = await fetch(
+          "https://4d38-190-29-123-125.ngrok-free.app/api/live-stream",
+        );
         if (response.ok) {
           const data = await response.json();
           setConfig(data);
@@ -62,11 +64,14 @@ export default function LiveStreamAdminPage() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const response = await fetch("https://api.lanotadigital.co/api/live-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "https://4d38-190-29-123-125.ngrok-free.app/api/live-stream",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        },
+      );
 
       if (response.ok) {
         const data = await response.json();

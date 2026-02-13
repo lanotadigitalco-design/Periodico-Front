@@ -352,17 +352,54 @@ export default function WriterPage() {
                       />
                     </PaginationItem>
                     
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer"
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
+                    {(() => {
+                      const pages = [];
+                      const maxVisible = 10;
+                      let startPage = Math.max(1, currentPage - 5);
+                      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+                      // Ajustar si estamos cerca del final
+                      if (endPage - startPage < maxVisible - 1) {
+                        startPage = Math.max(1, endPage - maxVisible + 1);
+                      }
+
+                      // Generar páginas visibles
+                      for (let i = startPage; i <= endPage; i++) {
+                        pages.push(
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(i)}
+                              isActive={currentPage === i}
+                              className="cursor-pointer"
+                            >
+                              {i}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+
+                      // Agregar puntos suspensivos y última página si es necesario
+                      if (endPage < totalPages) {
+                        pages.push(
+                          <PaginationItem key="ellipsis">
+                            <span className="px-4 py-2">...</span>
+                          </PaginationItem>
+                        );
+                        pages.push(
+                          <PaginationItem key={totalPages}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(totalPages)}
+                              isActive={currentPage === totalPages}
+                              className="cursor-pointer"
+                            >
+                              {totalPages}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+
+                      return pages;
+                    })()}
                     
                     <PaginationItem>
                       <PaginationNext

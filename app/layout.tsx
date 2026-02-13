@@ -19,10 +19,78 @@ import {
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "La Nota Digital - Noticias en Vivo",
+  metadataBase: new URL("https://lanotadigital.co"),
+  title: {
+    default: "La Nota Digital - Noticias en Vivo",
+    template: "%s | La Nota Digital",
+  },
   description:
-    "La Nota Digital - Tu fuente confiable de noticias en tiempo real con transmisiones en vivo",
+    "La Nota Digital - Tu fuente confiable de noticias en tiempo real con transmisiones en vivo. Noticias de Montería, Colombia y el mundo.",
+  keywords: [
+    "Noticias",
+    "Montería",
+    "Colombia",
+    "Córdoba",
+    "Noticias en Vivo",
+    "La Nota Digital",
+  ],
+  authors: [{ name: "La Nota Digital" }],
+  creator: "La Nota Digital",
+  publisher: "La Nota Digital",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.png", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    url: "https://lanotadigital.co",
+    siteName: "La Nota Digital",
+    title: "La Nota Digital - Noticias en Vivo",
+    description:
+      "Tu fuente confiable de noticias en tiempo real con transmisiones en vivo. Noticias de Montería, Colombia y el mundo.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "La Nota Digital",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@Lanotadigitalc",
+    creator: "@Lanotadigitalc",
+    title: "La Nota Digital - Noticias en Vivo",
+    description:
+      "Tu fuente confiable de noticias en tiempo real con transmisiones en vivo",
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "G-PDCZYWMEZW",
+  },
 };
 
 export default function RootLayout({

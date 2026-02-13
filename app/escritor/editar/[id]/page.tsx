@@ -115,15 +115,8 @@ export default function EditArticlePage() {
               const filename = originalImageUrl.split("/").pop();
               if (filename) {
                 await deleteImage(filename);
-                console.log("Imagen anterior eliminada:", filename);
               }
-            } catch (deleteError) {
-              console.warn(
-                "No se pudo eliminar la imagen anterior:",
-                deleteError,
-              );
-              // No detener el proceso si falla la eliminación
-            }
+            } catch (deleteError) {}
           }
         } catch (uploadError) {
           throw new Error(
@@ -251,65 +244,7 @@ export default function EditArticlePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="categoria">
-                  Categoría <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={categoria}
-                  onValueChange={(value: any) => setCategoria(value)}
-                >
-                  <SelectTrigger id="categoria">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="politica">Política</SelectItem>
-                    <SelectItem value="economia">Economía</SelectItem>
-                    <SelectItem value="deportes">Deportes</SelectItem>
-                    <SelectItem value="cultura">Cultura</SelectItem>
-                    <SelectItem value="mundo">Mundo</SelectItem>
-                    <SelectItem value="opinion">Opinión</SelectItem>
-                    <SelectItem value="tecnologia">Tecnología</SelectItem>
-                    <SelectItem value="salud">Salud</SelectItem>
-                    <SelectItem value="entretenimiento">
-                      Entretenimiento
-                    </SelectItem>
-                    <SelectItem value="tendencias">Tendencias</SelectItem>
-                    <SelectItem value="cordoba">Córdoba</SelectItem>
-                    <SelectItem value="monteria">Montería</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="resumen">
-                  Resumen <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="resumen"
-                  value={resumen}
-                  onChange={(e) => setResumen(e.target.value)}
-                  placeholder="Escribe un resumen breve del artículo (1-2 frases)"
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contenido">
-                  Contenido <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="contenido"
-                  value={contenido}
-                  onChange={(e) => setContenido(e.target.value)}
-                  placeholder="Escribe el contenido completo de tu artículo aquí..."
-                  rows={15}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Imagen del Artículo (opcional)</Label>
+                <Label>Banner Principal del Artículo (Opcional)</Label>
 
                 {previewUrl || imagenUrl ? (
                   <div className="space-y-4">
@@ -374,6 +309,64 @@ export default function EditArticlePage() {
                     </div>
                   </>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="categoria">
+                  Categoría <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={categoria}
+                  onValueChange={(value: any) => setCategoria(value)}
+                >
+                  <SelectTrigger id="categoria">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="politica">Política</SelectItem>
+                    <SelectItem value="economia">Economía</SelectItem>
+                    <SelectItem value="deportes">Deportes</SelectItem>
+                    <SelectItem value="cultura">Cultura</SelectItem>
+                    <SelectItem value="mundo">Mundo</SelectItem>
+                    <SelectItem value="opinion">Opinión</SelectItem>
+                    <SelectItem value="tecnologia">Tecnología</SelectItem>
+                    <SelectItem value="salud">Salud</SelectItem>
+                    <SelectItem value="entretenimiento">
+                      Entretenimiento
+                    </SelectItem>
+                    <SelectItem value="tendencias">Tendencias</SelectItem>
+                    <SelectItem value="cordoba">Córdoba</SelectItem>
+                    <SelectItem value="monteria">Montería</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="resumen">
+                  Resumen <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="resumen"
+                  value={resumen}
+                  onChange={(e) => setResumen(e.target.value)}
+                  placeholder="Escribe un resumen breve del artículo (1-2 frases)"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contenido">
+                  Contenido <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  id="contenido"
+                  value={contenido}
+                  onChange={(e) => setContenido(e.target.value)}
+                  placeholder="Escribe el contenido completo de tu artículo aquí..."
+                  rows={15}
+                  required
+                />
               </div>
 
               <div className="flex items-center space-x-2">

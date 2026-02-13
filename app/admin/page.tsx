@@ -577,25 +577,54 @@ export default function AdminPage() {
                           </PaginationItem>
                         )}
                         
-                        {Array.from({ length: totalPages }).map((_, i) => {
-                          const pageNum = i + 1
-                          if (pageNum === 1 || pageNum === totalPages || (pageNum >= currentArticlePage - 1 && pageNum <= currentArticlePage + 1)) {
-                            return (
-                              <PaginationItem key={pageNum}>
+                        {(() => {
+                          const pages = [];
+                          const maxVisible = 10;
+                          let startPage = Math.max(1, currentArticlePage - 5);
+                          let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+                          // Ajustar si estamos cerca del final
+                          if (endPage - startPage < maxVisible - 1) {
+                            startPage = Math.max(1, endPage - maxVisible + 1);
+                          }
+
+                          // Generar páginas visibles
+                          for (let i = startPage; i <= endPage; i++) {
+                            pages.push(
+                              <PaginationItem key={i}>
                                 <PaginationLink
-                                  onClick={() => setCurrentArticlePage(pageNum)}
-                                  isActive={currentArticlePage === pageNum}
+                                  onClick={() => setCurrentArticlePage(i)}
+                                  isActive={currentArticlePage === i}
                                   className="cursor-pointer"
                                 >
-                                  {pageNum}
+                                  {i}
                                 </PaginationLink>
                               </PaginationItem>
-                            )
-                          } else if (pageNum === 2 || pageNum === totalPages - 1) {
-                            return <PaginationEllipsis key={`ellipsis-${pageNum}`} />
+                            );
                           }
-                          return null
-                        })}
+
+                          // Agregar puntos suspensivos y última página si es necesario
+                          if (endPage < totalPages) {
+                            pages.push(
+                              <PaginationItem key="ellipsis">
+                                <span className="px-4 py-2">...</span>
+                              </PaginationItem>
+                            );
+                            pages.push(
+                              <PaginationItem key={totalPages}>
+                                <PaginationLink
+                                  onClick={() => setCurrentArticlePage(totalPages)}
+                                  isActive={currentArticlePage === totalPages}
+                                  className="cursor-pointer"
+                                >
+                                  {totalPages}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          }
+
+                          return pages;
+                        })()}
                         
                         {currentArticlePage < totalPages && (
                           <PaginationItem>
@@ -795,29 +824,54 @@ export default function AdminPage() {
                             />
                           </PaginationItem>
 
-                          {Array.from({ length: filteredTotalPages }, (_, i) => i + 1).map((page) => {
-                            if (
-                              page === 1 ||
-                              page === filteredTotalPages ||
-                              (page >= currentUserPage - 1 && page <= currentUserPage + 1)
-                            ) {
-                              return (
-                                <PaginationItem key={page}>
+                          {(() => {
+                            const pages = [];
+                            const maxVisible = 10;
+                            let startPage = Math.max(1, currentUserPage - 5);
+                            let endPage = Math.min(filteredTotalPages, startPage + maxVisible - 1);
+
+                            // Ajustar si estamos cerca del final
+                            if (endPage - startPage < maxVisible - 1) {
+                              startPage = Math.max(1, endPage - maxVisible + 1);
+                            }
+
+                            // Generar páginas visibles
+                            for (let i = startPage; i <= endPage; i++) {
+                              pages.push(
+                                <PaginationItem key={i}>
                                   <PaginationLink
-                                    onClick={() => setCurrentUserPage(page)}
-                                    isActive={page === currentUserPage}
+                                    onClick={() => setCurrentUserPage(i)}
+                                    isActive={currentUserPage === i}
                                     className="cursor-pointer"
                                   >
-                                    {page}
+                                    {i}
                                   </PaginationLink>
                                 </PaginationItem>
-                              )
+                              );
                             }
-                            if (page === 2 || page === filteredTotalPages - 1) {
-                              return <PaginationEllipsis key={page} />
+
+                            // Agregar puntos suspensivos y última página si es necesario
+                            if (endPage < filteredTotalPages) {
+                              pages.push(
+                                <PaginationItem key="ellipsis">
+                                  <span className="px-4 py-2">...</span>
+                                </PaginationItem>
+                              );
+                              pages.push(
+                                <PaginationItem key={filteredTotalPages}>
+                                  <PaginationLink
+                                    onClick={() => setCurrentUserPage(filteredTotalPages)}
+                                    isActive={currentUserPage === filteredTotalPages}
+                                    className="cursor-pointer"
+                                  >
+                                    {filteredTotalPages}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
                             }
-                            return null
-                          })}
+
+                            return pages;
+                          })()}
 
                           <PaginationItem>
                             <PaginationNext
