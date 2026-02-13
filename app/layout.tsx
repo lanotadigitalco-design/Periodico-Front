@@ -21,7 +21,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lanotadigital.co"),
+  metadataBase: new URL("https://api.lanotadigital.co"),
   title: {
     default: "La Nota Digital - Noticias en Vivo",
     template: "%s | La Nota Digital",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.png", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
     ],
     apple: "/apple-icon.png",
   },

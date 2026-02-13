@@ -62,7 +62,7 @@ export function Header() {
     const loadLiveStreamConfig = async () => {
       try {
         const response = await fetch(
-          "https://4d38-190-29-123-125.ngrok-free.app/api/live-stream",
+          "https://api.lanotadigital.co/api/live-stream",
         );
         if (response.ok) {
           const text = await response.text();

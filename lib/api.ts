@@ -133,16 +133,13 @@ function isTokenExpired(token: string): boolean {
 
 // Usar el proxy de Next.js en cliente y API en servidor (para evitar problemas de CORS)
 const getApiUrl = () => {
-  return (
-    process.env.NEXT_PUBLIC_API_URL ||
-    "https://4d38-190-29-123-125.ngrok-free.app/api"
-  );
+  return process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
 };
 
 const getApiBaseUrl = () => {
   return (
     process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-    "https://4d38-190-29-123-125.ngrok-free.app"
+    "https://api.lanotadigital.co"
   );
 };
 
@@ -307,7 +304,7 @@ function mapArticleFromAPI(data: any): Article {
     console.warn("Array de imágenes encontrado:", data.imagenes);
     for (const img of data.imagenes) {
       console.warn("Procesando imagen:", img);
-      const apiBase = "https://4d38-190-29-123-125.ngrok-free.app/api";
+      const apiBase = "https://api.lanotadigital.co/api";
       images.push(`${apiBase}/upload/image/${img}`);
     }
   }
