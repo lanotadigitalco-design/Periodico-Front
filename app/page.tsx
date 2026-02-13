@@ -338,7 +338,10 @@ export default function NewsPage() {
                         const pages = [];
                         const maxVisible = 10;
                         let startPage = Math.max(1, currentPage - 5);
-                        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+                        let endPage = Math.min(
+                          totalPages,
+                          startPage + maxVisible - 1,
+                        );
 
                         // Ajustar si estamos cerca del final
                         if (endPage - startPage < maxVisible - 1) {
@@ -356,7 +359,7 @@ export default function NewsPage() {
                               >
                                 {i}
                               </PaginationLink>
-                            </PaginationItem>
+                            </PaginationItem>,
                           );
                         }
 
@@ -365,7 +368,7 @@ export default function NewsPage() {
                           pages.push(
                             <PaginationItem key="ellipsis">
                               <span className="px-4 py-2">...</span>
-                            </PaginationItem>
+                            </PaginationItem>,
                           );
                           pages.push(
                             <PaginationItem key={totalPages}>
@@ -376,7 +379,7 @@ export default function NewsPage() {
                               >
                                 {totalPages}
                               </PaginationLink>
-                            </PaginationItem>
+                            </PaginationItem>,
                           );
                         }
 
