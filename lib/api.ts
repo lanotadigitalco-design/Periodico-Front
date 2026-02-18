@@ -53,6 +53,8 @@ export interface Article {
     | "judicial";
   autor?: string;
   author?: string; // Alias para compatibilidad
+  autorApellido?: string;
+  authorSurname?: string; // Alias para compatibilidad
   autorId?: number | string;
   authorId?: number | string; // Alias para compatibilidad
   imagenUrl?: string[];
@@ -300,11 +302,11 @@ function mapArticleFromAPI(data: any): Article {
     "/logo.png";
 
   const images = [];
-  if (data.imagenes.length > 0) {
+  if (data.imagenes && Array.isArray(data.imagenes) && data.imagenes.length > 0) {
     for (const img of data.imagenes) {
-      if (img.startsWith("http://") || img.startsWith("https://"))
+      if (typeof img === "string" && (img.startsWith("http://") || img.startsWith("https://")))
         images.push(img);
-      else {
+      else if (typeof img === "string") {
         const apiBase =
           process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
         images.push(`${apiBase}/upload/image/${img}`);
@@ -319,6 +321,11 @@ function mapArticleFromAPI(data: any): Article {
     data.author ||
     data.autorNombre ||
     "Anónimo";
+  const autorApellido =
+    (data.autores && data.autores[0]?.apellido) ||
+    data.autorApellido ||
+    data.authorSurname ||
+    "";
   const autorId =
     (data.autores && data.autores[0]?.id) ||
     data.autorId ||
@@ -338,6 +345,8 @@ function mapArticleFromAPI(data: any): Article {
     imageUrl: imagenUrl, // Alias
     autor: autor,
     author: autor, // Alias
+    autorApellido: autorApellido,
+    authorSurname: autorApellido, // Alias
     autorId: autorId,
     authorId: autorId, // Alias
     publicado:

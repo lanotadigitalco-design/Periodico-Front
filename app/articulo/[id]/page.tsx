@@ -150,7 +150,7 @@ export default function ArticlePage() {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>Por {article.autor}</span>
+                <span>Por {article.autor}{article.autorApellido && ` ${article.autorApellido}`}</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-2">

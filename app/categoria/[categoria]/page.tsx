@@ -61,7 +61,8 @@ export default function CategoryPage() {
       (a) =>
         a.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.resumen?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.autor?.toLowerCase().includes(searchTerm.toLowerCase()),
+        a.autor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.autorApellido?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }
 
@@ -159,7 +160,7 @@ export default function CategoryPage() {
                           {getCategoryLabel(article.categoria)}
                         </Badge>
                         <span>•</span>
-                        <span>Por {article.autor}</span>
+                        <span>Por {article.autor}{article.autorApellido && ` ${article.autorApellido}`}</span>
                         <span>•</span>
                         <span>
                           {new Date(article.creadoEn).toLocaleDateString(

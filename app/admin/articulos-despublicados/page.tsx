@@ -106,7 +106,7 @@ export default function ArticulosDespublicadosPage() {
                   <div className="flex gap-2 text-sm mt-2">
                     <span>Categoría: {getCategoryLabel(article.categoria)}</span>
                     <span>•</span>
-                    <span>Autor: {article.autor}</span>
+                    <span>Autor: {article.autor}{article.autorApellido && ` ${article.autorApellido}`}</span>
                     {article.creadoEn && (
                       <>
                         <span>•</span>
