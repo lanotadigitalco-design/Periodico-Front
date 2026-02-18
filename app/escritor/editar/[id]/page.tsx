@@ -428,13 +428,7 @@ export default function EditArticlePage() {
         ) {
           try {
             await deleteImage(oldFilename);
-            console.log("Imagen eliminada:", oldFilename);
-          } catch (deleteError) {
-            console.warn(
-              `No se pudo eliminar la imagen ${oldFilename}:`,
-              deleteError,
-            );
-          }
+          } catch (deleteError) {}
         }
       }
 

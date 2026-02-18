@@ -122,6 +122,8 @@ export default function NewsPage() {
 
   const featuredArticles = articles.slice(0, 2);
 
+  console.warn("ARTÍCULOS CARGADOS:", articles);
+
   // Filtrar artículos por búsqueda
   let filteredArticles = articles.slice(2);
   if (searchTerm) {
@@ -209,7 +211,11 @@ export default function NewsPage() {
                 >
                   <Link href={`/articulo/${article.id}`} className="block">
                     <img
-                      src={article.imagenUrl[0] || "/logo.png"}
+                      src={
+                        article.imagenUrl?.[0]
+                          ? article.imagenUrl[0]
+                          : "/logo.png"
+                      }
                       alt={article.title}
                       className="w-full h-64 object-cover hover:opacity-90 transition-opacity"
                     />
@@ -284,7 +290,11 @@ export default function NewsPage() {
                     <div className="flex flex-col gap-2">
                       <Link href={`/articulo/${article.id}`} className="block">
                         <img
-                          src={article.imageUrl || "/logo.png"}
+                          src={
+                            article.imagenUrl?.[0]
+                              ? article.imagenUrl[0]
+                              : "/logo.png"
+                          }
                           alt={article.title}
                           className="w-full h-32 object-cover rounded mb-2 hover:opacity-90 transition-opacity"
                         />

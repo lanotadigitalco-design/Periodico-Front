@@ -301,11 +301,14 @@ function mapArticleFromAPI(data: any): Article {
 
   const images = [];
   if (data.imagenes.length > 0) {
-    console.warn("Array de imágenes encontrado:", data.imagenes);
     for (const img of data.imagenes) {
-      console.warn("Procesando imagen:", img);
-      const apiBase = "https://api.lanotadigital.co/api";
-      images.push(`${apiBase}/upload/image/${img}`);
+      if (img.startsWith("http://") || img.startsWith("https://"))
+        images.push(img);
+      else {
+        const apiBase =
+          process.env.NEXT_PUBLIC_API_URL || "https://api.lanotadigital.co/api";
+        images.push(`${apiBase}/upload/image/${img}`);
+      }
     }
   }
 

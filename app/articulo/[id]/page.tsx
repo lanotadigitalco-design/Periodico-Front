@@ -20,7 +20,6 @@ export default function ArticlePage() {
   useEffect(() => {
     const loadArticle = async () => {
       const articleData = await getArticleById(id);
-      console.warn("Artículo cargado:", articleData);
       setArticle(articleData);
     };
     loadArticle();
