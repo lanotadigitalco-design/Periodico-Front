@@ -148,7 +148,7 @@ export default function CategoryPage() {
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="md:col-span-1">
                       <img
-                        src={getFullImageUrl(article.imagenUrl)}
+                        src={getFullImageUrl(article.imagenUrl?.[0] || "")}
                         alt={article.titulo}
                         className="w-full h-full object-cover"
                       />
