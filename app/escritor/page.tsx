@@ -155,9 +155,15 @@ export default function WriterPage() {
       economia: "Economía",
       deportes: "Deportes",
       cultura: "Cultura",
-    };
-    return labels[cat] || cat;
-  };
+      tecnologia: "Tecnología",
+      salud: "Salud",
+      ciencia: "Ciencia",
+      entretenimiento: "Entretenimiento",
+      opinion: "Opinión",
+        
+    }
+    return labels[cat] || cat
+  }
 
   if (isLoading) {
     return (

@@ -69,6 +69,8 @@ export default function NewArticlePage() {
     | "salud"
     | "entretenimiento"
     | "tendencias"
+    | "cordoba"
+    | "monteria"
     | "turismo"
     | "educacion"
     | "colombia"
@@ -456,83 +458,37 @@ export default function NewArticlePage() {
             <div className="space-y-2">
               <Label>Imagen Principal del Artículo (Opcional)</Label>
 
-              {previewUrl || imagenUrl ? (
-                <div className="space-y-4">
-                  <div className="relative rounded-lg overflow-hidden border border-border">
-                    <img
-                      src={previewUrl || imagenUrl}
-                      alt="Preview"
-                      className="w-full h-64 object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={handleRemoveImage}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {uploadedFile && (
-                    <p className="text-sm text-muted-foreground">
-                      ✅ Archivo nuevo seleccionado: {uploadedFile?.name}
-                    </p>
-                  )}
-                  {!uploadedFile && imagenUrl && (
-                    <p className="text-sm text-muted-foreground">
-                      ✅ Imagen actual del artículo
-                    </p>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setImagenUrl("");
-                      clearUpload();
-                    }}
-                  >
-                    Cambiar imagen
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="imagen-upload"
-                    />
-                    <label
-                      htmlFor="imagen-upload"
-                      className="cursor-pointer block"
-                    >
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">Sube una imagen</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        PNG, JPG, GIF hasta 5MB
-                      </p>
-                    </label>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="resumen">
-                Resumen <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="resumen"
-                value={resumen}
-                onChange={(e) => setResumen(e.target.value)}
-                placeholder="Escribe un resumen breve del artículo (1-2 frases)"
-                rows={3}
-                required
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="categoria">
+                  Categoría <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={categoria}
+                  onValueChange={(value: any) => setCategoria(value)}
+                >
+                  <SelectTrigger id="categoria">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Politica">Política</SelectItem>
+                     <SelectItem value="Judicial">Judicial</SelectItem>
+                      <SelectItem value="Educacion">Educación</SelectItem>
+                    <SelectItem value="Economia">Economía</SelectItem>
+                    <SelectItem value="Deportes">Deportes</SelectItem>
+                    <SelectItem value="Cultura">Cultura</SelectItem>
+                    <SelectItem value="Mundo">Mundo</SelectItem>
+                    <SelectItem value="Opinion">Opinión</SelectItem>
+                    <SelectItem value="Tecnologia">Tecnología</SelectItem>
+                    <SelectItem value="Salud">Salud</SelectItem>
+                    <SelectItem value="Entretenimiento">Entretenimiento</SelectItem>
+                     <SelectItem value="Turismo">Turismo</SelectItem>
+                    <SelectItem value="Tendencias">Tendencias</SelectItem>
+                     <SelectItem value="Colombia">Colombia</SelectItem>
+                    <SelectItem value="Cordoba">Córdoba</SelectItem>
+                    <SelectItem value="Monteria">Montería</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
             <div className="space-y-2">
               <Label htmlFor="categoria">

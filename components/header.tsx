@@ -90,23 +90,23 @@ export function Header() {
   };
 
   const sections = [
-    { name: "Política", href: "/categoria/politica" },
-    { name: "Economía", href: "/categoria/economia" },
-    { name: "Educacion", href: "/categoria/educacion" },
-    { name: "Judicial", href: "/categoria/judicial" },
-    { name: "Deportes", href: "/categoria/deportes" },
-    { name: "Cultura", href: "/categoria/cultura" },
-    { name: "Mundo", href: "/categoria/mundo" },
-    { name: "Colombia", href: "/categoria/colombia" },
-    { name: "Córdoba", href: "/categoria/cordoba" },
-    { name: "Montería", href: "/categoria/monteria" },
-    { name: "Turismo", href: "/categoria/turismo" },
-    { name: "Opinión", href: "/categoria/opinion" },
-    { name: "Tecnología", href: "/categoria/tecnologia" },
-    { name: "Salud", href: "/categoria/salud" },
-    { name: "Entretenimiento", href: "/categoria/entretenimiento" },
-    { name: "Tendencias", href: "/categoria/tendencias" },
-  ];
+   { name: "Política", href: "/categoria/Politica" },
+    { name: "Economía", href: "/categoria/Economia" },
+    { name: "Educacion", href: "/categoria/Educacion" },
+    { name: "Judicial", href: "/categoria/Judicial" },
+    { name: "Deportes", href: "/categoria/Deportes" },
+    { name: "Cultura", href: "/categoria/Cultura" },
+    { name: "Mundo", href: "/categoria/Mundo" },
+    { name: "Colombia", href: "/categoria/Colombia" },
+    { name: "Córdoba", href: "/categoria/Cordoba" },
+    { name: "Montería", href: "/categoria/Monteria" },
+    { name: "Turismo", href: "/categoria/Turismo" },
+    { name: "Opinión", href: "/categoria/Opinion" },
+    { name: "Tecnología", href: "/categoria/Tecnologia" },
+    { name: "Salud", href: "/categoria/Salud" },
+    { name: "Entretenimiento", href: "/categoria/Entretenimiento" },
+    { name: "Tendencias", href: "/categoria/Tendencias" },
+  ]
 
   const mainSections = sections.slice(0, 10);
   const moreSections = sections.slice(10);
