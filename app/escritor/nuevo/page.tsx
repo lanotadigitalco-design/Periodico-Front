@@ -617,12 +617,14 @@ export default function NewArticlePage() {
                   <SelectItem value="opinion">Opinión</SelectItem>
                   <SelectItem value="tecnologia">Tecnología</SelectItem>
                   <SelectItem value="salud">Salud</SelectItem>
-                  <SelectItem value="entretenimiento">
-                    Entretenimiento
-                  </SelectItem>
+                  <SelectItem value="entretenimiento">Entretenimiento</SelectItem>
                   <SelectItem value="tendencias">Tendencias</SelectItem>
                   <SelectItem value="cordoba">Córdoba</SelectItem>
                   <SelectItem value="monteria">Montería</SelectItem>
+                  <SelectItem value="turismo">Turismo</SelectItem>
+                  <SelectItem value="educacion">Educación</SelectItem>
+                  <SelectItem value="colombia">Colombia</SelectItem>
+                  <SelectItem value="judicial">Judicial</SelectItem>
                 </SelectContent>
               </Select>
             </div>
