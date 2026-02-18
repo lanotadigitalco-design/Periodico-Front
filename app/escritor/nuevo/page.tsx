@@ -43,6 +43,7 @@ export default function NewArticlePage() {
   const [historyIndex, setHistoryIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
   const [resumen, setResumen] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
   const [imagenUrl, setImagenUrl] = useState("");
@@ -55,6 +56,7 @@ export default function NewArticlePage() {
     new Map(),
   ); // Map de URL local -> File
   const [showPreview, setShowPreview] = useState(false);
+  const [isDraggingBanner, setIsDraggingBanner] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -315,6 +317,64 @@ export default function NewArticlePage() {
     clearUpload();
   };
 
+  // Funciones para drag and drop del banner
+  const handleBannerDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(true);
+  };
+
+  const handleBannerDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(false);
+  };
+
+  const handleBannerDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      processBannerImage(file);
+    }
+  };
+
+  const handleBannerClick = () => {
+    bannerInputRef.current?.click();
+  };
+
+  const handleBannerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processBannerImage(file);
+    }
+  };
+
+  const processBannerImage = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError("Por favor selecciona un archivo de imagen");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("El archivo no debe pesar más de 5MB");
+      return;
+    }
+
+    setUploadedFile(file);
+    setImagenFile(file);
+
+    // Crear preview
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setPreviewUrl(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    setError("");
+  };
+
   // Renderizar HTML puro (sin conversión markdown)
   const renderHTML = (text: string) => {
     // El texto ya está en HTML puro, solo convertir saltos de línea que no estén dentro de tags HTML
@@ -456,41 +516,88 @@ export default function NewArticlePage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Imagen Principal del Artículo (Opcional)</Label>
-
-              <div className="space-y-2">
-                <Label htmlFor="categoria">
-                  Categoría <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={categoria}
-                  onValueChange={(value: any) => setCategoria(value)}
-                >
-                  <SelectTrigger id="categoria">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Politica">Política</SelectItem>
-                     <SelectItem value="Judicial">Judicial</SelectItem>
-                      <SelectItem value="Educacion">Educación</SelectItem>
-                    <SelectItem value="Economia">Economía</SelectItem>
-                    <SelectItem value="Deportes">Deportes</SelectItem>
-                    <SelectItem value="Cultura">Cultura</SelectItem>
-                    <SelectItem value="Mundo">Mundo</SelectItem>
-                    <SelectItem value="Opinion">Opinión</SelectItem>
-                    <SelectItem value="Tecnologia">Tecnología</SelectItem>
-                    <SelectItem value="Salud">Salud</SelectItem>
-                    <SelectItem value="Entretenimiento">Entretenimiento</SelectItem>
-                     <SelectItem value="Turismo">Turismo</SelectItem>
-                    <SelectItem value="Tendencias">Tendencias</SelectItem>
-                     <SelectItem value="Colombia">Colombia</SelectItem>
-                    <SelectItem value="Cordoba">Córdoba</SelectItem>
-                    <SelectItem value="Monteria">Montería</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label htmlFor="resumen">
+                Resumen <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="resumen"
+                value={resumen}
+                onChange={(e) => setResumen(e.target.value)}
+                placeholder="Escribe un resumen atractivo para tu artículo"
+                required
+              />
+            </div>
 
             <div className="space-y-2">
+              <Label>Imagen Principal del Artículo (Opcional)</Label>
+
+              {/* Input oculto para el explorador de archivos */}
+              <input
+                ref={bannerInputRef}
+                type="file"
+                accept="* "
+                onChange={handleBannerInputChange}
+                className="hidden"
+              />
+
+              {/* Área de drag and drop */}
+              {!previewUrl ? (
+                <div
+                  onClick={handleBannerClick}
+                  onDragOver={handleBannerDragOver}
+                  onDragLeave={handleBannerDragLeave}
+                  onDrop={handleBannerDrop}
+                  className={`
+                    border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                    transition-all duration-200 ease-in-out
+                    ${
+                      isDraggingBanner
+                        ? "border-primary bg-primary/10 scale-[1.02]"
+                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                    }
+                  `}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <div
+                      className={`
+                      p-4 rounded-full transition-colors
+                      ${isDraggingBanner ? "bg-primary/20" : "bg-muted"}
+                    `}
+                    >
+                      <Upload
+                        className={`w-8 h-8 ${isDraggingBanner ? "text-primary" : "text-muted-foreground"}`}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground mb-1">
+                        {isDraggingBanner
+                          ? "Suelta la imagen aquí"
+                          : "Arrastra una imagen o haz clic para seleccionar"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        PNG, JPG, GIF hasta 5MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Vista previa de la imagen */
+                <div className="relative border-2 border-border rounded-lg overflow-hidden">
+                  <img
+                    src={previewUrl}
+                    alt="Vista previa"
+                    className="w-full h-auto max-h-96 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-2 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors shadow-lg"
+                    title="Eliminar imagen"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               <Label htmlFor="categoria">
                 Categoría <span className="text-destructive">*</span>
               </Label>

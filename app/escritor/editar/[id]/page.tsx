@@ -50,7 +50,7 @@ export default function EditArticlePage() {
   const [resumen, setResumen] = useState("");
   const [contenido, setContenido] = useState("");
   const [categoria, setCategoria] = useState<
-   | "politica"
+    | "politica"
     | "economia"
     | "deportes"
     | "cultura"
@@ -603,66 +603,6 @@ export default function EditArticlePage() {
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
                   placeholder="Escribe un título atractivo para tu artículo"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="categoria">
-                  Categoría <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={categoria}
-                  onValueChange={(value: any) => setCategoria(value)}
-                >
-                  <SelectTrigger id="categoria">
-                    <SelectValue />
-                  </SelectTrigger>
-                <SelectContent>
-                               <SelectItem value="Politica">Política</SelectItem>
-                                <SelectItem value="Judicial">Judicial</SelectItem>
-                                <SelectItem value="Educacion">Educación</SelectItem>
-                               <SelectItem value="Economia">Economía</SelectItem>
-                               <SelectItem value="Deportes">Deportes</SelectItem>
-                               <SelectItem value="Cultura">Cultura</SelectItem>
-                               <SelectItem value="Mundo">Mundo</SelectItem>
-                               <SelectItem value="Opinion">Opinión</SelectItem>
-                               <SelectItem value="Tecnologia">Tecnología</SelectItem>
-                               <SelectItem value="Salud">Salud</SelectItem>
-                               <SelectItem value="Entretenimiento">Entretenimiento</SelectItem>
-                                <SelectItem value="Turismo">Turismo</SelectItem>
-                               <SelectItem value="Tendencias">Tendencias</SelectItem>
-                                <SelectItem value="Colombia">Colombia</SelectItem>
-                               <SelectItem value="Cordoba">Córdoba</SelectItem>
-                               <SelectItem value="Monteria">Montería</SelectItem>
-                             </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="resumen">
-                  Resumen <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="resumen"
-                  value={resumen}
-                  onChange={(e) => setResumen(e.target.value)}
-                  placeholder="Escribe un resumen breve del artículo (1-2 frases)"
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contenido">
-                  Contenido <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="contenido"
-                  value={contenido}
-                  onChange={(e) => setContenido(e.target.value)}
-                  placeholder="Escribe el contenido completo de tu artículo aquí..."
-                  rows={15}
                   required
                 />
               </div>
