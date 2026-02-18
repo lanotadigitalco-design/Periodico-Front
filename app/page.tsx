@@ -132,7 +132,8 @@ export default function NewsPage() {
       return (
         (a.title && a.title.toLowerCase().includes(searchLower)) ||
         (a.excerpt && a.excerpt.toLowerCase().includes(searchLower)) ||
-        (a.author && a.author.toLowerCase().includes(searchLower))
+        (a.author && a.author.toLowerCase().includes(searchLower)) ||
+        (a.authorSurname && a.authorSurname.toLowerCase().includes(searchLower))
       );
     });
   }
@@ -226,7 +227,7 @@ export default function NewsPage() {
                         {getCategoryLabel(article.categoria)}
                       </Badge>
                       <span>•</span>
-                      <span>{article.author}</span>
+                      <span>{article.author}{article.authorSurname && ` ${article.authorSurname}`}</span>
                     </div>
                     <Link href={`/articulo/${article.id}`}>
                       <h3 className="text-xl font-serif font-bold text-foreground hover:text-primary transition-colors text-balance">
@@ -303,7 +304,7 @@ export default function NewsPage() {
                         <Badge variant="secondary" className="text-xs">
                           {getCategoryLabel(article.categoria)}
                         </Badge>
-                        <span>{article.author}</span>
+                        <span>{article.author}{article.authorSurname && ` ${article.authorSurname}`}</span>
                       </div>
                       <Link href={`/articulo/${article.id}`}>
                         <h3 className="font-semibold text-foreground hover:text-primary transition-colors leading-tight text-balance">

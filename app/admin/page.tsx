@@ -575,6 +575,9 @@ export default function AdminPage() {
                             a.autor
                               ?.toLowerCase()
                               .includes(articleSearchTerm.toLowerCase()) ||
+                            a.autorApellido
+                              ?.toLowerCase()
+                              .includes(articleSearchTerm.toLowerCase()) ||
                             false,
                         );
                       }
@@ -626,7 +629,7 @@ export default function AdminPage() {
                               </Badge>
                             </TableCell>
                             <TableCell className="hidden md:table-cell text-sm">
-                              {article.autor}
+                              {article.autor}{article.autorApellido && ` ${article.autorApellido}`}
                             </TableCell>
                             <TableCell className="hidden sm:table-cell">
                               <Badge
@@ -714,6 +717,9 @@ export default function AdminPage() {
                         .toLowerCase()
                         .includes(articleSearchTerm.toLowerCase()) ||
                       a.autor
+                        ?.toLowerCase()
+                        .includes(articleSearchTerm.toLowerCase()) ||
+                      a.autorApellido
                         ?.toLowerCase()
                         .includes(articleSearchTerm.toLowerCase()) ||
                       false,
