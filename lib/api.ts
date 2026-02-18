@@ -53,9 +53,9 @@ export interface Article {
     | "judicial";
   autor?: string;
   author?: string; // Alias para compatibilidad
-  autorId?: string;
-  authorId?: string; // Alias para compatibilidad
-  imagenUrl?: string;
+  autorId?: number | string;
+  authorId?: number | string; // Alias para compatibilidad
+  imagenUrl?: string[];
   imageUrl?: string; // Alias para compatibilidad
   publicado?: boolean;
   published?: boolean; // Alias para compatibilidad
@@ -152,6 +152,7 @@ const apiClient = axios.create({
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
   withCredentials: false,
 });
@@ -298,12 +299,14 @@ function mapArticleFromAPI(data: any): Article {
     data.imagen ||
     "/logo.png";
 
-  // Si la imagen es un data URI (base64), usarla directamente
-  // Si no, asumir que es una URL relativa del API
-  if (!imagenUrl.startsWith("data:") && !imagenUrl.startsWith("http")) {
-    // Agregar el dominio del API para URLs relativas
-    const apiBase = "https://api.lanotadigital.co/api";
-    imagenUrl = `${apiBase}/upload/image/${imagenUrl}`;
+  const images = [];
+  if (data.imagenes.length > 0) {
+    console.warn("Array de imágenes encontrado:", data.imagenes);
+    for (const img of data.imagenes) {
+      console.warn("Procesando imagen:", img);
+      const apiBase = "https://api.lanotadigital.co/api";
+      images.push(`${apiBase}/upload/image/${img}`);
+    }
   }
 
   // Extraer autor del array autores o usar campos directos
@@ -328,7 +331,7 @@ function mapArticleFromAPI(data: any): Article {
     resumen: data.resumen || data.excerpt || data.summary || "",
     excerpt: data.resumen || data.excerpt || data.summary || "", // Alias
     categoria: data.categoria || data.category || "tendencias",
-    imagenUrl: imagenUrl,
+    imagenUrl: images,
     imageUrl: imagenUrl, // Alias
     autor: autor,
     author: autor, // Alias

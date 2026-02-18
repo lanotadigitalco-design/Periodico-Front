@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { getPublishedArticles, type Article } from "@/lib/auth";
-import { getLiveStream } from "@/lib/api";
+import { getLiveStream, getImageUrl } from "@/lib/api";
 import Link from "next/link";
 import { LiveStreamPlayer } from "@/components/live-stream-player";
 import {
@@ -41,12 +41,9 @@ export default function NewsPage() {
   useEffect(() => {
     const loadArticles = async () => {
       try {
-        console.log("📰 Iniciando carga de noticias...");
         const data = await getPublishedArticles();
-        console.log("✅ Noticias cargadas:", data);
         setArticles(data || []);
       } catch (error) {
-        console.error("❌ Error cargando noticias:", error);
         setArticles([]);
       }
     };
@@ -56,37 +53,22 @@ export default function NewsPage() {
   useEffect(() => {
     const loadLiveStream = async () => {
       try {
-        console.log("📡 [INICIO] Cargando live stream...");
-
         let data = null;
 
         try {
           // Intentar obtener por ID primero
-          console.log("📝 [1] Intentando GET /live-stream/1...");
           data = await getLiveStream();
-          console.log("📝 [1] Respuesta recibida:", JSON.stringify(data));
-        } catch (error) {
-          console.warn("⚠️ [1] Error en GET /live-stream/1:", error);
-        }
-
-        console.log("📊 [RESULTADO] data:", data);
-        console.log("📊 [RESULTADO] data?.url:", data?.url);
-        console.log("📊 [RESULTADO] data?.activo:", data?.activo);
+        } catch (error) {}
 
         // Mostrar si tiene datos válidos
         if (data && data.url && data.activo === true) {
-          console.log("✅ [MOSTRAR] Live stream válido y activo");
-          console.log("✅ [MOSTRAR] URL:", data.url);
           setLiveStreamConfig(data);
         } else {
-          console.warn("⚠️ [NO MOSTRAR] Falta data, url o no está activo");
           setLiveStreamConfig(null);
         }
       } catch (error) {
-        console.error("❌ [ERROR] Error total:", error);
         setLiveStreamConfig(null);
       } finally {
-        console.log("⏹️ [FIN] setIsLoadingStream = false");
         setIsLoadingStream(false);
       }
     };
@@ -97,6 +79,24 @@ export default function NewsPage() {
     const interval = setInterval(loadLiveStream, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Función para convertir filename a URL completa si es necesario
+  const getFullImageUrl = (url: string | undefined): string => {
+    if (!url || url.trim() === "") return "/logo.png";
+
+    // Si ya es una URL completa (http/https), retornarla tal cual
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+
+    // Si es un data URI, retornarla tal cual
+    if (url.startsWith("data:")) {
+      return url;
+    }
+
+    // Si no, es un filename - construir URL completa
+    return getImageUrl(url);
+  };
 
   const getCategoryLabel = (cat: string) => {
     const labels: Record<string, string> = {
@@ -209,7 +209,7 @@ export default function NewsPage() {
                 >
                   <Link href={`/articulo/${article.id}`} className="block">
                     <img
-                      src={article.imageUrl || "/logo.png"}
+                      src={article.imagenUrl[0] || "/logo.png"}
                       alt={article.title}
                       className="w-full h-64 object-cover hover:opacity-90 transition-opacity"
                     />
@@ -334,19 +334,57 @@ export default function NewsPage() {
                         />
                       </PaginationItem>
 
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ),
-                      )}
+                      {(() => {
+                        const pages = [];
+                        const maxVisible = 10;
+                        let startPage = Math.max(1, currentPage - 5);
+                        let endPage = Math.min(
+                          totalPages,
+                          startPage + maxVisible - 1,
+                        );
+
+                        // Ajustar si estamos cerca del final
+                        if (endPage - startPage < maxVisible - 1) {
+                          startPage = Math.max(1, endPage - maxVisible + 1);
+                        }
+
+                        // Generar páginas visibles
+                        for (let i = startPage; i <= endPage; i++) {
+                          pages.push(
+                            <PaginationItem key={i}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(i)}
+                                isActive={currentPage === i}
+                                className="cursor-pointer"
+                              >
+                                {i}
+                              </PaginationLink>
+                            </PaginationItem>,
+                          );
+                        }
+
+                        // Agregar puntos suspensivos y última página si es necesario
+                        if (endPage < totalPages) {
+                          pages.push(
+                            <PaginationItem key="ellipsis">
+                              <span className="px-4 py-2">...</span>
+                            </PaginationItem>,
+                          );
+                          pages.push(
+                            <PaginationItem key={totalPages}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(totalPages)}
+                                isActive={currentPage === totalPages}
+                                className="cursor-pointer"
+                              >
+                                {totalPages}
+                              </PaginationLink>
+                            </PaginationItem>,
+                          );
+                        }
+
+                        return pages;
+                      })()}
 
                       <PaginationItem>
                         <PaginationNext
