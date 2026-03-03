@@ -196,7 +196,7 @@ export default function RootLayout({
                       </li>
                       <li>
                         <a
-                          href="https://www.youtube.com/@LaNotaDigitalCo"
+                          href="https://www.youtube.com/@Lanotadigital_co"
                           className="hover:text-foreground transition-colors flex items-center gap-2"
                         >
                           <Youtube className="w-4 h-4" />
