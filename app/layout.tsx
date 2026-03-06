@@ -91,6 +91,9 @@ export const metadata: Metadata = {
   verification: {
     google: "G-PDCZYWMEZW",
   },
+  other: {
+    "google-adsense-account": "ca-pub-5288202685612411",
+  },
 };
 
 export default function RootLayout({
